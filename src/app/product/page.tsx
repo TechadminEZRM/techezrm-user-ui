@@ -40,6 +40,10 @@ const ProductPage: React.FC = () => {
   // Get filters from URL
   const categoryFilter = searchParams.get("category");
   const countryFilter = searchParams.get("country");
+  const subCategoryFilter = searchParams.get("subCategory");
+  const applicationFilter = searchParams.get("application");
+  const tagFilter = searchParams.get("tag");
+  const functionFilter = searchParams.get("function");
 
   // Snackbar state for feedback
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
@@ -61,13 +65,15 @@ const ProductPage: React.FC = () => {
   );
   const [selectedSubCategories, setSelectedSubCategories] = React.useState<
     string[]
-  >([]);
+  >(subCategoryFilter ? subCategoryFilter.split(",").filter(Boolean) : []);
   const [selectedApplications, setSelectedApplications] = React.useState<
     string[]
-  >([]);
-  const [selectedTags, setSelectedTags] = React.useState<string[]>([]);
+  >(applicationFilter ? applicationFilter.split(",").filter(Boolean) : []);
+  const [selectedTags, setSelectedTags] = React.useState<string[]>(
+    tagFilter ? tagFilter.split(",").filter(Boolean) : []
+  );
   const [selectedFunctions, setSelectedFunctions] = React.useState<string[]>(
-    []
+    functionFilter ? functionFilter.split(",").filter(Boolean) : []
   );
   const [selectedCountries, setSelectedCountries] = React.useState<string[]>(
     countryFilter ? [countryFilter] : []
@@ -83,13 +89,44 @@ const ProductPage: React.FC = () => {
 
   // Update URL when filters change
   const updateURL = React.useCallback(
-    (categories: string[], countries: string[]) => {
+    (
+      categories: string[],
+      countries: string[],
+      subCategories: string[],
+      applications: string[],
+      tags: string[],
+      functions: string[]
+    ) => {
       const params = new URLSearchParams();
+
+      // Category filter (single selection)
       if (categories.length > 0) {
         params.set("category", categories[0]);
       }
+
+      // Country filter (single selection)
       if (countries.length > 0) {
         params.set("country", countries[0]);
+      }
+
+      // Sub Category filters (multiple selection)
+      if (subCategories.length > 0) {
+        params.set("subCategory", subCategories.join(","));
+      }
+
+      // Application filters (multiple selection)
+      if (applications.length > 0) {
+        params.set("application", applications.join(","));
+      }
+
+      // Tag filters (multiple selection)
+      if (tags.length > 0) {
+        params.set("tag", tags.join(","));
+      }
+
+      // Function filters (multiple selection)
+      if (functions.length > 0) {
+        params.set("function", functions.join(","));
       }
 
       const newURL = params.toString()
@@ -104,10 +141,54 @@ const ProductPage: React.FC = () => {
   React.useEffect(() => {
     const newCategories = categoryFilter ? [categoryFilter] : [];
     const newCountries = countryFilter ? [countryFilter] : [];
+    const newSubCategories = subCategoryFilter
+      ? subCategoryFilter.split(",").filter(Boolean)
+      : [];
+    const newApplications = applicationFilter
+      ? applicationFilter.split(",").filter(Boolean)
+      : [];
+    const newTags = tagFilter ? tagFilter.split(",").filter(Boolean) : [];
+    const newFunctions = functionFilter
+      ? functionFilter.split(",").filter(Boolean)
+      : [];
 
-    setSelectedCategories(newCategories);
-    setSelectedCountries(newCountries);
-  }, [categoryFilter, countryFilter]);
+    // Only update state if values have actually changed to prevent infinite loops
+    setSelectedCategories((prev) =>
+      JSON.stringify(prev) !== JSON.stringify(newCategories)
+        ? newCategories
+        : prev
+    );
+    setSelectedCountries((prev) =>
+      JSON.stringify(prev) !== JSON.stringify(newCountries)
+        ? newCountries
+        : prev
+    );
+    setSelectedSubCategories((prev) =>
+      JSON.stringify(prev) !== JSON.stringify(newSubCategories)
+        ? newSubCategories
+        : prev
+    );
+    setSelectedApplications((prev) =>
+      JSON.stringify(prev) !== JSON.stringify(newApplications)
+        ? newApplications
+        : prev
+    );
+    setSelectedTags((prev) =>
+      JSON.stringify(prev) !== JSON.stringify(newTags) ? newTags : prev
+    );
+    setSelectedFunctions((prev) =>
+      JSON.stringify(prev) !== JSON.stringify(newFunctions)
+        ? newFunctions
+        : prev
+    );
+  }, [
+    categoryFilter,
+    countryFilter,
+    subCategoryFilter,
+    applicationFilter,
+    tagFilter,
+    functionFilter,
+  ]);
 
   // Wishlist hooks
   const { data: wishlistData } = useWishlist(
@@ -120,16 +201,11 @@ const ProductPage: React.FC = () => {
   // Filters data
   const { data: filtersData, isLoading: filtersLoading } = useFilters();
 
-  const {
-    data: response,
-    isLoading,
-    error,
-    isError,
-  } = useProductListing({
+  const productListingParams = {
     page,
     limit: 9,
-    sortBy: "createdAt",
-    sortOrder: "desc",
+    sortBy: "createdAt" as const,
+    sortOrder: "desc" as const,
     category: selectedCategories.length > 0 ? selectedCategories[0] : undefined,
     subCategory:
       selectedSubCategories.length > 0 ? selectedSubCategories : undefined,
@@ -139,7 +215,14 @@ const ProductPage: React.FC = () => {
     function: selectedFunctions.length > 0 ? selectedFunctions : undefined,
     countryOfOrigin:
       selectedCountries.length > 0 ? selectedCountries[0] : undefined,
-  });
+  };
+
+  const {
+    data: response,
+    isLoading,
+    error,
+    isError,
+  } = useProductListing(productListingParams);
 
   const handlePageChange = (
     event: React.ChangeEvent<unknown>,
@@ -153,7 +236,14 @@ const ProductPage: React.FC = () => {
     const newCategories = checked ? [categorySlug] : [];
     setSelectedCategories(newCategories);
     setPage(1); // Reset to first page when filter changes
-    updateURL(newCategories, selectedCountries);
+    updateURL(
+      newCategories,
+      selectedCountries,
+      selectedSubCategories,
+      selectedApplications,
+      selectedTags,
+      selectedFunctions
+    );
   };
 
   const handleSubCategoryFilter = (
@@ -165,6 +255,14 @@ const ProductPage: React.FC = () => {
       : selectedSubCategories.filter((slug) => slug !== subCategorySlug);
     setSelectedSubCategories(newSubCategories);
     setPage(1);
+    updateURL(
+      selectedCategories,
+      selectedCountries,
+      newSubCategories,
+      selectedApplications,
+      selectedTags,
+      selectedFunctions
+    );
   };
 
   const handleApplicationFilter = (
@@ -176,6 +274,14 @@ const ProductPage: React.FC = () => {
       : selectedApplications.filter((slug) => slug !== applicationSlug);
     setSelectedApplications(newApplications);
     setPage(1);
+    updateURL(
+      selectedCategories,
+      selectedCountries,
+      selectedSubCategories,
+      newApplications,
+      selectedTags,
+      selectedFunctions
+    );
   };
 
   const handleTagFilter = (tagSlug: string, checked: boolean) => {
@@ -184,6 +290,14 @@ const ProductPage: React.FC = () => {
       : selectedTags.filter((slug) => slug !== tagSlug);
     setSelectedTags(newTags);
     setPage(1);
+    updateURL(
+      selectedCategories,
+      selectedCountries,
+      selectedSubCategories,
+      selectedApplications,
+      newTags,
+      selectedFunctions
+    );
   };
 
   const handleFunctionFilter = (functionSlug: string, checked: boolean) => {
@@ -192,13 +306,28 @@ const ProductPage: React.FC = () => {
       : selectedFunctions.filter((slug) => slug !== functionSlug);
     setSelectedFunctions(newFunctions);
     setPage(1);
+    updateURL(
+      selectedCategories,
+      selectedCountries,
+      selectedSubCategories,
+      selectedApplications,
+      selectedTags,
+      newFunctions
+    );
   };
 
   const handleCountryFilter = (countryCode: string, checked: boolean) => {
     const newCountries = checked ? [countryCode] : [];
     setSelectedCountries(newCountries);
     setPage(1); // Reset to first page when filter changes
-    updateURL(selectedCategories, newCountries);
+    updateURL(
+      selectedCategories,
+      newCountries,
+      selectedSubCategories,
+      selectedApplications,
+      selectedTags,
+      selectedFunctions
+    );
   };
 
   const clearAllFilters = () => {
@@ -209,7 +338,7 @@ const ProductPage: React.FC = () => {
     setSelectedFunctions([]);
     setSelectedCountries([]);
     setPage(1);
-    updateURL([], []);
+    updateURL([], [], [], [], [], []);
   };
 
   const getProductImage = (product: Product) => {
@@ -1143,7 +1272,14 @@ const ProductPage: React.FC = () => {
                     onDelete: () => {
                       setSelectedCategories([]);
                       setPage(1);
-                      updateURL([], selectedCountries);
+                      updateURL(
+                        [],
+                        selectedCountries,
+                        selectedSubCategories,
+                        selectedApplications,
+                        selectedTags,
+                        selectedFunctions
+                      );
                     },
                   })),
                   ...selectedCountries.slice(0, 1).map((slug) => ({
@@ -1156,7 +1292,14 @@ const ProductPage: React.FC = () => {
                     onDelete: () => {
                       setSelectedCountries([]);
                       setPage(1);
-                      updateURL(selectedCategories, []);
+                      updateURL(
+                        selectedCategories,
+                        [],
+                        selectedSubCategories,
+                        selectedApplications,
+                        selectedTags,
+                        selectedFunctions
+                      );
                     },
                   })),
                   ...selectedSubCategories.map((slug) => ({
@@ -1167,10 +1310,19 @@ const ProductPage: React.FC = () => {
                         (c) => c.slug === slug
                       )?.name || slug,
                     onDelete: () => {
-                      setSelectedSubCategories(
-                        selectedSubCategories.filter((s) => s !== slug)
+                      const newSubCategories = selectedSubCategories.filter(
+                        (s) => s !== slug
                       );
+                      setSelectedSubCategories(newSubCategories);
                       setPage(1);
+                      updateURL(
+                        selectedCategories,
+                        selectedCountries,
+                        newSubCategories,
+                        selectedApplications,
+                        selectedTags,
+                        selectedFunctions
+                      );
                     },
                   })),
                   ...selectedApplications.map((slug) => ({
@@ -1181,10 +1333,19 @@ const ProductPage: React.FC = () => {
                         (c) => c.slug === slug
                       )?.name || slug,
                     onDelete: () => {
-                      setSelectedApplications(
-                        selectedApplications.filter((s) => s !== slug)
+                      const newApplications = selectedApplications.filter(
+                        (s) => s !== slug
                       );
+                      setSelectedApplications(newApplications);
                       setPage(1);
+                      updateURL(
+                        selectedCategories,
+                        selectedCountries,
+                        selectedSubCategories,
+                        newApplications,
+                        selectedTags,
+                        selectedFunctions
+                      );
                     },
                   })),
                   ...selectedTags.map((slug) => ({
@@ -1194,8 +1355,17 @@ const ProductPage: React.FC = () => {
                       filtersData?.data?.tag?.find((c) => c.slug === slug)
                         ?.name || slug,
                     onDelete: () => {
-                      setSelectedTags(selectedTags.filter((s) => s !== slug));
+                      const newTags = selectedTags.filter((s) => s !== slug);
+                      setSelectedTags(newTags);
                       setPage(1);
+                      updateURL(
+                        selectedCategories,
+                        selectedCountries,
+                        selectedSubCategories,
+                        selectedApplications,
+                        newTags,
+                        selectedFunctions
+                      );
                     },
                   })),
                   ...selectedFunctions.map((slug) => ({
@@ -1205,10 +1375,19 @@ const ProductPage: React.FC = () => {
                       filtersData?.data?.function?.find((c) => c.slug === slug)
                         ?.name || slug,
                     onDelete: () => {
-                      setSelectedFunctions(
-                        selectedFunctions.filter((s) => s !== slug)
+                      const newFunctions = selectedFunctions.filter(
+                        (s) => s !== slug
                       );
+                      setSelectedFunctions(newFunctions);
                       setPage(1);
+                      updateURL(
+                        selectedCategories,
+                        selectedCountries,
+                        selectedSubCategories,
+                        selectedApplications,
+                        selectedTags,
+                        newFunctions
+                      );
                     },
                   })),
                 ];
