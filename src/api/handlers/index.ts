@@ -1,6 +1,7 @@
 // Product handlers
 export * from "./productHandler";
 export * from "./productDetailsHandler";
+export * from "./productVariantsHandler";
 
 // Authentication handlers
 export * from "./authHandler";

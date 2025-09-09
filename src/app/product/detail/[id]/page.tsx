@@ -45,6 +45,7 @@ import { useProductFAQs } from "@/api/handlers/faqHandler";
 import { useAppStore } from "@/store/use-app-store";
 import QuoteFormModal from "@/components/quote-form-modal";
 import FAQSection from "@/components/FAQSection";
+import ProductVariants from "@/components/ProductVariants";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -299,25 +300,6 @@ export default function ProductDetailPage() {
 
     setMagnifierPosition({ x, y });
   };
-
-  // Data
-  const pricingData = [
-    {
-      quantity: "25 KG",
-      price: `₹${product.price.toLocaleString()}`,
-      save: "10%",
-    },
-    {
-      quantity: "50 KG",
-      price: `₹${(product.price * 0.95).toLocaleString()}`,
-      save: "15%",
-    },
-    {
-      quantity: "100 KG",
-      price: `₹${(product.price * 0.9).toLocaleString()}`,
-      save: "20%",
-    },
-  ];
 
   const productDescriptionData = [
     { label: "Product Category", value: product?.category?.name || "N/A" },
@@ -684,51 +666,8 @@ export default function ProductDetailPage() {
                 ))}
               </Grid>
 
-              {/* Pricing Table */}
-              <Box sx={{ mt: 0, mb: 3 }}>
-                <TableContainer
-                  component={Paper}
-                  elevation={0}
-                  sx={{ border: "1px solid #e0e0e0" }}
-                >
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
-                        <TableCell
-                          sx={{ fontWeight: 600, py: 1.5, fontSize: "12px" }}
-                        >
-                          Quantity
-                        </TableCell>
-                        <TableCell
-                          sx={{ fontWeight: 600, py: 1.5, fontSize: "12px" }}
-                        >
-                          Price
-                        </TableCell>
-                        <TableCell
-                          sx={{ fontWeight: 600, py: 1.5, fontSize: "12px" }}
-                        >
-                          Save
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {pricingData.map((row, index) => (
-                        <TableRow key={index}>
-                          <TableCell sx={{ py: 1.5, fontSize: "12px" }}>
-                            {row.quantity}
-                          </TableCell>
-                          <TableCell sx={{ py: 1.5, fontSize: "12px" }}>
-                            {row.price}
-                          </TableCell>
-                          <TableCell sx={{ py: 1.5, fontSize: "12px" }}>
-                            {row.save}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Box>
+              {/* Product Variants Table */}
+              <ProductVariants productId={productId} />
 
               {/* Quantity Selector and Add to Cart */}
               <Box sx={{ mb: 3 }}>

@@ -21,6 +21,7 @@ export { getCompanyDetails } from "./companyDetails";
 // Product services
 export * from "./products";
 export * from "./productDetails";
+export * from "./productVariants";
 
 // Authentication services
 export * from "./authService";

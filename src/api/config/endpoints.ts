@@ -29,6 +29,8 @@ export const ENDPOINTS = {
     DETAIL: (id: string) => `/public/products/${id}`,
     SEARCH: "/public/products/search",
     CATEGORIES: "/public/products/categories",
+    VARIANTS: (productId: string) =>
+      `/public/product-variants/product/${productId}`,
   },
 
   // Order endpoints
