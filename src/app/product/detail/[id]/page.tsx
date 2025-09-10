@@ -26,6 +26,7 @@ import {
   CircularProgress,
   Alert,
   Snackbar,
+  Chip,
   // InputLabel,
 } from "@mui/material";
 import {
@@ -316,23 +317,14 @@ export default function ProductDetailPage() {
     setMagnifierPosition({ x, y });
   };
 
-  const productDescriptionData = [
-    { label: "Product Category", value: product?.category?.name || "N/A" },
-    { label: "Product ID", value: product.uniqueId },
-    { label: "Product Type", value: product.appearance || "N/A" },
-    { label: "Product Usage", value: product.description },
-    {
-      label: "Stock Status",
-      value: product.inStock ? "In Stock" : "Out of Stock",
-    },
-  ];
-
-  const features = [
-    { label: "Allergen Free", color: "#ff6b35" },
-    { label: "GMO Free", color: "#ff6b35" },
-    { label: "Vegan", color: "#ff6b35" },
-    { label: "Quality Assured", color: "#ff6b35" },
-  ];
+  // Dynamic features from product dietaryAttributes
+  const features =
+    product?.dietaryAttributes?.map((attr: any) => ({
+      label: attr.title,
+      color: "#ff6b35",
+      logo: attr.logo,
+      certificateLink: attr.certificateLink,
+    })) || [];
 
   return (
     <Container maxWidth="xl" sx={{ py: 2 }}>
@@ -346,7 +338,26 @@ export default function ProductDetailPage() {
             color: "#333",
           }}
         >
-          {product?.name} / {product?.category?.name}
+          {product?.name} /{" "}
+          <Box
+            component="span"
+            onClick={() =>
+              router.push(`/product?category=${product?.category?.slug}`)
+            }
+            sx={{
+              color: "#ff6b35",
+              cursor: "pointer",
+              textDecoration: "none",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                color: "#e55a2b",
+                textDecoration: "underline",
+                transform: "translateY(-1px)",
+              },
+            }}
+          >
+            {product?.category?.name}
+          </Box>
         </Typography>
 
         {/* Main Content - 70% Left, 30% Right */}
@@ -540,28 +551,413 @@ export default function ProductDetailPage() {
 
               <TabPanel value={tabValue} index={1}>
                 <Box>
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
                     Product Description
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ lineHeight: 1.6, color: "#666", mb: 3 }}
-                  >
-                    {product.description}
-                  </Typography>
-                  {product.appearance && (
-                    <Box sx={{ mb: 2 }}>
-                      <Typography
-                        variant="subtitle2"
-                        sx={{ fontWeight: 600, mb: 1 }}
-                      >
-                        Appearance:
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: "#666" }}>
-                        {product.appearance}
-                      </Typography>
+
+                  {/* Product Overview */}
+                  <Box sx={{ mb: 4 }}>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        lineHeight: 1.8,
+                        color: "#333",
+                        mb: 3,
+                        fontSize: "15px",
+                        textAlign: "justify",
+                      }}
+                    >
+                      {product?.description}
+                      {/* {product.description
+                        ?.split("\n")
+                        .map((paragraph: string, index: number) => (
+                          <span key={index}>
+                            {paragraph}
+                            {index <
+                              product.description.split("\n").length - 1 && (
+                              <>
+                                <br />
+                                <br />
+                              </>
+                            )}
+                          </span>
+                        ))} */}
+                    </Typography>
+                  </Box>
+
+                  {/* Product Details Grid */}
+                  <Box sx={{ mb: 4 }}>
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: 600, mb: 3, color: "#333" }}
+                    >
+                      Product Details
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: { xs: "column", md: "row" },
+                        gap: 3,
+                      }}
+                    >
+                      {/* Left Column */}
+                      <Box sx={{ flex: 1 }}>
+                        <Box sx={{ mb: 3 }}>
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ fontWeight: 600, mb: 1, color: "#ff6b35" }}
+                          >
+                            Appearance
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{ color: "#666", pl: 2 }}
+                          >
+                            {product.appearance || "Not specified"}
+                          </Typography>
+                        </Box>
+
+                        <Box sx={{ mb: 3 }}>
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ fontWeight: 600, mb: 1, color: "#ff6b35" }}
+                          >
+                            Category
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{ color: "#666", pl: 2 }}
+                          >
+                            {product.category?.name || "Not specified"}
+                          </Typography>
+                        </Box>
+
+                        <Box sx={{ mb: 3 }}>
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ fontWeight: 600, mb: 1, color: "#ff6b35" }}
+                          >
+                            Product ID
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{ color: "#666", pl: 2 }}
+                          >
+                            {product.uniqueId}
+                          </Typography>
+                        </Box>
+
+                        <Box sx={{ mb: 3 }}>
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ fontWeight: 600, mb: 1, color: "#ff6b35" }}
+                          >
+                            Stock Status
+                          </Typography>
+                          <Box sx={{ pl: 2 }}>
+                            <Chip
+                              label={
+                                product.inStock ? "In Stock" : "Out of Stock"
+                              }
+                              sx={{
+                                backgroundColor: product.inStock
+                                  ? "#e8f5e8"
+                                  : "#ffeaea",
+                                color: product.inStock ? "#2e7d32" : "#d32f2f",
+                                fontWeight: 500,
+                                fontSize: "12px",
+                              }}
+                            />
+                          </Box>
+                        </Box>
+                      </Box>
+
+                      {/* Right Column */}
+                      <Box sx={{ flex: 1 }}>
+                        <Box sx={{ mb: 3 }}>
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ fontWeight: 600, mb: 1, color: "#ff6b35" }}
+                          >
+                            Applications
+                          </Typography>
+                          <Box sx={{ pl: 2 }}>
+                            {product.applications &&
+                            product.applications.length > 0 ? (
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  flexWrap: "wrap",
+                                  gap: 1,
+                                }}
+                              >
+                                {product.applications.map(
+                                  (app: string, index: number) => (
+                                    <Chip
+                                      key={index}
+                                      label={app
+                                        .replace(/-/g, " ")
+                                        .replace(/\b\w/g, (l: string) =>
+                                          l.toUpperCase()
+                                        )}
+                                      sx={{
+                                        backgroundColor:
+                                          "rgba(255, 107, 53, 0.1)",
+                                        color: "#ff6b35",
+                                        fontSize: "11px",
+                                        fontWeight: 500,
+                                      }}
+                                    />
+                                  )
+                                )}
+                              </Box>
+                            ) : (
+                              <Typography
+                                variant="body2"
+                                sx={{ color: "#666" }}
+                              >
+                                Not specified
+                              </Typography>
+                            )}
+                          </Box>
+                        </Box>
+
+                        <Box sx={{ mb: 3 }}>
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ fontWeight: 600, mb: 1, color: "#ff6b35" }}
+                          >
+                            Functions
+                          </Typography>
+                          <Box sx={{ pl: 2 }}>
+                            {product.functions &&
+                            product.functions.length > 0 ? (
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  flexWrap: "wrap",
+                                  gap: 1,
+                                }}
+                              >
+                                {product.functions.map(
+                                  (func: string, index: number) => (
+                                    <Chip
+                                      key={index}
+                                      label={func
+                                        .replace(/-/g, " ")
+                                        .replace(/\b\w/g, (l: string) =>
+                                          l.toUpperCase()
+                                        )}
+                                      sx={{
+                                        backgroundColor:
+                                          "rgba(255, 107, 53, 0.1)",
+                                        color: "#ff6b35",
+                                        fontSize: "11px",
+                                        fontWeight: 500,
+                                      }}
+                                    />
+                                  )
+                                )}
+                              </Box>
+                            ) : (
+                              <Typography
+                                variant="body2"
+                                sx={{ color: "#666" }}
+                              >
+                                Not specified
+                              </Typography>
+                            )}
+                          </Box>
+                        </Box>
+
+                        <Box sx={{ mb: 3 }}>
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ fontWeight: 600, mb: 1, color: "#ff6b35" }}
+                          >
+                            Tags
+                          </Typography>
+                          <Box sx={{ pl: 2 }}>
+                            {product.tags && product.tags.length > 0 ? (
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  flexWrap: "wrap",
+                                  gap: 1,
+                                }}
+                              >
+                                {product.tags.map(
+                                  (tag: string, index: number) => (
+                                    <Chip
+                                      key={index}
+                                      label={tag
+                                        .replace(/-/g, " ")
+                                        .replace(/\b\w/g, (l: string) =>
+                                          l.toUpperCase()
+                                        )}
+                                      sx={{
+                                        backgroundColor:
+                                          "rgba(255, 107, 53, 0.1)",
+                                        color: "#ff6b35",
+                                        fontSize: "11px",
+                                        fontWeight: 500,
+                                      }}
+                                    />
+                                  )
+                                )}
+                              </Box>
+                            ) : (
+                              <Typography
+                                variant="body2"
+                                sx={{ color: "#666" }}
+                              >
+                                Not specified
+                              </Typography>
+                            )}
+                          </Box>
+                        </Box>
+
+                        <Box sx={{ mb: 3 }}>
+                          <Typography
+                            variant="subtitle1"
+                            sx={{ fontWeight: 600, mb: 1, color: "#ff6b35" }}
+                          >
+                            Countries of Origin
+                          </Typography>
+                          <Box sx={{ pl: 2 }}>
+                            {product.countryOfOrigin &&
+                            product.countryOfOrigin.length > 0 ? (
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  flexWrap: "wrap",
+                                  gap: 1,
+                                }}
+                              >
+                                {product.countryOfOrigin.map(
+                                  (country: string, index: number) => (
+                                    <Chip
+                                      key={index}
+                                      label={country}
+                                      sx={{
+                                        backgroundColor:
+                                          "rgba(255, 107, 53, 0.1)",
+                                        color: "#ff6b35",
+                                        fontSize: "11px",
+                                        fontWeight: 500,
+                                      }}
+                                    />
+                                  )
+                                )}
+                              </Box>
+                            ) : (
+                              <Typography
+                                variant="body2"
+                                sx={{ color: "#666" }}
+                              >
+                                Not specified
+                              </Typography>
+                            )}
+                          </Box>
+                        </Box>
+                      </Box>
                     </Box>
-                  )}
+                  </Box>
+
+                  {/* Dietary Attributes Section */}
+                  {product.dietaryAttributes &&
+                    product.dietaryAttributes.length > 0 && (
+                      <Box sx={{ mb: 4 }}>
+                        <Typography
+                          variant="h6"
+                          sx={{ fontWeight: 600, mb: 3, color: "#333" }}
+                        >
+                          Certifications & Attributes
+                        </Typography>
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                          {product.dietaryAttributes.map(
+                            (attr: any, index: number) => (
+                              <Box
+                                key={index}
+                                sx={{
+                                  flex: {
+                                    xs: "1 1 100%",
+                                    sm: "1 1 calc(50% - 8px)",
+                                    md: "1 1 calc(33.333% - 12px)",
+                                  },
+                                  minWidth: "280px",
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    p: 2,
+                                    backgroundColor: "rgba(255, 107, 53, 0.05)",
+                                    borderRadius: "8px",
+                                    border: "1px solid rgba(255, 107, 53, 0.1)",
+                                    transition: "all 0.3s ease",
+                                    cursor: attr.certificateLink
+                                      ? "pointer"
+                                      : "default",
+                                    "&:hover": attr.certificateLink
+                                      ? {
+                                          backgroundColor:
+                                            "rgba(255, 107, 53, 0.1)",
+                                          transform: "translateY(-2px)",
+                                          boxShadow:
+                                            "0 4px 12px rgba(255, 107, 53, 0.2)",
+                                        }
+                                      : {},
+                                  }}
+                                  onClick={() => {
+                                    if (attr.certificateLink) {
+                                      window.open(
+                                        attr.certificateLink,
+                                        "_blank"
+                                      );
+                                    }
+                                  }}
+                                >
+                                  {attr.logo && (
+                                    <Image
+                                      src={attr.logo}
+                                      alt={attr.title}
+                                      width={32}
+                                      height={32}
+                                      style={{
+                                        objectFit: "contain",
+                                        marginRight: "12px",
+                                        borderRadius: "4px",
+                                      }}
+                                    />
+                                  )}
+                                  <Box>
+                                    <Typography
+                                      variant="subtitle2"
+                                      sx={{ fontWeight: 600, color: "#333" }}
+                                    >
+                                      {attr.title}
+                                    </Typography>
+                                    {attr.certificateLink && (
+                                      <Typography
+                                        variant="caption"
+                                        sx={{
+                                          color: "#ff6b35",
+                                          fontSize: "10px",
+                                        }}
+                                      >
+                                        Click to view certificate
+                                      </Typography>
+                                    )}
+                                  </Box>
+                                </Box>
+                              </Box>
+                            )
+                          )}
+                        </Box>
+                      </Box>
+                    )}
                 </Box>
               </TabPanel>
 
@@ -573,35 +969,6 @@ export default function ProductDetailPage() {
                 />
               </TabPanel>
             </Box>
-
-            {/* Table Container (borderless) */}
-            <Box sx={{ mt: 3 }}>
-              <Table size="small">
-                <TableBody>
-                  {productDescriptionData.map((row, index) => (
-                    <TableRow
-                      key={index}
-                      sx={{ "&:last-child td": { border: 0 } }}
-                    >
-                      <TableCell
-                        sx={{
-                          py: 1.5,
-                          fontWeight: 600,
-                          width: "40%",
-                          border: "none",
-                          pl: 0,
-                        }}
-                      >
-                        {row.label}:
-                      </TableCell>
-                      <TableCell sx={{ py: 1.5, border: "none" }}>
-                        {row.value}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
           </Box>
 
           {/* Right Side - 30% */}
@@ -611,9 +978,26 @@ export default function ProductDetailPage() {
               {/* Product Title */}
               <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
                 {product.name} /{" "}
-                <span style={{ fontWeight: 400 }}>
+                <Box
+                  component="span"
+                  onClick={() =>
+                    router.push(`/product?category=${product?.category?.slug}`)
+                  }
+                  sx={{
+                    fontWeight: 400,
+                    color: "#ff6b35",
+                    cursor: "pointer",
+                    textDecoration: "none",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      color: "#e55a2b",
+                      textDecoration: "underline",
+                      transform: "translateY(-1px)",
+                    },
+                  }}
+                >
                   {product?.category?.name}
-                </span>
+                </Box>
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                 {product.uniqueId}
@@ -621,7 +1005,7 @@ export default function ProductDetailPage() {
 
               {/* Product Icons */}
               <Grid container spacing={4} sx={{ mb: 3 }}>
-                {features.map((feature, index) => (
+                {features.map((feature: any, index: number) => (
                   <Grid key={index}>
                     <Box
                       sx={{
@@ -629,53 +1013,103 @@ export default function ProductDetailPage() {
                         flexDirection: "column",
                         alignItems: "center",
                         textAlign: "center",
+                        cursor: feature.certificateLink ? "pointer" : "default",
+                        transition: "all 0.3s ease",
+                        "&:hover": feature.certificateLink
+                          ? {
+                              transform: "translateY(-2px)",
+                            }
+                          : {},
+                      }}
+                      onClick={() => {
+                        if (feature.certificateLink) {
+                          window.open(feature.certificateLink, "_blank");
+                        }
                       }}
                     >
                       <Box
                         sx={{
-                          width: 40,
-                          height: 40,
-                          borderRadius: "50%",
-                          border: `2px solid ${feature.color}`,
+                          width: 80,
+                          height: 80,
+                          borderRadius: "12px",
+                          // border: `2px solid ${feature.color}`,
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           mb: 1,
                           backgroundColor: "white",
+                          overflow: "hidden",
+                          // boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                          transition: "all 0.3s ease",
+                          "&:hover": feature.certificateLink
+                            ? {
+                                boxShadow: "0 4px 16px rgba(255, 107, 53, 0.3)",
+                                borderColor: "#ff6b35",
+                              }
+                            : {},
                         }}
                       >
-                        <Box
-                          sx={{
-                            width: 20,
-                            height: 20,
-                            backgroundColor: feature.color,
-                            borderRadius: "50%",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <Typography
+                        {feature.logo ? (
+                          <Image
+                            src={feature.logo}
+                            alt={feature.label}
+                            width={80}
+                            height={80}
+                            style={{
+                              objectFit: "contain",
+                              borderRadius: "4px",
+                            }}
+                          />
+                        ) : (
+                          <Box
                             sx={{
-                              color: "white",
-                              fontSize: "10px",
-                              fontWeight: "bold",
+                              width: 24,
+                              height: 24,
+                              backgroundColor: feature.color,
+                              borderRadius: "50%",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
                             }}
                           >
-                            ✓
-                          </Typography>
-                        </Box>
+                            <Typography
+                              sx={{
+                                color: "white",
+                                fontSize: "12px",
+                                fontWeight: "bold",
+                              }}
+                            >
+                              ✓
+                            </Typography>
+                          </Box>
+                        )}
                       </Box>
                       <Typography
                         variant="caption"
                         sx={{
-                          fontSize: "10px",
+                          fontSize: "12px",
                           fontWeight: 500,
                           color: "#666",
+                          textAlign: "center",
+                          maxWidth: "80px",
+                          lineHeight: 1.2,
                         }}
                       >
                         {feature.label}
                       </Typography>
+                      {/* {feature.certificateLink && (
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontSize: "10px",
+                            color: "#ff6b35",
+                            fontStyle: "italic",
+                            mt: 0.5,
+                          }}
+                        >
+                          Click to view certificate
+                        </Typography>
+                      )} */}
                     </Box>
                   </Grid>
                 ))}
@@ -893,8 +1327,9 @@ export default function ProductDetailPage() {
                   Minimum Order Quantity:
                 </Typography>
                 <TextField
-                  value={minOrderQty}
-                  onChange={(e) => setMinOrderQty(e.target.value)}
+                  value={`${product?.moq} Kg`}
+                  disabled
+                  // onChange={(e) => setMinOrderQty(e.target.value)}
                   size="small"
                   sx={{
                     width: "80px",
