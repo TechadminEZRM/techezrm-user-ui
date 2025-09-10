@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   Box,
@@ -46,11 +46,7 @@ import { useAppStore } from "@/store/use-app-store";
 import QuoteFormModal from "@/components/quote-form-modal";
 import FAQSection from "@/components/FAQSection";
 import ProductVariants from "@/components/ProductVariants";
-<<<<<<< Updated upstream
 import CompanyDocumentsSection from "@/components/CompanyDocumentsSection";
-=======
-import { useProductVariants } from "@/api/handlers/productVariantsHandler";
->>>>>>> Stashed changes
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -77,7 +73,6 @@ export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
   const productId = params.id as string;
-  const { data: variantsResponse } = useProductVariants(productId);
 
   // Auth state
   const { customer, isAuthenticated } = useAppStore();
@@ -117,20 +112,7 @@ export default function ProductDetailPage() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
   // Cart quantity state
-  const [minCartQuantity, setMinCartQuantity] = useState(1);
   const [cartQuantity, setCartQuantity] = useState(1);
-
-
-  // Get minimum value of variant to set add quantity 
-  useEffect(() => {
-    if (variantsResponse?.data?.length) {
-      const minUnitSize = Math.min(
-        ...variantsResponse.data.map((v) => v.unitSize)
-      );
-      setMinCartQuantity(minUnitSize);
-      setCartQuantity(minUnitSize);
-    }
-  }, [variantsResponse]);
 
   // Image gallery state
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -689,7 +671,6 @@ export default function ProductDetailPage() {
               <ProductVariants productId={productId} />
 
               {/* Quantity Selector and Add to Cart */}
-              {/* {(variantsResponse?.data?.length ?? 0) > 0 && ( */}
               <Box sx={{ mb: 3 }}>
                 {/* Quantity Selector */}
                 <Box sx={{ mb: 2 }}>
@@ -703,9 +684,9 @@ export default function ProductDetailPage() {
                     <IconButton
                       size="small"
                       onClick={() =>
-                        setCartQuantity(Math.max(minCartQuantity, cartQuantity - minCartQuantity))
+                        setCartQuantity(Math.max(1, cartQuantity - 1))
                       }
-                      disabled={cartQuantity <= minCartQuantity}
+                      disabled={cartQuantity <= 1}
                       sx={{
                         border: "1px solid #e0e0e0",
                         borderRadius: "4px",
@@ -718,15 +699,8 @@ export default function ProductDetailPage() {
                     <TextField
                       value={cartQuantity}
                       onChange={(e) => {
-                        let value = parseInt(e.target.value) || minCartQuantity;
-                        // snap to multiples of minCartQuantity
-                        if (value < minCartQuantity) {
-                          value = minCartQuantity;
-                        } else {
-                          value = Math.ceil(value / minCartQuantity) * minCartQuantity;
-                        }
-
-                        setCartQuantity(value);
+                        const value = parseInt(e.target.value) || 1;
+                        setCartQuantity(Math.max(1, value));
                       }}
                       size="small"
                       sx={{
@@ -737,16 +711,13 @@ export default function ProductDetailPage() {
                         },
                       }}
                       inputProps={{
-                        min: minCartQuantity,
-                        step: minCartQuantity,
+                        min: 1,
                         style: { textAlign: "center" },
                       }}
                     />
-
-                    {/* Increase */}
                     <IconButton
                       size="small"
-                      onClick={() => setCartQuantity(cartQuantity + minCartQuantity)}
+                      onClick={() => setCartQuantity(cartQuantity + 1)}
                       sx={{
                         border: "1px solid #e0e0e0",
                         borderRadius: "4px",
@@ -790,7 +761,6 @@ export default function ProductDetailPage() {
                     : "Out of Stock"}
                 </Button>
               </Box>
-              {/* )} */}
 
               {/* Place Enquiry Button */}
               <Button
@@ -844,7 +814,6 @@ export default function ProductDetailPage() {
 
             <Box sx={{ height: 200 }}></Box>
             {/* Company Specific Documents Section */}
-<<<<<<< Updated upstream
             <Box sx={{ mt: 4 }}>
               <CompanyDocumentsSection
                 companySpecific={companySpecific}
@@ -856,124 +825,6 @@ export default function ProductDetailPage() {
                 onProductSpecificChange={setProductSpecific}
                 onBatchSpecificChange={setBatchSpecific}
               />
-=======
-            <Box sx={{ mt: 13, mb: 3 }}>
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: 600, mb: 2, fontSize: "16px" }}
-              >
-                Company Specific Documents
-              </Typography>
-              {/* Connected Dropdowns - No gaps */}
-              <Box sx={{ display: "flex", flexDirection: "column", paddingTop:"4px" }}>
-                <FormControl fullWidth size="small">
-                  <Select
-                    value={companySpecific}
-                    onChange={(e) => setCompanySpecific(e.target.value)}
-                    sx={{
-                      backgroundColor: "#f8f9fa",
-                      borderRadius: "4px 4px 0 0",
-                      "& .MuiOutlinedInput-notchedOutline": {
-                        borderBottom: "none",
-                      },
-                      "& .MuiSelect-select": {
-                        color:
-                          companySpecific === "Documents - Company Specific"
-                            ? "#666"
-                            : "#000",
-                        fontSize: "13px",
-                      },
-                    }}
-                  >
-                    <MenuItem value="Documents - Company Specific" disabled>
-                      Documents - Company Specific
-                    </MenuItem>
-                    <MenuItem value="doc1">Company Document 1</MenuItem>
-                    <MenuItem value="doc2">Company Document 2</MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth size="small">
-                  <Select
-                    value={facilitySpecific}
-                    onChange={(e) => setFacilitySpecific(e.target.value)}
-                    sx={{
-                      backgroundColor: "#f8f9fa",
-                      borderRadius: 0,
-                      "& .MuiOutlinedInput-notchedOutline": {
-                        borderTop: "none",
-                        borderBottom: "none",
-                      },
-                      "& .MuiSelect-select": {
-                        color:
-                          facilitySpecific === "Documents - Facility Specific"
-                            ? "#666"
-                            : "#000",
-                        fontSize: "13px",
-                      },
-                    }}
-                  >
-                    <MenuItem value="Documents - Facility Specific" disabled>
-                      Documents - Facility Specific
-                    </MenuItem>
-                    <MenuItem value="doc1">Facility Document 1</MenuItem>
-                    <MenuItem value="doc2">Facility Document 2</MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth size="small">
-                  <Select
-                    value={productSpecific}
-                    onChange={(e) => setProductSpecific(e.target.value)}
-                    sx={{
-                      backgroundColor: "#f8f9fa",
-                      borderRadius: 0,
-                      "& .MuiOutlinedInput-notchedOutline": {
-                        borderTop: "none",
-                        borderBottom: "none",
-                      },
-                      "& .MuiSelect-select": {
-                        color:
-                          productSpecific === "Documents - Product Specific"
-                            ? "#666"
-                            : "#000",
-                        fontSize: "13px",
-                      },
-                    }}
-                  >
-                    <MenuItem value="Documents - Product Specific" disabled>
-                      Documents - Product Specific
-                    </MenuItem>
-                    <MenuItem value="doc1">Product Document 1</MenuItem>
-                    <MenuItem value="doc2">Product Document 2</MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth size="small">
-                  <Select
-                    value={batchSpecific}
-                    onChange={(e) => setBatchSpecific(e.target.value)}
-                    sx={{
-                      backgroundColor: "#f8f9fa",
-                      borderRadius: "0 0 4px 4px",
-                      "& .MuiOutlinedInput-notchedOutline": {
-                        borderTop: "none",
-                      },
-                      "& .MuiSelect-select": {
-                        color:
-                          batchSpecific === "Documents - Batch Specific"
-                            ? "#666"
-                            : "#000",
-                        fontSize: "13px",
-                      },
-                    }}
-                  >
-                    <MenuItem value="Documents - Batch Specific" disabled>
-                      Documents - Batch Specific
-                    </MenuItem>
-                    <MenuItem value="doc1">Batch Document 1</MenuItem>
-                    <MenuItem value="doc2">Batch Document 2</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
->>>>>>> Stashed changes
             </Box>
 
             {/* Request For Sample Section - No Card */}
