@@ -28,7 +28,6 @@ import {
   Snackbar,
   // InputLabel,
 } from "@mui/material";
-import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import {
   FavoriteBorder,
   WhatsApp,
@@ -48,6 +47,7 @@ import QuoteFormModal from "@/components/quote-form-modal";
 import FAQSection from "@/components/FAQSection";
 import ProductVariants from "@/components/ProductVariants";
 import { useProductVariants } from "@/api/handlers/productVariantsHandler";
+import CompanyDocumentsSection from "@/components/CompanyDocumentsSection";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -116,9 +116,6 @@ export default function ProductDetailPage() {
   // Cart quantity state
   const [minCartQuantity, setMinCartQuantity] = useState(1);
   const [cartQuantity, setCartQuantity] = useState(1);
-
-  // Company Documents section visibility
-  const [isDocumentsSectionOpen, setIsDocumentsSectionOpen] = useState(true);
 
   // Get minimum value of variant to set add quantity
   useEffect(() => {
@@ -850,151 +847,16 @@ export default function ProductDetailPage() {
 
             <Box sx={{ height: 200 }}></Box>
             {/* Company Specific Documents Section */}
-            <Box sx={{ mt: 13, mb: 3 }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  mb: 2,
-                }}
-              >
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: 600, fontSize: "16px" }}
-                >
-                  Company Specific Documents
-                </Typography>
-                <IconButton
-                  onClick={() =>
-                    setIsDocumentsSectionOpen(!isDocumentsSectionOpen)
-                  }
-                  sx={{
-                    color: "#666",
-                    "&:hover": { backgroundColor: "#f5f5f5" },
-                  }}
-                >
-                  {isDocumentsSectionOpen ? <ExpandLess /> : <ExpandMore />}
-                </IconButton>
-              </Box>
-              {/* Connected Dropdowns - No gaps */}
-              {isDocumentsSectionOpen && (
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    paddingTop: "4px",
-                  }}
-                >
-                  <FormControl fullWidth size="small">
-                    <Select
-                      value={companySpecific}
-                      onChange={(e) => setCompanySpecific(e.target.value)}
-                      sx={{
-                        backgroundColor: "#f8f9fa",
-                        borderRadius: "4px 4px 0 0",
-                        "& .MuiOutlinedInput-notchedOutline": {
-                          borderBottom: "none",
-                        },
-                        "& .MuiSelect-select": {
-                          color:
-                            companySpecific === "Documents - Company Specific"
-                              ? "#666"
-                              : "#000",
-                          fontSize: "13px",
-                        },
-                      }}
-                    >
-                      <MenuItem value="Documents - Company Specific" disabled>
-                        Documents - Company Specific
-                      </MenuItem>
-                      <MenuItem value="doc1">Company Document 1</MenuItem>
-                      <MenuItem value="doc2">Company Document 2</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <FormControl fullWidth size="small">
-                    <Select
-                      value={facilitySpecific}
-                      onChange={(e) => setFacilitySpecific(e.target.value)}
-                      sx={{
-                        backgroundColor: "#f8f9fa",
-                        borderRadius: 0,
-                        "& .MuiOutlinedInput-notchedOutline": {
-                          borderTop: "none",
-                          borderBottom: "none",
-                        },
-                        "& .MuiSelect-select": {
-                          color:
-                            facilitySpecific === "Documents - Facility Specific"
-                              ? "#666"
-                              : "#000",
-                          fontSize: "13px",
-                        },
-                      }}
-                    >
-                      <MenuItem value="Documents - Facility Specific" disabled>
-                        Documents - Facility Specific
-                      </MenuItem>
-                      <MenuItem value="doc1">Facility Document 1</MenuItem>
-                      <MenuItem value="doc2">Facility Document 2</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <FormControl fullWidth size="small">
-                    <Select
-                      value={productSpecific}
-                      onChange={(e) => setProductSpecific(e.target.value)}
-                      sx={{
-                        backgroundColor: "#f8f9fa",
-                        borderRadius: 0,
-                        "& .MuiOutlinedInput-notchedOutline": {
-                          borderTop: "none",
-                          borderBottom: "none",
-                        },
-                        "& .MuiSelect-select": {
-                          color:
-                            productSpecific === "Documents - Product Specific"
-                              ? "#666"
-                              : "#000",
-                          fontSize: "13px",
-                        },
-                      }}
-                    >
-                      <MenuItem value="Documents - Product Specific" disabled>
-                        Documents - Product Specific
-                      </MenuItem>
-                      <MenuItem value="doc1">Product Document 1</MenuItem>
-                      <MenuItem value="doc2">Product Document 2</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <FormControl fullWidth size="small">
-                    <Select
-                      value={batchSpecific}
-                      onChange={(e) => setBatchSpecific(e.target.value)}
-                      sx={{
-                        backgroundColor: "#f8f9fa",
-                        borderRadius: "0 0 4px 4px",
-                        "& .MuiOutlinedInput-notchedOutline": {
-                          borderTop: "none",
-                        },
-                        "& .MuiSelect-select": {
-                          color:
-                            batchSpecific === "Documents - Batch Specific"
-                              ? "#666"
-                              : "#000",
-                          fontSize: "13px",
-                        },
-                      }}
-                    >
-                      <MenuItem value="Documents - Batch Specific" disabled>
-                        Documents - Batch Specific
-                      </MenuItem>
-                      <MenuItem value="doc1">Batch Document 1</MenuItem>
-                      <MenuItem value="doc2">Batch Document 2</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Box>
-              )}
-            </Box>
+            <CompanyDocumentsSection
+              companySpecific={companySpecific}
+              facilitySpecific={facilitySpecific}
+              productSpecific={productSpecific}
+              batchSpecific={batchSpecific}
+              onCompanySpecificChange={setCompanySpecific}
+              onFacilitySpecificChange={setFacilitySpecific}
+              onProductSpecificChange={setProductSpecific}
+              onBatchSpecificChange={setBatchSpecific}
+            />
 
             {/* Request For Sample Section - No Card */}
             <Box sx={{ mt: 3 }}>
