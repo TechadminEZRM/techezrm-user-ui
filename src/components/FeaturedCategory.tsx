@@ -41,7 +41,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
 
   const handleCategoryClick = () => {
     // Navigate to product page with category filter
-    router.push(`/product?category=${category._id}`);
+    router.push(`/product?category=${category.slug}`);
   };
 
   return (

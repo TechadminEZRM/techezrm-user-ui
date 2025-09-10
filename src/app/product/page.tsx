@@ -575,7 +575,7 @@ const ProductPage: React.FC = () => {
                           scrollbarColor: "rgba(0,0,0,0.2) rgba(0,0,0,0.05)",
                         }}
                       >
-                        {filtersData.data.category.map((category) => (
+                        {filtersData.data.category.map((category: any) => (
                           <Box
                             key={category.id}
                             sx={{
@@ -603,6 +603,9 @@ const ProductPage: React.FC = () => {
                               sx={{ fontSize: "12px", color: "#666" }}
                             >
                               {category.name}
+                              {category?.productCount > 0
+                                ? ` (${category.productCount})`
+                                : ""}
                             </Typography>
                           </Box>
                         ))}
@@ -680,39 +683,44 @@ const ProductPage: React.FC = () => {
                           scrollbarColor: "rgba(0,0,0,0.2) rgba(0,0,0,0.05)",
                         }}
                       >
-                        {filtersData.data.subCategory.map((subCategory) => (
-                          <Box
-                            key={subCategory.id}
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1,
-                              cursor: "pointer",
-                            }}
-                            onClick={() =>
-                              handleSubCategoryFilter(
-                                subCategory.slug,
-                                !selectedSubCategories.includes(
-                                  subCategory.slug
+                        {filtersData.data.subCategory.map(
+                          (subCategory: any) => (
+                            <Box
+                              key={subCategory.id}
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                                cursor: "pointer",
+                              }}
+                              onClick={() =>
+                                handleSubCategoryFilter(
+                                  subCategory.slug,
+                                  !selectedSubCategories.includes(
+                                    subCategory.slug
+                                  )
                                 )
-                              )
-                            }
-                          >
-                            <input
-                              type="checkbox"
-                              checked={selectedSubCategories.includes(
-                                subCategory.slug
-                              )}
-                              onChange={() => {}}
-                              style={{ cursor: "pointer" }}
-                            />
-                            <Typography
-                              sx={{ fontSize: "12px", color: "#666" }}
+                              }
                             >
-                              {subCategory.name}
-                            </Typography>
-                          </Box>
-                        ))}
+                              <input
+                                type="checkbox"
+                                checked={selectedSubCategories.includes(
+                                  subCategory.slug
+                                )}
+                                onChange={() => {}}
+                                style={{ cursor: "pointer" }}
+                              />
+                              <Typography
+                                sx={{ fontSize: "12px", color: "#666" }}
+                              >
+                                {subCategory.name}{" "}
+                                {subCategory?.productCount > 0
+                                  ? ` (${subCategory.productCount})`
+                                  : ""}
+                              </Typography>
+                            </Box>
+                          )
+                        )}
                       </Box>
                     </AccordionDetails>
                   </Accordion>
@@ -787,37 +795,44 @@ const ProductPage: React.FC = () => {
                           scrollbarColor: "rgba(0,0,0,0.2) rgba(0,0,0,0.05)",
                         }}
                       >
-                        {filtersData.data.application.map((application) => (
-                          <Box
-                            key={application.id}
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1,
-                              cursor: "pointer",
-                            }}
-                            onClick={() =>
-                              handleApplicationFilter(
-                                application.slug,
-                                !selectedApplications.includes(application.slug)
-                              )
-                            }
-                          >
-                            <input
-                              type="checkbox"
-                              checked={selectedApplications.includes(
-                                application.slug
-                              )}
-                              onChange={() => {}}
-                              style={{ cursor: "pointer" }}
-                            />
-                            <Typography
-                              sx={{ fontSize: "12px", color: "#666" }}
+                        {filtersData.data.application.map(
+                          (application: any) => (
+                            <Box
+                              key={application.id}
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                                cursor: "pointer",
+                              }}
+                              onClick={() =>
+                                handleApplicationFilter(
+                                  application.slug,
+                                  !selectedApplications.includes(
+                                    application.slug
+                                  )
+                                )
+                              }
                             >
-                              {application.name}
-                            </Typography>
-                          </Box>
-                        ))}
+                              <input
+                                type="checkbox"
+                                checked={selectedApplications.includes(
+                                  application.slug
+                                )}
+                                onChange={() => {}}
+                                style={{ cursor: "pointer" }}
+                              />
+                              <Typography
+                                sx={{ fontSize: "12px", color: "#666" }}
+                              >
+                                {application.name}{" "}
+                                {application?.productCount > 0
+                                  ? ` (${application.productCount})`
+                                  : ""}
+                              </Typography>
+                            </Box>
+                          )
+                        )}
                       </Box>
                     </AccordionDetails>
                   </Accordion>
@@ -892,7 +907,7 @@ const ProductPage: React.FC = () => {
                           scrollbarColor: "rgba(0,0,0,0.2) rgba(0,0,0,0.05)",
                         }}
                       >
-                        {filtersData.data.function.map((func) => (
+                        {filtersData.data.function.map((func: any) => (
                           <Box
                             key={func.id}
                             sx={{
@@ -917,7 +932,10 @@ const ProductPage: React.FC = () => {
                             <Typography
                               sx={{ fontSize: "12px", color: "#666" }}
                             >
-                              {func.name}
+                              {func.name}{" "}
+                              {func?.productCount > 0
+                                ? ` (${func.productCount})`
+                                : ""}
                             </Typography>
                           </Box>
                         ))}
@@ -994,7 +1012,7 @@ const ProductPage: React.FC = () => {
                         scrollbarColor: "rgba(0,0,0,0.2) rgba(0,0,0,0.05)",
                       }}
                     >
-                      {filtersData.data.tag.map((tag) => (
+                      {filtersData.data.tag.map((tag: any) => (
                         <Box
                           key={tag.id}
                           sx={{
@@ -1017,7 +1035,10 @@ const ProductPage: React.FC = () => {
                             style={{ cursor: "pointer" }}
                           />
                           <Typography sx={{ fontSize: "12px", color: "#666" }}>
-                            {tag.name}
+                            {tag.name}{" "}
+                            {tag?.productCount > 0
+                              ? ` (${tag.productCount})`
+                              : ""}
                           </Typography>
                         </Box>
                       ))}
@@ -1095,37 +1116,44 @@ const ProductPage: React.FC = () => {
                           scrollbarColor: "rgba(0,0,0,0.2) rgba(0,0,0,0.05)",
                         }}
                       >
-                        {filtersData.data.countryOfOrigin.map((country) => (
-                          <Box
-                            key={country.countryCode}
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1,
-                              cursor: "pointer",
-                            }}
-                            onClick={() =>
-                              handleCountryFilter(
-                                country.countryCode,
-                                !selectedCountries.includes(country.countryCode)
-                              )
-                            }
-                          >
-                            <input
-                              type="checkbox"
-                              checked={selectedCountries.includes(
-                                country.countryCode
-                              )}
-                              onChange={() => {}}
-                              style={{ cursor: "pointer" }}
-                            />
-                            <Typography
-                              sx={{ fontSize: "12px", color: "#666" }}
+                        {filtersData.data.countryOfOrigin.map(
+                          (country: any) => (
+                            <Box
+                              key={country.countryCode}
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                                cursor: "pointer",
+                              }}
+                              onClick={() =>
+                                handleCountryFilter(
+                                  country.countryCode,
+                                  !selectedCountries.includes(
+                                    country.countryCode
+                                  )
+                                )
+                              }
                             >
-                              {country.emoji} {country.name}
-                            </Typography>
-                          </Box>
-                        ))}
+                              <input
+                                type="checkbox"
+                                checked={selectedCountries.includes(
+                                  country.countryCode
+                                )}
+                                onChange={() => {}}
+                                style={{ cursor: "pointer" }}
+                              />
+                              <Typography
+                                sx={{ fontSize: "12px", color: "#666" }}
+                              >
+                                {country.emoji} {country.name}{" "}
+                                {country?.productCount > 0
+                                  ? ` (${country.productCount})`
+                                  : ""}
+                              </Typography>
+                            </Box>
+                          )
+                        )}
                       </Box>
                     </AccordionDetails>
                   </Accordion>

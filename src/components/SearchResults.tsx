@@ -50,8 +50,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     router.push(`/product/detail/${productId}`);
   };
 
-  const handleCategoryClick = (categoryId: string) => {
-    router.push(`/product?category=${categoryId}`);
+  const handleCategoryClick = (slug: string) => {
+    router.push(`/product?category=${slug}`);
   };
 
   const formatPrice = (price: number) => {
@@ -186,7 +186,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                         },
                         borderRadius: 2,
                       }}
-                      onClick={() => handleCategoryClick(category._id)}
+                      onClick={() => handleCategoryClick(category.slug)}
                     >
                       <CardContent sx={{ p: 3 }}>
                         <Box

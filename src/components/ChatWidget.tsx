@@ -145,60 +145,60 @@ const ChatWidget: React.FC = () => {
   }
 
   // Show debug info in development mode
-  if (process.env.NODE_ENV === "development") {
-    return (
-      <div
-        style={{
-          position: "fixed",
-          bottom: "20px",
-          right: "20px",
-          background: "#f0f0f0",
-          border: "1px solid #ccc",
-          padding: "10px",
-          borderRadius: "5px",
-          fontSize: "12px",
-          zIndex: 9999,
-          maxWidth: "200px",
-        }}
-      >
-        <strong>Chat Widget Debug:</strong>
-        <br />
-        Script: {scriptLoaded ? "✅" : "❌"}
-        <br />
-        Widget: {widgetInitialized ? "✅" : "❌"}
-        <br />
-        Company: {companyDetails ? "✅" : "❌"}
-        <br />
-        Customer: {customer ? "✅" : "❌"}
-        <br />
-        {scriptError && (
-          <span style={{ color: "red" }}>Error: {scriptError}</span>
-        )}
-        <br />
-        <br />
-        <button
-          onClick={() => {
-            console.log("Manual initialization attempt");
-            if (typeof window.initNoupeWidget === "function") {
-              initializeWidget();
-            } else {
-              console.log("initNoupeWidget not available");
-            }
-          }}
-          style={{
-            background: "#007bff",
-            color: "white",
-            border: "none",
-            padding: "5px 10px",
-            borderRadius: "3px",
-            cursor: "pointer",
-          }}
-        >
-          Test Widget
-        </button>
-      </div>
-    );
-  }
+  // if (process.env.NODE_ENV === "development") {
+  //   return (
+  //     <div
+  //       style={{
+  //         position: "fixed",
+  //         bottom: "20px",
+  //         right: "20px",
+  //         background: "#f0f0f0",
+  //         border: "1px solid #ccc",
+  //         padding: "10px",
+  //         borderRadius: "5px",
+  //         fontSize: "12px",
+  //         zIndex: 9999,
+  //         maxWidth: "200px",
+  //       }}
+  //     >
+  //       <strong>Chat Widget Debug:</strong>
+  //       <br />
+  //       Script: {scriptLoaded ? "✅" : "❌"}
+  //       <br />
+  //       Widget: {widgetInitialized ? "✅" : "❌"}
+  //       <br />
+  //       Company: {companyDetails ? "✅" : "❌"}
+  //       <br />
+  //       Customer: {customer ? "✅" : "❌"}
+  //       <br />
+  //       {scriptError && (
+  //         <span style={{ color: "red" }}>Error: {scriptError}</span>
+  //       )}
+  //       <br />
+  //       <br />
+  //       <button
+  //         onClick={() => {
+  //           console.log("Manual initialization attempt");
+  //           if (typeof window.initNoupeWidget === "function") {
+  //             initializeWidget();
+  //           } else {
+  //             console.log("initNoupeWidget not available");
+  //           }
+  //         }}
+  //         style={{
+  //           background: "#007bff",
+  //           color: "white",
+  //           border: "none",
+  //           padding: "5px 10px",
+  //           borderRadius: "3px",
+  //           cursor: "pointer",
+  //         }}
+  //       >
+  //         Test Widget
+  //       </button>
+  //     </div>
+  //   );
+  // }
 
   // This component doesn't render anything visible
   return null;

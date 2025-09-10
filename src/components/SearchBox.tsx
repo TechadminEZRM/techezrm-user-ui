@@ -133,10 +133,10 @@ const SearchBox: React.FC<SearchBoxProps> = ({
     router.push(`/product/detail/${productId}`);
   };
 
-  const handleCategoryClick = (categoryId: string) => {
+  const handleCategoryClick = (slug: string) => {
     setIsOpen(false);
     setSearchQuery("");
-    router.push(`/product?category=${categoryId}`);
+    router.push(`/product?category=${slug}`);
   };
 
   const handlePopularSearchClick = (term: string) => {
@@ -264,11 +264,11 @@ const SearchBox: React.FC<SearchBoxProps> = ({
                   >
                     Categories
                   </Typography>
-                  {searchResults.categories.map((category) => (
+                  {searchResults.categories.map((category: any) => (
                     <ListItem
                       key={category._id}
                       button
-                      onClick={() => handleCategoryClick(category._id)}
+                      onClick={() => handleCategoryClick(category.slug)}
                       sx={{
                         "&:hover": {
                           backgroundColor: "rgba(255, 107, 53, 0.04)",
