@@ -1464,6 +1464,128 @@ const ProductPage: React.FC = () => {
         {/* Products Grid */}
         {isLoading ? (
           <ShimmerLoader count={9} />
+        ) : products.length === 0 ? (
+          /* No Products Found */
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              py: 8,
+              px: 4,
+              textAlign: "center",
+            }}
+          >
+            {/* Animated Empty Box Icon */}
+            <Box
+              sx={{
+                width: 120,
+                height: 120,
+                mb: 4,
+                position: "relative",
+                animation: "bounce 2s infinite",
+                "@keyframes bounce": {
+                  "0%, 20%, 50%, 80%, 100%": {
+                    transform: "translateY(0)",
+                  },
+                  "40%": {
+                    transform: "translateY(-10px)",
+                  },
+                  "60%": {
+                    transform: "translateY(-5px)",
+                  },
+                },
+              }}
+            >
+              <Box
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                  border: "3px dashed #ccc",
+                  borderRadius: "12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "#f8f9fa",
+                  position: "relative",
+                  "&::before": {
+                    content: '""',
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    width: "40px",
+                    height: "40px",
+                    backgroundColor: "#ff6b35",
+                    borderRadius: "50%",
+                    opacity: 0.7,
+                  },
+                  "&::after": {
+                    content: '""',
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    width: "20px",
+                    height: "20px",
+                    backgroundColor: "white",
+                    borderRadius: "50%",
+                  },
+                }}
+              />
+            </Box>
+
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 600,
+                color: "#333",
+                mb: 2,
+                fontSize: { xs: "1.5rem", md: "2rem" },
+              }}
+            >
+              No Products Found
+            </Typography>
+
+            <Typography
+              variant="body1"
+              sx={{
+                color: "#666",
+                mb: 4,
+                maxWidth: "500px",
+                fontSize: { xs: "0.9rem", md: "1rem" },
+              }}
+            >
+              We couldn't find any products matching your current filters. Try
+              adjusting your search criteria or clear all filters to see all
+              available products.
+            </Typography>
+
+            <Button
+              variant="contained"
+              onClick={clearAllFilters}
+              sx={{
+                backgroundColor: "#ff6b35",
+                color: "white",
+                px: 4,
+                py: 1.5,
+                fontSize: "16px",
+                fontWeight: 500,
+                textTransform: "none",
+                borderRadius: "8px",
+                boxShadow: "0 4px 12px rgba(255, 107, 53, 0.3)",
+                "&:hover": {
+                  backgroundColor: "#e55a2b",
+                  boxShadow: "0 6px 16px rgba(255, 107, 53, 0.4)",
+                  transform: "translateY(-2px)",
+                },
+                transition: "all 0.3s ease",
+              }}
+            >
+              Clear All Filters
+            </Button>
+          </Box>
         ) : (
           <Box
             sx={{
