@@ -1477,63 +1477,159 @@ const ProductPage: React.FC = () => {
               textAlign: "center",
             }}
           >
-            {/* Animated Empty Box Icon */}
+            {/* Enhanced Animated Empty State */}
             <Box
               sx={{
-                width: 120,
-                height: 120,
+                width: 140,
+                height: 140,
                 mb: 4,
                 position: "relative",
-                animation: "bounce 2s infinite",
-                "@keyframes bounce": {
-                  "0%, 20%, 50%, 80%, 100%": {
-                    transform: "translateY(0)",
+                animation: "float 3s ease-in-out infinite",
+                "@keyframes float": {
+                  "0%, 100%": {
+                    transform: "translateY(0px) rotate(0deg)",
                   },
-                  "40%": {
-                    transform: "translateY(-10px)",
-                  },
-                  "60%": {
-                    transform: "translateY(-5px)",
+                  "50%": {
+                    transform: "translateY(-15px) rotate(2deg)",
                   },
                 },
               }}
             >
+              {/* Outer Container with Gradient */}
               <Box
                 sx={{
                   width: "100%",
                   height: "100%",
-                  border: "3px dashed #ccc",
-                  borderRadius: "12px",
+                  background:
+                    "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
+                  border: "3px dashed #dee2e6",
+                  borderRadius: "20px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  backgroundColor: "#f8f9fa",
                   position: "relative",
-                  "&::before": {
-                    content: '""',
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    width: "40px",
-                    height: "40px",
-                    backgroundColor: "#ff6b35",
-                    borderRadius: "50%",
-                    opacity: 0.7,
-                  },
-                  "&::after": {
-                    content: '""',
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    width: "20px",
-                    height: "20px",
-                    backgroundColor: "white",
-                    borderRadius: "50%",
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+                  animation: "pulse 2s ease-in-out infinite",
+                  "@keyframes pulse": {
+                    "0%, 100%": {
+                      boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+                    },
+                    "50%": {
+                      boxShadow: "0 12px 40px rgba(255, 107, 53, 0.2)",
+                    },
                   },
                 }}
-              />
+              >
+                {/* Animated Search Icon */}
+                <Box
+                  sx={{
+                    position: "relative",
+                    width: "60px",
+                    height: "60px",
+                    animation: "searchPulse 2s ease-in-out infinite",
+                    "@keyframes searchPulse": {
+                      "0%, 100%": {
+                        transform: "scale(1)",
+                        opacity: 0.8,
+                      },
+                      "50%": {
+                        transform: "scale(1.1)",
+                        opacity: 1,
+                      },
+                    },
+                  }}
+                >
+                  {/* Search Circle */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      width: "40px",
+                      height: "40px",
+                      border: "3px solid #ff6b35",
+                      borderRadius: "50%",
+                      animation: "rotate 4s linear infinite",
+                      "@keyframes rotate": {
+                        "0%": {
+                          transform: "translate(-50%, -50%) rotate(0deg)",
+                        },
+                        "100%": {
+                          transform: "translate(-50%, -50%) rotate(360deg)",
+                        },
+                      },
+                    }}
+                  />
+
+                  {/* Search Handle */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      bottom: "8px",
+                      right: "8px",
+                      width: "20px",
+                      height: "3px",
+                      backgroundColor: "#ff6b35",
+                      borderRadius: "2px",
+                      transform: "rotate(45deg)",
+                      transformOrigin: "left center",
+                    }}
+                  />
+
+                  {/* Center Dot */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      width: "12px",
+                      height: "12px",
+                      backgroundColor: "#ff6b35",
+                      borderRadius: "50%",
+                      animation: "dotPulse 1.5s ease-in-out infinite",
+                      "@keyframes dotPulse": {
+                        "0%, 100%": {
+                          transform: "translate(-50%, -50%) scale(1)",
+                          opacity: 0.6,
+                        },
+                        "50%": {
+                          transform: "translate(-50%, -50%) scale(1.3)",
+                          opacity: 1,
+                        },
+                      },
+                    }}
+                  />
+                </Box>
+              </Box>
+
+              {/* Floating Particles */}
+              {[...Array(6)].map((_, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    position: "absolute",
+                    width: "4px",
+                    height: "4px",
+                    backgroundColor: "#ff6b35",
+                    borderRadius: "50%",
+                    opacity: 0.6,
+                    animation: `particle${index + 1} 3s ease-in-out infinite`,
+                    [`@keyframes particle${index + 1}`]: {
+                      "0%, 100%": {
+                        transform: `translate(${Math.cos(index * 60) * 80}px, ${
+                          Math.sin(index * 60) * 80
+                        }px)`,
+                        opacity: 0,
+                      },
+                      "50%": {
+                        opacity: 0.8,
+                      },
+                    },
+                  }}
+                />
+              ))}
             </Box>
 
             <Typography
@@ -1543,6 +1639,17 @@ const ProductPage: React.FC = () => {
                 color: "#333",
                 mb: 2,
                 fontSize: { xs: "1.5rem", md: "2rem" },
+                animation: "fadeInUp 1s ease-out 0.5s both",
+                "@keyframes fadeInUp": {
+                  "0%": {
+                    opacity: 0,
+                    transform: "translateY(30px)",
+                  },
+                  "100%": {
+                    opacity: 1,
+                    transform: "translateY(0)",
+                  },
+                },
               }}
             >
               No Products Found
@@ -1555,6 +1662,17 @@ const ProductPage: React.FC = () => {
                 mb: 4,
                 maxWidth: "500px",
                 fontSize: { xs: "0.9rem", md: "1rem" },
+                animation: "fadeInUp 1s ease-out 0.8s both",
+                "@keyframes fadeInUp": {
+                  "0%": {
+                    opacity: 0,
+                    transform: "translateY(30px)",
+                  },
+                  "100%": {
+                    opacity: 1,
+                    transform: "translateY(0)",
+                  },
+                },
               }}
             >
               We couldn't find any products matching your current filters. Try
@@ -1575,12 +1693,32 @@ const ProductPage: React.FC = () => {
                 textTransform: "none",
                 borderRadius: "8px",
                 boxShadow: "0 4px 12px rgba(255, 107, 53, 0.3)",
+                animation:
+                  "fadeInUp 1s ease-out 1.1s both, buttonGlow 2s ease-in-out infinite 2s",
+                "@keyframes fadeInUp": {
+                  "0%": {
+                    opacity: 0,
+                    transform: "translateY(30px)",
+                  },
+                  "100%": {
+                    opacity: 1,
+                    transform: "translateY(0)",
+                  },
+                },
+                "@keyframes buttonGlow": {
+                  "0%, 100%": {
+                    boxShadow: "0 4px 12px rgba(255, 107, 53, 0.3)",
+                  },
+                  "50%": {
+                    boxShadow: "0 6px 20px rgba(255, 107, 53, 0.5)",
+                  },
+                },
                 "&:hover": {
                   backgroundColor: "#e55a2b",
-                  boxShadow: "0 6px 16px rgba(255, 107, 53, 0.4)",
-                  transform: "translateY(-2px)",
+                  boxShadow: "0 8px 24px rgba(255, 107, 53, 0.6)",
+                  transform: "translateY(-3px) scale(1.02)",
                 },
-                transition: "all 0.3s ease",
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               }}
             >
               Clear All Filters
