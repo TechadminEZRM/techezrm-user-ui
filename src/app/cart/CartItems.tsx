@@ -278,7 +278,7 @@ const CartItems: React.FC<CartItemsProps> = ({ cartItems }) => {
                   backgroundColor: "transparent",
                 }}
               >
-                Price
+                Price / Kg
               </TableCell>
               <TableCell
                 align="center"
@@ -324,7 +324,7 @@ const CartItems: React.FC<CartItemsProps> = ({ cartItems }) => {
           <TableBody>
             {cartItems?.map((item) => (
               <TableRow
-                key={item.product._id}
+                key={item.product?._id}
                 sx={{
                   "& td": {
                     backgroundColor: "#fafafa",
@@ -410,7 +410,7 @@ const CartItems: React.FC<CartItemsProps> = ({ cartItems }) => {
                         sx={{ color: "#666", fontSize: "0.75rem" }}
                       >
                         Product ID:{" "}
-                        {item?.product?.uniqueId || item.product._id}
+                        {item?.product?.uniqueId || item.product?._id}
                       </Typography>
                     </Box>
                   </Box>
@@ -469,7 +469,7 @@ const CartItems: React.FC<CartItemsProps> = ({ cartItems }) => {
                           letterSpacing: "0.5px",
                         }}
                       >
-                        IN STOCK: 6
+                        {/* IN STOCK: 6 */}
                       </Typography>
                     </Box>
                     <IconButton
