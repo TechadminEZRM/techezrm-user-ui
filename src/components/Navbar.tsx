@@ -274,11 +274,15 @@ const Navbar: React.FC = () => {
                   sx={{
                     color: "white",
                     textDecoration: "none",
-                    fontSize: "14px",
+                    fontSize: "16px",
+                    fontWeight: 500,
                     cursor: "pointer",
                     whiteSpace: "nowrap",
+                    transition: "all 0.3s ease",
                     "&:hover": {
-                      opacity: 0.8,
+                      fontWeight: 700,
+                      transform: "translateY(-1px)",
+                      textShadow: "0 2px 4px rgba(0,0,0,0.2)",
                     },
                   }}
                 >
@@ -292,11 +296,15 @@ const Navbar: React.FC = () => {
                   sx={{
                     color: "white",
                     textDecoration: "none",
-                    fontSize: "14px",
+                    fontSize: "16px",
+                    fontWeight: 500,
                     cursor: "pointer",
                     whiteSpace: "nowrap",
+                    transition: "all 0.3s ease",
                     "&:hover": {
-                      opacity: 0.8,
+                      fontWeight: 700,
+                      transform: "translateY(-1px)",
+                      textShadow: "0 2px 4px rgba(0,0,0,0.2)",
                     },
                   }}
                 >
@@ -314,14 +322,18 @@ const Navbar: React.FC = () => {
                   sx={{
                     color: "white",
                     textDecoration: "none",
-                    fontSize: "14px",
+                    fontSize: "16px",
+                    fontWeight: 500,
                     cursor: "pointer",
                     whiteSpace: "nowrap",
                     display: "flex",
                     alignItems: "center",
                     gap: 0.5,
+                    transition: "all 0.3s ease",
                     "&:hover": {
-                      opacity: 0.8,
+                      fontWeight: 700,
+                      transform: "translateY(-1px)",
+                      textShadow: "0 2px 4px rgba(0,0,0,0.2)",
                     },
                   }}
                 >
@@ -495,11 +507,15 @@ const Navbar: React.FC = () => {
                   sx={{
                     color: "white",
                     textDecoration: "none",
-                    fontSize: "14px",
+                    fontSize: "16px",
+                    fontWeight: 500,
                     cursor: "pointer",
                     whiteSpace: "nowrap",
+                    transition: "all 0.3s ease",
                     "&:hover": {
-                      opacity: 0.8,
+                      fontWeight: 700,
+                      transform: "translateY(-1px)",
+                      textShadow: "0 2px 4px rgba(0,0,0,0.2)",
                     },
                   }}
                 >

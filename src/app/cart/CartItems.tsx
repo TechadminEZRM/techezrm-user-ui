@@ -519,6 +519,12 @@ const CartItems: React.FC<CartItemsProps> = ({ cartItems }) => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
+        <Button href="/checkout" variant="contained" color="primary">
+          CheckOut
+        </Button>
+      </Box>
     </Box>
   );
 };

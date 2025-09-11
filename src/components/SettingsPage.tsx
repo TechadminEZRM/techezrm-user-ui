@@ -155,9 +155,9 @@ const SettingsPage: React.FC = () => {
     <Box sx={{ maxWidth: 1000, mx: "auto", p: 3 }}>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 600, color: "#333", mb: 1 }}>
+        {/* <Typography variant="h4" sx={{ fontWeight: 600, color: "#333", mb: 1 }}>
           Settings
-        </Typography>
+        </Typography> */}
         <Typography variant="body1" sx={{ color: "#666" }}>
           Manage your account preferences, subscription, and notifications
         </Typography>

@@ -1,98 +1,116 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import { Box, Typography, Tabs, Tab, Button, IconButton, Chip, CircularProgress, Alert } from "@mui/material"
-import { ArrowBack, AccountBalanceWallet, Inventory2Outlined, ArrowForward } from "@mui/icons-material"
-import Image from "next/image"
-import ProtectedRoute from "@/components/ProtectedRoute"
-import { useAppStore } from "@/store/use-app-store"
-import { useCustomerOrders } from "@/api/handlers"
-import type { CustomerOrder } from "@/api/services"
-import { useRouter } from "next/navigation"
+import type React from "react";
+import { useState } from "react";
+import {
+  Box,
+  Typography,
+  Tabs,
+  Tab,
+  Button,
+  IconButton,
+  Chip,
+  CircularProgress,
+  Alert,
+} from "@mui/material";
+import {
+  ArrowBack,
+  AccountBalanceWallet,
+  Inventory2Outlined,
+  ArrowForward,
+} from "@mui/icons-material";
+import Image from "next/image";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import { useAppStore } from "@/store/use-app-store";
+import { useCustomerOrders } from "@/api/handlers";
+import type { CustomerOrder } from "@/api/services";
+import { useRouter } from "next/navigation";
 interface OrderCardProps {
-  order: CustomerOrder
-  onViewDetails: () => void
-  onBuyAgain?: () => void
+  order: CustomerOrder;
+  onViewDetails: () => void;
+  onBuyAgain?: () => void;
 }
 
 const OrderCard: React.FC<OrderCardProps> = ({ order, onBuyAgain }) => {
   // Format date
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
+    const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    })
-  }
+    });
+  };
 
   // Get status display text
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const getStatusText = (orderStatus: string, _paymentStatus: string) => {
-    if (orderStatus === "delivered") return "Order Delivered"
-    if (orderStatus === "cancelled") return "Order Cancelled"
-    if (orderStatus === "shipped") return "Order Shipped"
-    if (orderStatus === "processing") return "Order Processing"
-    if (orderStatus === "confirmed") return "Order Confirmed"
-    return "Order In Progress"
-  }
+    if (orderStatus === "delivered") return "Order Delivered";
+    if (orderStatus === "cancelled") return "Order Cancelled";
+    if (orderStatus === "shipped") return "Order Shipped";
+    if (orderStatus === "processing") return "Order Processing";
+    if (orderStatus === "confirmed") return "Order Confirmed";
+    return "Order In Progress";
+  };
 
   // Get status badges
   const getStatusBadges = (orderStatus: string, paymentStatus: string) => {
-    const badges: Array<{ label: string; color: "success" | "error" | "info" | "warning" }> = []
+    const badges: Array<{
+      label: string;
+      color: "success" | "error" | "info" | "warning";
+    }> = [];
 
     // Order status badge
     if (orderStatus === "delivered") {
-      badges.push({ label: "Delivered", color: "success" })
+      badges.push({ label: "Delivered", color: "success" });
     } else if (orderStatus === "cancelled") {
-      badges.push({ label: "Cancelled", color: "error" })
+      badges.push({ label: "Cancelled", color: "error" });
     } else if (orderStatus === "shipped") {
-      badges.push({ label: "Shipped", color: "info" })
+      badges.push({ label: "Shipped", color: "info" });
     } else if (orderStatus === "processing") {
-      badges.push({ label: "Processing", color: "info" })
+      badges.push({ label: "Processing", color: "info" });
     } else if (orderStatus === "confirmed") {
-      badges.push({ label: "Confirmed", color: "info" })
+      badges.push({ label: "Confirmed", color: "info" });
     } else {
-      badges.push({ label: "Pending", color: "warning" })
+      badges.push({ label: "Pending", color: "warning" });
     }
 
     // Payment status badge
     if (paymentStatus === "pending") {
-      badges.push({ label: "Payment Pending", color: "warning" })
+      badges.push({ label: "Payment Pending", color: "warning" });
     } else if (paymentStatus === "failed") {
-      badges.push({ label: "Payment Failed", color: "error" })
+      badges.push({ label: "Payment Failed", color: "error" });
     } else if (paymentStatus === "completed") {
-      badges.push({ label: "Paid", color: "success" })
+      badges.push({ label: "Paid", color: "success" });
     }
 
-    return badges
-  }
+    return badges;
+  };
 
   // Format payment method
   const formatPaymentMethod = (method: string) => {
     switch (method.toLowerCase()) {
       case "cod":
-        return "Cash on Delivery"
+        return "Cash on Delivery";
       case "upi":
-        return "UPI Payment"
+        return "UPI Payment";
       case "card":
-        return "Card Payment"
+        return "Card Payment";
       case "netbanking":
-        return "Net Banking"
+        return "Net Banking";
       default:
-        return method.toUpperCase()
+        return method.toUpperCase();
     }
-  }
+  };
 
-  const statusBadges = getStatusBadges(order.orderStatus, order.paymentStatus)
-  const canBuyAgain = order.orderStatus === "delivered"
+  const statusBadges = getStatusBadges(order.orderStatus, order.paymentStatus);
+  const canBuyAgain = order.orderStatus === "delivered";
   const router = useRouter();
-    const handleDetailClick = () => {
-    router.push("/orderDetails")
-  }
+  const handleDetailClick = () => {
+    router.push("/orderDetails");
+  };
   return (
     <Box
       sx={{
@@ -188,7 +206,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onBuyAgain }) => {
                 color: "#333",
               }}
             >
-              ₹{order.totalAmount.toLocaleString()}
+              ${order.totalAmount.toLocaleString()}
             </Typography>
             <Typography
               sx={{
@@ -252,32 +270,32 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onBuyAgain }) => {
                   badge.color === "success"
                     ? "#e8f5e8"
                     : badge.color === "error"
-                      ? "#ffeaea"
-                      : badge.color === "info"
-                        ? "#e3f2fd"
-                        : badge.color === "warning"
-                          ? "#fff3e0"
-                          : "#f5f5f5",
+                    ? "#ffeaea"
+                    : badge.color === "info"
+                    ? "#e3f2fd"
+                    : badge.color === "warning"
+                    ? "#fff3e0"
+                    : "#f5f5f5",
                 color:
                   badge.color === "success"
                     ? "#2e7d32"
                     : badge.color === "error"
-                      ? "#d32f2f"
-                      : badge.color === "info"
-                        ? "#1976d2"
-                        : badge.color === "warning"
-                          ? "#f57c00"
-                          : "#666",
+                    ? "#d32f2f"
+                    : badge.color === "info"
+                    ? "#1976d2"
+                    : badge.color === "warning"
+                    ? "#f57c00"
+                    : "#666",
                 border: `1px solid ${
                   badge.color === "success"
                     ? "#c8e6c9"
                     : badge.color === "error"
-                      ? "#ffcdd2"
-                      : badge.color === "info"
-                        ? "#bbdefb"
-                        : badge.color === "warning"
-                          ? "#ffcc02"
-                          : "#e0e0e0"
+                    ? "#ffcdd2"
+                    : badge.color === "info"
+                    ? "#bbdefb"
+                    : badge.color === "warning"
+                    ? "#ffcc02"
+                    : "#e0e0e0"
                 }`,
                 "& .MuiChip-label": {
                   px: 1.5,
@@ -376,26 +394,26 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onBuyAgain }) => {
         )}
       </Box>
     </Box>
-  )
-}
+  );
+};
 
 const OrdersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const [activeTab, setActiveTab] = useState(0)
-  const { customer } = useAppStore()
+  const [activeTab, setActiveTab] = useState(0);
+  const { customer } = useAppStore();
 
   // Get filter based on active tab
   const getOrderStatusFilter = () => {
     switch (activeTab) {
       case 1:
-        return "processing,confirmed,shipped"
+        return "processing,confirmed,shipped";
       case 2:
-        return "delivered"
+        return "delivered";
       case 3:
-        return "cancelled"
+        return "cancelled";
       default:
-        return undefined // All orders
+        return undefined; // All orders
     }
-  }
+  };
 
   const {
     data: response,
@@ -405,13 +423,13 @@ const OrdersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   } = useCustomerOrders(customer?.id || "", {
     orderStatus: getOrderStatusFilter(),
     limit: 20,
-  })
+  });
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue)
-  }
+    setActiveTab(newValue);
+  };
 
-  const orders = response?.data?.orders || []
+  const orders = response?.data?.orders || [];
 
   if (isLoading) {
     return (
@@ -427,11 +445,13 @@ const OrdersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         >
           <Box sx={{ textAlign: "center" }}>
             <CircularProgress sx={{ color: "#ff6b35", mb: 2 }} />
-            <Typography sx={{ color: "#666" }}>Loading your orders...</Typography>
+            <Typography sx={{ color: "#666" }}>
+              Loading your orders...
+            </Typography>
           </Box>
         </Box>
       </ProtectedRoute>
-    )
+    );
   }
 
   if (isError) {
@@ -449,11 +469,13 @@ const OrdersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         >
           <Alert severity="error" sx={{ maxWidth: 500 }}>
             <Typography variant="h6">Error loading orders</Typography>
-            <Typography variant="body2">{error instanceof Error ? error.message : "Something went wrong"}</Typography>
+            <Typography variant="body2">
+              {error instanceof Error ? error.message : "Something went wrong"}
+            </Typography>
           </Alert>
         </Box>
       </ProtectedRoute>
-    )
+    );
   }
 
   return (
@@ -466,22 +488,22 @@ const OrdersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         }}
       >
         {/* Header */}
-        <Box
+        {/* <Box
           sx={{
             backgroundColor: "white",
             borderBottom: "1px solid #e0e0e0",
             px: 3,
             py: 2,
           }}
-        >
-          <Box
+        > */}
+        {/* <Box
             sx={{
               display: "flex",
               alignItems: "center",
               gap: 2,
             }}
-          >
-            <IconButton
+          > */}
+        {/* <IconButton
               onClick={onBack}
               sx={{
                 p: 1,
@@ -491,8 +513,8 @@ const OrdersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               }}
             >
               <ArrowBack sx={{ fontSize: 20, color: "#666" }} />
-            </IconButton>
-            <Typography
+            </IconButton> */}
+        {/* <Typography
               sx={{
                 fontSize: "16px",
                 fontWeight: 500,
@@ -500,9 +522,9 @@ const OrdersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               }}
             >
               My Orders
-            </Typography>
-          </Box>
-        </Box>
+            </Typography> */}
+        {/* </Box> */}
+        {/* </Box> */}
 
         {/* Tabs */}
         <Box
@@ -556,7 +578,9 @@ const OrdersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 No orders found
               </Typography>
               <Typography variant="body2" sx={{ color: "#999" }}>
-                {activeTab === 0 ? "You haven't placed any orders yet." : `No orders found for the selected filter.`}
+                {activeTab === 0
+                  ? "You haven't placed any orders yet."
+                  : `No orders found for the selected filter.`}
               </Typography>
             </Box>
           ) : (
@@ -564,7 +588,9 @@ const OrdersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               <OrderCard
                 key={order._id}
                 order={order}
-                onViewDetails={() => console.log("View details for order", order._id)}
+                onViewDetails={() =>
+                  console.log("View details for order", order._id)
+                }
                 onBuyAgain={() => console.log("Buy again for order", order._id)}
               />
             ))
@@ -572,7 +598,7 @@ const OrdersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         </Box>
       </Box>
     </ProtectedRoute>
-  )
-}
+  );
+};
 
-export default OrdersPage
+export default OrdersPage;

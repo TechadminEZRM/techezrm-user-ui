@@ -6,7 +6,7 @@ import { useCompanyDetails } from "@/hooks/use-company-details";
 
 const ContactPage: React.FC = () => {
   const { companyDetails, loading } = useCompanyDetails();
-  
+
   const handleSuccess = () => {
     // You can add additional success handling here
     console.log("Contact form submitted successfully");
@@ -78,7 +78,10 @@ const ContactPage: React.FC = () => {
                 Address
               </Typography>
               <Typography sx={{ color: "#666", lineHeight: 1.6 }}>
-                {loading ? "Loading..." : companyDetails?.address || "123 Business Street, Suite 100, City, State 12345"}
+                {loading
+                  ? "Loading..."
+                  : companyDetails?.address ||
+                    "123 Business Street, Suite 100, City, State 12345"}
               </Typography>
             </Box>
 
@@ -94,7 +97,9 @@ const ContactPage: React.FC = () => {
                 Phone
               </Typography>
               <Typography sx={{ color: "#666", lineHeight: 1.6 }}>
-                {loading ? "Loading..." : companyDetails?.phone || "+1 (555) 123-4567"}
+                {loading
+                  ? "Loading..."
+                  : companyDetails?.phone || "+1 (555) 123-4567"}
                 <br />
                 Monday - Friday, 9:00 AM - 6:00 PM EST
               </Typography>
@@ -112,9 +117,11 @@ const ContactPage: React.FC = () => {
                 Email
               </Typography>
               <Typography sx={{ color: "#666", lineHeight: 1.6 }}>
-                {loading ? "Loading..." : companyDetails?.email || "info@greenjeeva.com"}
+                {loading
+                  ? "Loading..."
+                  : companyDetails?.email || "info@greenjeeva.com"}
                 <br />
-                support@greenjeeva.com
+                support@ezrm.com
               </Typography>
             </Box>
 

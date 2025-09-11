@@ -1,20 +1,30 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { Box, Typography, Container, Card, CardContent, Button, IconButton, Skeleton, Alert } from "@mui/material"
-import { ChevronLeft, ChevronRight } from "@mui/icons-material"
-import { useRouter } from "next/navigation"
-import { useAppStore } from "@/store/use-app-store"
-import QuoteFormModal from "./quote-form-modal"
-import type { Product } from "@/api/services"
-import Image from "next/image"
+import type React from "react";
+import { useState, useEffect } from "react";
+import {
+  Box,
+  Typography,
+  Container,
+  Card,
+  CardContent,
+  Button,
+  IconButton,
+  Skeleton,
+  Alert,
+} from "@mui/material";
+import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+import { useRouter } from "next/navigation";
+import { useAppStore } from "@/store/use-app-store";
+import QuoteFormModal from "./quote-form-modal";
+import type { Product } from "@/api/services";
+import Image from "next/image";
 
 interface ProductCardProps {
-  product: Product
-  onClick: (productId: string, productName: string) => void
-  onButtonClick: (productId: string, productName: string) => void
-  isAuthenticated: boolean
+  product: Product;
+  onClick: (productId: string, productName: string) => void;
+  onButtonClick: (productId: string, productName: string) => void;
+  isAuthenticated: boolean;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -24,28 +34,28 @@ const ProductCard: React.FC<ProductCardProps> = ({
   isAuthenticated,
 }) => {
   const handleCardClick = () => {
-    onClick(product._id, product.name)
-  }
+    onClick(product._id, product.name);
+  };
 
   const handleButtonClick = (e: React.MouseEvent) => {
-    e.stopPropagation() // Prevent card click when clicking the button
-    onButtonClick(product._id, product.name)
-  }
+    e.stopPropagation(); // Prevent card click when clicking the button
+    onButtonClick(product._id, product.name);
+  };
 
   const getProductImage = (product: Product) => {
     if (product.bannerImage) {
       return product.bannerImage.startsWith("http")
         ? product.bannerImage
-        : `${process.env.NEXT_PUBLIC_API_URL}/${product.bannerImage}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/${product.bannerImage}`;
     }
     if (product.images && product.images.length > 0) {
-      const firstImage = product.images[0]
+      const firstImage = product.images[0];
       return firstImage.startsWith("http")
         ? firstImage
-        : `${process.env.NEXT_PUBLIC_API_URL}/${firstImage}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/${firstImage}`;
     }
-    return "/product.png" // Default fallback image
-  }
+    return "/product.png"; // Default fallback image
+  };
 
   return (
     <Card
@@ -87,8 +97,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
             style={{ objectFit: "cover" }}
             onError={(e) => {
               // Fallback to default vitamin bottle icon
-              const target = e.target as HTMLImageElement
-              target.style.display = "none"
+              const target = e.target as HTMLImageElement;
+              target.style.display = "none";
             }}
           />
           {/* Fallback Vitamin Bottle Icon */}
@@ -101,7 +111,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             }}
           >
             {/* Bottle */}
-          
+
             {/* C Badge */}
             {/* <Box
               sx={{
@@ -190,7 +200,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 fontSize: "0.75rem",
               }}
             >
-              ₹{product.price}
+              ${product.price}
             </Typography>
           </Box>
           */}
@@ -217,8 +227,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </Button>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
 const ProductCardSkeleton: React.FC = () => (
   <Card
@@ -232,88 +242,98 @@ const ProductCardSkeleton: React.FC = () => (
     }}
   >
     <CardContent sx={{ p: 0, height: "100%" }}>
-      <Skeleton variant="rectangular" height={120} sx={{ borderRadius: "12px 12px 0 0" }} />
+      <Skeleton
+        variant="rectangular"
+        height={120}
+        sx={{ borderRadius: "12px 12px 0 0" }}
+      />
       <Box sx={{ p: 2 }}>
         <Skeleton variant="text" height={24} sx={{ mb: 1 }} />
         <Skeleton variant="text" height={20} sx={{ mb: 1 }} />
         <Skeleton variant="text" height={20} sx={{ mb: 1.5 }} />
       </Box>
-      <Skeleton variant="rectangular" height={40} sx={{ borderRadius: "0 0 12px 12px" }} />
+      <Skeleton
+        variant="rectangular"
+        height={40}
+        sx={{ borderRadius: "0 0 12px 12px" }}
+      />
     </CardContent>
   </Card>
-)
+);
 
 const ProductsSection: React.FC = () => {
-  const router = useRouter()
-  const { isAuthenticated } = useAppStore()
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false)
-  const [selectedProduct, setSelectedProduct] = useState<string>("")
+  const router = useRouter();
+  const { isAuthenticated } = useAppStore();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<string>("");
 
   // API integration state
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch products from API
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        setLoading(true)
+        setLoading(true);
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/public/products/listing?page=1&limit=8&sortBy=createdAt&sortOrder=desc`
-        )
+        );
 
         if (!response.ok) {
-          throw new Error("Failed to fetch products")
+          throw new Error("Failed to fetch products");
         }
 
-        const data = await response.json()
+        const data = await response.json();
         if (data.success && data.products) {
-          setProducts(data.products)
-          setError(null)
+          setProducts(data.products);
+          setError(null);
         } else {
-          setProducts([])
-          setError("No products found")
+          setProducts([]);
+          setError("No products found");
         }
       } catch (err) {
-        console.error("Error fetching products:", err)
-        setError(err instanceof Error ? err.message : "Failed to load products")
-        setProducts([])
+        console.error("Error fetching products:", err);
+        setError(
+          err instanceof Error ? err.message : "Failed to load products"
+        );
+        setProducts([]);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchProducts()
-  }, [])
+    fetchProducts();
+  }, []);
 
   const handleCardClick = (productId: string) => {
     // Always redirect to detail page when clicking on card
-    router.push(`/product/detail/${productId}`)
-  }
+    router.push(`/product/detail/${productId}`);
+  };
 
   const handleButtonClick = (productId: string, productName: string) => {
     if (isAuthenticated) {
       // If authenticated, redirect to detail page
-      router.push(`/product/detail/${productId}`)
+      router.push(`/product/detail/${productId}`);
     } else {
       // If not authenticated, open quote form modal
-      setSelectedProduct(productName)
-      setIsQuoteModalOpen(true)
+      setSelectedProduct(productName);
+      setIsQuoteModalOpen(true);
     }
-  }
+  };
 
   const handlePrevious = () => {
-    setCurrentIndex((prev) => Math.max(0, prev - 1))
-  }
+    setCurrentIndex((prev) => Math.max(0, prev - 1));
+  };
 
   const handleNext = () => {
-    const maxIndex = Math.max(0, products.length - 4)
-    setCurrentIndex((prev) => Math.min(maxIndex, prev + 1))
-  }
+    const maxIndex = Math.max(0, products.length - 4);
+    setCurrentIndex((prev) => Math.min(maxIndex, prev + 1));
+  };
 
-  const visibleProducts = products.slice(currentIndex, currentIndex + 4)
+  const visibleProducts = products.slice(currentIndex, currentIndex + 4);
 
   // Loading state
   if (loading) {
@@ -385,7 +405,7 @@ const ProductsSection: React.FC = () => {
           </Box>
         </Container>
       </Box>
-    )
+    );
   }
 
   // Error state
@@ -404,7 +424,7 @@ const ProductsSection: React.FC = () => {
           </Alert>
         </Container>
       </Box>
-    )
+    );
   }
 
   // Empty state
@@ -427,7 +447,7 @@ const ProductsSection: React.FC = () => {
           </Box>
         </Container>
       </Box>
-    )
+    );
   }
 
   return (
@@ -521,7 +541,9 @@ const ProductsSection: React.FC = () => {
                     },
                   }}
                 >
-                  <ChevronRight sx={{ fontSize: 16, color: "#666", mr: -0.5 }} />
+                  <ChevronRight
+                    sx={{ fontSize: 16, color: "#666", mr: -0.5 }}
+                  />
                   <ChevronRight sx={{ fontSize: 16, color: "#666" }} />
                 </IconButton>
               </Box>
@@ -555,7 +577,7 @@ const ProductsSection: React.FC = () => {
         productName={selectedProduct}
       />
     </>
-  )
-}
+  );
+};
 
-export default ProductsSection
+export default ProductsSection;

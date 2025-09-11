@@ -198,14 +198,14 @@ const ChangePasswordPage: React.FC<ChangePasswordPageProps> = ({
   return (
     <Box sx={{ maxWidth: 600, mx: "auto", p: 3 }}>
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
+      {/* <Box sx={{ mb: 4 }}>
         <Typography variant="h4" sx={{ fontWeight: 600, color: "#333", mb: 1 }}>
           Change Password
         </Typography>
         <Typography variant="body1" sx={{ color: "#666" }}>
           Update your password to keep your account secure
         </Typography>
-      </Box>
+      </Box> */}
 
       {success && (
         <Alert

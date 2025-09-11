@@ -253,7 +253,20 @@ const PixelPerfectClone: React.FC = () => {
   }, [customer?.id, currentPage]);
 
   if (currentPage === "orders") {
-    return <OrdersPage onBack={handleBackToProfile} />;
+    return (
+      <ProtectedRoute>
+        <ProfileLayout
+          customer={customer}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          onBackToProfile={handleBackToProfile}
+          title="My Orders"
+          showBackButton={true}
+        >
+          <OrdersPage onBack={handleBackToProfile} />{" "}
+        </ProfileLayout>
+      </ProtectedRoute>
+    );
   }
 
   if (currentPage === "rfqs") {
@@ -284,256 +297,27 @@ const PixelPerfectClone: React.FC = () => {
             fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
           }}
         >
-          {/* Left Sidebar */}
-          <Box
-            sx={{
-              width: { xs: "100%", md: "280px" },
-              backgroundColor: "white",
-              borderRight: "1px solid #e0e0e0",
-              display: "flex",
-              flexDirection: "column",
-            }}
+          <ProfileLayout
+            customer={customer}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+            onBackToProfile={handleBackToProfile}
+            title="Settings"
+            showBackButton={true}
           >
-            {/* Profile Header */}
+            {/* Left Sidebar */}
+
+            {/* Main Content Area - Settings */}
             <Box
               sx={{
-                p: 3,
-                borderBottom: "1px solid #f0f0f0",
+                flex: 1,
+                backgroundColor: "#f8f9fa",
+                overflow: "auto",
               }}
             >
-              <Typography
-                variant="h6"
-                sx={{
-                  fontSize: "16px",
-                  fontWeight: 600,
-                  color: "#333",
-                  mb: 0.5,
-                }}
-              >
-                Profile
-              </Typography>
+              <SettingsPage />
             </Box>
-
-            {/* User Info */}
-            <Box
-              sx={{
-                p: 3,
-                borderBottom: "1px solid #f0f0f0",
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
-              }}
-            >
-              <Avatar
-                sx={{
-                  width: 48,
-                  height: 48,
-                  backgroundColor: "#d0d0d0",
-                }}
-              />
-              <Box>
-                <Typography
-                  sx={{
-                    fontSize: "14px",
-                    color: "#666",
-                    mb: 0.5,
-                  }}
-                >
-                  Hello
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    color: "#333",
-                    mb: 0.5,
-                  }}
-                >
-                  {customer?.name}
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: "14px",
-                    color: "#666",
-                  }}
-                >
-                  Personal Information
-                </Typography>
-              </Box>
-            </Box>
-
-            {/* Navigation Menu */}
-            <Box sx={{ flex: 1 }}>
-              {/* My Accounts */}
-              <Box
-                onClick={() => setCurrentPage("profile")}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  px: 3,
-                  py: 2.5,
-                  cursor: "pointer",
-                  "&:hover": {
-                    backgroundColor: "#f8f9fa",
-                  },
-                }}
-              >
-                <Person sx={{ fontSize: 20, color: "#666" }} />
-                <Typography
-                  sx={{
-                    fontSize: "15px",
-                    fontWeight: 400,
-                    color: "#666",
-                  }}
-                >
-                  My Accounts
-                </Typography>
-              </Box>
-
-              {/* Address Management */}
-              <Box
-                onClick={handleAddressManagementClick}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  px: 3,
-                  py: 2.5,
-                  cursor: "pointer",
-                  "&:hover": {
-                    backgroundColor: "#f8f9fa",
-                  },
-                }}
-              >
-                <LocationOn sx={{ fontSize: 20, color: "#666" }} />
-                <Typography
-                  sx={{
-                    fontSize: "15px",
-                    fontWeight: 400,
-                    color: "#666",
-                  }}
-                >
-                  Address Management
-                </Typography>
-              </Box>
-
-              {/* My Orders */}
-              <Box
-                onClick={handleMyOrdersClick}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  px: 3,
-                  py: 2.5,
-                  cursor: "pointer",
-                  "&:hover": {
-                    backgroundColor: "#f8f9fa",
-                  },
-                }}
-              >
-                <ShoppingBag sx={{ fontSize: 20, color: "#666" }} />
-                <Typography
-                  sx={{
-                    fontSize: "15px",
-                    fontWeight: 400,
-                    color: "#666",
-                  }}
-                >
-                  My Orders
-                </Typography>
-              </Box>
-
-              {/* Your RFQs */}
-              <Box
-                onClick={handleRFQsClick}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  px: 3,
-                  py: 2.5,
-                  cursor: "pointer",
-                  "&:hover": {
-                    backgroundColor: "#f8f9fa",
-                  },
-                }}
-              >
-                <Work sx={{ fontSize: 20, color: "#666" }} />
-                <Typography
-                  sx={{
-                    fontSize: "15px",
-                    fontWeight: 400,
-                    color: "#666",
-                  }}
-                >
-                  Your RFQs
-                </Typography>
-              </Box>
-
-              {/* Change Password */}
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  px: 3,
-                  py: 2.5,
-                  cursor: "pointer",
-                  "&:hover": {
-                    backgroundColor: "#f8f9fa",
-                  },
-                }}
-              >
-                <Lock sx={{ fontSize: 20, color: "#666" }} />
-                <Typography
-                  sx={{
-                    fontSize: "15px",
-                    fontWeight: 400,
-                    color: "#666",
-                  }}
-                >
-                  Change Password
-                </Typography>
-              </Box>
-
-              {/* Settings - Active */}
-              <Box
-                sx={{
-                  backgroundColor: "#ff6b35",
-                  color: "white",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  px: 3,
-                  py: 2.5,
-                  cursor: "pointer",
-                }}
-              >
-                <Settings sx={{ fontSize: 20 }} />
-                <Typography
-                  sx={{
-                    fontSize: "15px",
-                    fontWeight: 500,
-                  }}
-                >
-                  Settings
-                </Typography>
-              </Box>
-            </Box>
-          </Box>
-
-          {/* Main Content Area - Settings */}
-          <Box
-            sx={{
-              flex: 1,
-              backgroundColor: "#f8f9fa",
-              overflow: "auto",
-            }}
-          >
-            <SettingsPage />
-          </Box>
+          </ProfileLayout>
         </Box>
       </ProtectedRoute>
     );
@@ -551,229 +335,25 @@ const PixelPerfectClone: React.FC = () => {
           }}
         >
           {/* Left Sidebar */}
-          <Box
-            sx={{
-              width: { xs: "100%", md: "280px" },
-              backgroundColor: "white",
-              borderRight: "1px solid #e0e0e0",
-              display: "flex",
-              flexDirection: "column",
-            }}
+          <ProfileLayout
+            customer={customer}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+            onBackToProfile={handleBackToProfile}
+            title="Change Password"
+            showBackButton={true}
           >
-            {/* Profile Header */}
+            {/* Main Content Area - Change Password */}
             <Box
               sx={{
-                p: 3,
-                borderBottom: "1px solid #f0f0f0",
+                flex: 1,
+                backgroundColor: "#f8f9fa",
+                overflow: "auto",
               }}
             >
-              <Typography
-                variant="h6"
-                sx={{
-                  fontSize: "16px",
-                  fontWeight: 600,
-                  color: "#333",
-                  mb: 0.5,
-                }}
-              >
-                Profile
-              </Typography>
+              <ChangePasswordPage onPasswordChange={handlePasswordChange} />
             </Box>
-
-            {/* User Info */}
-            <Box
-              sx={{
-                p: 3,
-                borderBottom: "1px solid #f0f0f0",
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
-              }}
-            >
-              <Avatar
-                sx={{
-                  width: 48,
-                  height: 48,
-                  backgroundColor: "#d0d0d0",
-                }}
-              />
-              <Box>
-                <Typography
-                  sx={{
-                    fontSize: "14px",
-                    color: "#666",
-                    mb: 0.5,
-                  }}
-                >
-                  Hello
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    color: "#333",
-                    mb: 0.5,
-                  }}
-                >
-                  {customer?.name}
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: "14px",
-                    color: "#666",
-                  }}
-                >
-                  Personal Information
-                </Typography>
-              </Box>
-            </Box>
-
-            {/* Navigation Menu */}
-            <Box sx={{ flex: 1 }}>
-              {/* My Accounts */}
-              <Box
-                onClick={() => setCurrentPage("profile")}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  px: 3,
-                  py: 2.5,
-                  cursor: "pointer",
-                  "&:hover": {
-                    backgroundColor: "#f8f9fa",
-                  },
-                }}
-              >
-                <Person sx={{ fontSize: 20, color: "#666" }} />
-                <Typography
-                  sx={{
-                    fontSize: "15px",
-                    fontWeight: 400,
-                    color: "#666",
-                  }}
-                >
-                  My Accounts
-                </Typography>
-              </Box>
-
-              {/* Address Management */}
-              <Box
-                onClick={handleAddressManagementClick}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  px: 3,
-                  py: 2.5,
-                  cursor: "pointer",
-                  "&:hover": {
-                    backgroundColor: "#f8f9fa",
-                  },
-                }}
-              >
-                <LocationOn sx={{ fontSize: 20, color: "#666" }} />
-                <Typography
-                  sx={{
-                    fontSize: "15px",
-                    fontWeight: 400,
-                    color: "#666",
-                  }}
-                >
-                  Address Management
-                </Typography>
-              </Box>
-
-              {/* My Orders */}
-              <Box
-                onClick={handleMyOrdersClick}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  px: 3,
-                  py: 2.5,
-                  cursor: "pointer",
-                  "&:hover": {
-                    backgroundColor: "#f8f9fa",
-                  },
-                }}
-              >
-                <ShoppingBag sx={{ fontSize: 20, color: "#666" }} />
-                <Typography
-                  sx={{
-                    fontSize: "15px",
-                    fontWeight: 400,
-                    color: "#666",
-                  }}
-                >
-                  My Orders
-                </Typography>
-              </Box>
-
-              {/* Change Password - Active */}
-              <Box
-                sx={{
-                  backgroundColor: "#ff6b35",
-                  color: "white",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  px: 3,
-                  py: 2.5,
-                  cursor: "pointer",
-                }}
-              >
-                <Lock sx={{ fontSize: 20 }} />
-                <Typography
-                  sx={{
-                    fontSize: "15px",
-                    fontWeight: 500,
-                  }}
-                >
-                  Change Password
-                </Typography>
-              </Box>
-
-              {/* Settings */}
-              <Box
-                onClick={handleSettingsClick}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  px: 3,
-                  py: 2.5,
-                  cursor: "pointer",
-                  "&:hover": {
-                    backgroundColor: "#f8f9fa",
-                  },
-                }}
-              >
-                <Settings sx={{ fontSize: 20, color: "#666" }} />
-                <Typography
-                  sx={{
-                    fontSize: "15px",
-                    fontWeight: 400,
-                    color: "#666",
-                  }}
-                >
-                  Settings
-                </Typography>
-              </Box>
-            </Box>
-          </Box>
-
-          {/* Main Content Area - Change Password */}
-          <Box
-            sx={{
-              flex: 1,
-              backgroundColor: "#f8f9fa",
-              overflow: "auto",
-            }}
-          >
-            <ChangePasswordPage onPasswordChange={handlePasswordChange} />
-          </Box>
+          </ProfileLayout>
         </Box>
       </ProtectedRoute>
     );
@@ -790,234 +370,33 @@ const PixelPerfectClone: React.FC = () => {
           }}
         >
           {/* Left Sidebar */}
-          <Box
-            sx={{
-              width: { xs: "100%", md: "280px" },
-              backgroundColor: "white",
-              borderRight: "1px solid #e0e0e0",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            {/* Profile Header */}
-            <Box
-              sx={{
-                p: 3,
-                borderBottom: "1px solid #f0f0f0",
-              }}
-            >
-              <Typography
-                variant="h6"
-                sx={{
-                  fontSize: "16px",
-                  fontWeight: 600,
-                  color: "#333",
-                  mb: 0.5,
-                }}
-              >
-                Profile
-              </Typography>
-            </Box>
 
-            {/* User Info */}
+          <ProfileLayout
+            customer={customer}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+            onBackToProfile={handleBackToProfile}
+            title="Your RFQs"
+            showBackButton={true}
+          >
+            {/* Main Content Area - Edit Profile */}
             <Box
               sx={{
-                p: 3,
-                borderBottom: "1px solid #f0f0f0",
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
+                flex: 1,
+                backgroundColor: "#f8f9fa",
+                overflow: "auto",
+                p: 4,
               }}
             >
-              <Avatar
-                sx={{
-                  width: 48,
-                  height: 48,
-                  backgroundColor: "#d0d0d0",
+              <ProfileUpdateForm
+                customerId={customer?.id || ""}
+                onSuccess={(updatedProfile) => {
+                  console.log("Profile updated:", updatedProfile);
+                  // You can update the store here if needed
                 }}
               />
-              <Box>
-                <Typography
-                  sx={{
-                    fontSize: "14px",
-                    color: "#666",
-                    mb: 0.5,
-                  }}
-                >
-                  Hello
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    color: "#333",
-                    mb: 0.5,
-                  }}
-                >
-                  {customer?.name}
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: "14px",
-                    color: "#666",
-                  }}
-                >
-                  Personal Information
-                </Typography>
-              </Box>
             </Box>
-
-            {/* Navigation Menu */}
-            <Box sx={{ flex: 1 }}>
-              {/* My Accounts */}
-              <Box
-                onClick={() => setCurrentPage("profile")}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  px: 3,
-                  py: 2.5,
-                  cursor: "pointer",
-                  "&:hover": {
-                    backgroundColor: "#f8f9fa",
-                  },
-                }}
-              >
-                <Person sx={{ fontSize: 20, color: "#666" }} />
-                <Typography
-                  sx={{
-                    fontSize: "15px",
-                    fontWeight: 400,
-                    color: "#666",
-                  }}
-                >
-                  My Accounts
-                </Typography>
-              </Box>
-
-              {/* Address Management */}
-              <Box
-                onClick={handleAddressManagementClick}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  px: 3,
-                  py: 2.5,
-                  cursor: "pointer",
-                  "&:hover": {
-                    backgroundColor: "#f8f9fa",
-                  },
-                }}
-              >
-                <LocationOn sx={{ fontSize: 20, color: "#666" }} />
-                <Typography
-                  sx={{
-                    fontSize: "15px",
-                    fontWeight: 400,
-                    color: "#666",
-                  }}
-                >
-                  Address Management
-                </Typography>
-              </Box>
-
-              {/* My Orders */}
-              <Box
-                onClick={handleMyOrdersClick}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  px: 3,
-                  py: 2.5,
-                  cursor: "pointer",
-                  "&:hover": {
-                    backgroundColor: "#f8f9fa",
-                  },
-                }}
-              >
-                <ShoppingBag sx={{ fontSize: 20, color: "#666" }} />
-                <Typography
-                  sx={{
-                    fontSize: "15px",
-                    fontWeight: 400,
-                    color: "#666",
-                  }}
-                >
-                  My Orders
-                </Typography>
-              </Box>
-
-              {/* Change Password */}
-              <Box
-                onClick={handleChangePasswordClick}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  px: 3,
-                  py: 2.5,
-                  cursor: "pointer",
-                  "&:hover": {
-                    backgroundColor: "#f8f9fa",
-                  },
-                }}
-              >
-                <Lock sx={{ fontSize: 20, color: "#666" }} />
-                <Typography
-                  sx={{
-                    fontSize: "15px",
-                    fontWeight: 400,
-                    color: "#666",
-                  }}
-                >
-                  Change Password
-                </Typography>
-              </Box>
-
-              {/* Settings */}
-              <Box
-                onClick={handleSettingsClick}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  px: 3,
-                  py: 2.5,
-                  cursor: "pointer",
-                  "&:hover": {
-                    backgroundColor: "#f8f9fa",
-                  },
-                }}
-              >
-                <Settings sx={{ fontSize: 20, color: "#666" }} />
-                <Typography
-                  sx={{
-                    fontSize: "15px",
-                    fontWeight: 400,
-                    color: "#666",
-                  }}
-                >
-                  Settings
-                </Typography>
-              </Box>
-            </Box>
-          </Box>
-
-          {/* Main Content Area - Edit Profile */}
-          <Box
-            sx={{ flex: 1, backgroundColor: "#f8f9fa", overflow: "auto", p: 4 }}
-          >
-            <ProfileUpdateForm
-              customerId={customer?.id || ""}
-              onSuccess={(updatedProfile) => {
-                console.log("Profile updated:", updatedProfile);
-                // You can update the store here if needed
-              }}
-            />
-          </Box>
+          </ProfileLayout>
         </Box>
       </ProtectedRoute>
     );
@@ -1830,6 +1209,33 @@ const PixelPerfectClone: React.FC = () => {
                 }}
               >
                 My Orders
+              </Typography>
+            </Box>
+
+            {/* Your RFQs */}
+            <Box
+              onClick={handleRFQsClick}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
+                px: 3,
+                py: 2.5,
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor: "#f8f9fa",
+                },
+              }}
+            >
+              <Work sx={{ fontSize: 20, color: "#666" }} />
+              <Typography
+                sx={{
+                  fontSize: "15px",
+                  fontWeight: 400,
+                  color: "#666",
+                }}
+              >
+                Your RFQs
               </Typography>
             </Box>
 

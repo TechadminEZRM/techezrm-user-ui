@@ -172,7 +172,7 @@ const FavouritesSection: React.FC = () => {
             fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
           }}
         >
-          Favourites
+          Wishlist
         </Typography>
 
         <Box
@@ -235,7 +235,7 @@ const FavouritesSection: React.FC = () => {
             fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
           }}
         >
-          Favourites
+          Wishlist
         </Typography>
 
         <Box
@@ -269,7 +269,7 @@ const FavouritesSection: React.FC = () => {
             fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
           }}
         >
-          Favourites
+          Wishlist
         </Typography>
 
         <Alert severity="error" sx={{ mt: 2 }}>
@@ -297,7 +297,7 @@ const FavouritesSection: React.FC = () => {
             fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
           }}
         >
-          Favourites
+          Wishlist
         </Typography>
 
         <Box
@@ -369,7 +369,7 @@ const FavouritesSection: React.FC = () => {
           fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
         }}
       >
-        Favourites ({products.length})
+        Wishlist ({products.length})
       </Typography>
 
       {/* Products Grid - Responsive Layout */}
@@ -470,7 +470,7 @@ const FavouritesSection: React.FC = () => {
                         pointerEvents: "none",
                       }}
                     >
-                      Greenjeeva
+                      EZRM
                     </Box>
 
                     {/* Stock Status Badge */}
@@ -518,7 +518,7 @@ const FavouritesSection: React.FC = () => {
                           '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
                       }}
                     >
-                      {product.title}
+                      {product?.title}
                     </Typography>
 
                     {/* Product Subtitle */}
@@ -536,7 +536,7 @@ const FavouritesSection: React.FC = () => {
                         overflow: "hidden",
                       }}
                     >
-                      {product.subtitle}
+                      {product?.subtitle}
                     </Typography>
 
                     {/* Price */}
@@ -549,14 +549,15 @@ const FavouritesSection: React.FC = () => {
                         mb: 0.5,
                       }}
                     >
-                      ₹{product.price.toLocaleString()}
+                      ${product.price.toLocaleString()}
+                      <small style={{ color: "grey" }}>/kg</small>
                     </Typography>
 
                     {/* Product Code */}
                     <Typography
                       variant="body2"
                       sx={{
-                        color: "#999",
+                        color: "#666",
                         fontSize: { xs: "0.7rem", md: "0.75rem" },
                         mb: { xs: 1.5, md: 2 },
                         fontFamily:

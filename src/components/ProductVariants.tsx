@@ -95,7 +95,7 @@ export default function ProductVariants({ productId }: ProductVariantsProps) {
                   {variant.unitSize} {variant.unit}
                 </TableCell>
                 <TableCell sx={{ py: 1.5, fontSize: "12px" }}>
-                  ₹{variant.price.toLocaleString()}
+                  ${variant.price.toLocaleString()}
                 </TableCell>
                 <TableCell sx={{ py: 1.5, fontSize: "12px" }}>
                   {getSavingsPercentage(variant.price)}

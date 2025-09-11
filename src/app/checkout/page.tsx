@@ -467,23 +467,32 @@ const CheckoutForm: React.FC = () => {
                   <Box
                     key={index}
                     sx={{
-                      p: 3,
-                      mb: 3,
-                      background: "#f8fafc",
-                      borderRadius: 2,
-                      border: "1px solid #e2e8f0",
+                      p: 2,
+                      mb: 2,
+                      background:
+                        "linear-gradient(135deg, #ffffff 0%, #fafbfc 100%)",
+                      borderRadius: "12px",
+                      border: "1px solid rgba(255, 107, 53, 0.1)",
+                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        boxShadow: "0 4px 16px rgba(255, 107, 53, 0.1)",
+                        transform: "translateY(-1px)",
+                        borderColor: "rgba(255, 107, 53, 0.2)",
+                      },
                       "&:last-child": { mb: 0 },
                     }}
                   >
-                    <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
+                    <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
                       <Box
                         sx={{
-                          width: 80,
-                          height: 80,
-                          borderRadius: 2,
+                          width: 60,
+                          height: 60,
+                          borderRadius: "10px",
                           overflow: "hidden",
                           flexShrink: 0,
-                          border: "1px solid #e2e8f0",
+                          border: "2px solid rgba(255, 107, 53, 0.1)",
+                          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
                         }}
                       >
                         <img
@@ -500,12 +509,13 @@ const CheckoutForm: React.FC = () => {
                         <Typography
                           sx={{
                             color: "#1e293b",
-                            fontSize: "1rem",
+                            fontSize: "0.95rem",
                             fontWeight: 600,
-                            mb: 1,
+                            mb: 0.5,
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
+                            lineHeight: 1.3,
                           }}
                         >
                           {item.productName || "Product"}
@@ -513,36 +523,68 @@ const CheckoutForm: React.FC = () => {
                         <Typography
                           sx={{
                             color: "#64748b",
-                            fontSize: "0.875rem",
+                            fontSize: "0.75rem",
                             mb: 1,
+                            fontFamily: "monospace",
                           }}
                         >
-                          Product ID: {item.product._id}
+                          ID: {item?.product?._id?.slice(-8) || "N/A"}
                         </Typography>
                         <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 3 }}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: 2,
+                          }}
                         >
                           <Typography
                             sx={{
                               color: "#ff6b35",
-                              fontSize: "1.125rem",
+                              fontSize: "1rem",
                               fontWeight: 700,
+                              background:
+                                "linear-gradient(135deg, #ff6b35 0%, #e55a2b 100%)",
+                              backgroundClip: "text",
+                              WebkitBackgroundClip: "text",
+                              WebkitTextFillColor: "transparent",
                             }}
                           >
                             ${item.productPrice || 0}
                           </Typography>
-                          <Typography
+                          <Box
                             sx={{
-                              color: "#64748b",
-                              fontSize: "0.875rem",
-                              backgroundColor: "#f1f5f9",
-                              px: 2,
-                              py: 0.5,
-                              borderRadius: 1,
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
                             }}
                           >
-                            Qty: {item.quantity}
-                          </Typography>
+                            <Typography
+                              sx={{
+                                color: "#64748b",
+                                fontSize: "0.75rem",
+                                fontWeight: 500,
+                              }}
+                            >
+                              Qty:
+                            </Typography>
+                            <Box
+                              sx={{
+                                backgroundColor: "rgba(255, 107, 53, 0.1)",
+                                color: "#ff6b35",
+                                px: 1.5,
+                                py: 0.5,
+                                borderRadius: "6px",
+                                fontSize: "0.75rem",
+                                fontWeight: 600,
+                                minWidth: "32px",
+                                textAlign: "center",
+                                border: "1px solid rgba(255, 107, 53, 0.2)",
+                              }}
+                            >
+                              {item.quantity}
+                            </Box>
+                          </Box>
                         </Box>
                       </Box>
                     </Box>

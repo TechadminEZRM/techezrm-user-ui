@@ -297,6 +297,8 @@ const ShoppingCart: React.FC = () => {
             {/* Cart Items */}
             <CartItems cartItems={cartItems} />
 
+            <Divider sx={{ backgroundColor: "#cecece", height: 10 }} />
+
             {/* Load & Stuffing Calculation Section */}
             <Box sx={{ mt: 4 }}>
               <LoadCalculation />
