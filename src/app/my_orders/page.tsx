@@ -80,10 +80,14 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onBuyAgain }) => {
     // Payment status badge
     if (paymentStatus === "pending") {
       badges.push({ label: "Payment Pending", color: "warning" });
+    } else if (paymentStatus === "processing") {
+      badges.push({ label: "Payment Processing", color: "info" });
     } else if (paymentStatus === "failed") {
       badges.push({ label: "Payment Failed", color: "error" });
     } else if (paymentStatus === "completed") {
       badges.push({ label: "Paid", color: "success" });
+    } else if (paymentStatus === "refunded") {
+      badges.push({ label: "Refunded", color: "warning" });
     }
 
     return badges;
@@ -97,11 +101,14 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onBuyAgain }) => {
       case "upi":
         return "UPI Payment";
       case "card":
-        return "Card Payment";
+      case "credit_card":
+        return "Credit Card";
       case "netbanking":
         return "Net Banking";
       default:
-        return method.toUpperCase();
+        return method
+          .replace(/_/g, " ")
+          .replace(/\b\w/g, (l) => l.toUpperCase());
     }
   };
 
@@ -109,7 +116,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onBuyAgain }) => {
   const canBuyAgain = order.orderStatus === "delivered";
   const router = useRouter();
   const handleDetailClick = () => {
-    router.push("/orderDetails");
+    router.push(`/orderDetails?orderId=${order.uniqueId}`);
   };
   return (
     <Box
