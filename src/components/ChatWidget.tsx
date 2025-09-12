@@ -6,7 +6,9 @@ import { useAppStore } from "@/store/use-app-store";
 
 declare global {
   interface Window {
-    initNoupeWidget: (config: any) => void;
+    AgentInitializer: {
+      init: (config: any) => void;
+    };
   }
 }
 
@@ -26,7 +28,10 @@ const ChatWidget: React.FC = () => {
     });
 
     // Check if script is already loaded
-    if (typeof window.initNoupeWidget === "function") {
+    if (
+      window.AgentInitializer &&
+      typeof window.AgentInitializer.init === "function"
+    ) {
       console.log("ChatWidget: Script already available");
       setScriptLoaded(true);
       initializeWidget();
@@ -49,11 +54,14 @@ const ChatWidget: React.FC = () => {
 
         // Wait a bit for the script to fully initialize
         setTimeout(() => {
-          if (typeof window.initNoupeWidget === "function") {
+          if (
+            window.AgentInitializer &&
+            typeof window.AgentInitializer.init === "function"
+          ) {
             initializeWidget();
           } else {
             console.error(
-              "ChatWidget: Script loaded but initNoupeWidget function not found"
+              "ChatWidget: Script loaded but AgentInitializer.init function not found"
             );
             setScriptError(
               "Script loaded but initialization function not found"
@@ -103,30 +111,33 @@ const ChatWidget: React.FC = () => {
 
   const initializeWidget = () => {
     try {
-      if (typeof window.initNoupeWidget !== "function") {
-        console.error("ChatWidget: initNoupeWidget function not available");
+      if (
+        !window.AgentInitializer ||
+        typeof window.AgentInitializer.init !== "function"
+      ) {
+        console.error(
+          "ChatWidget: AgentInitializer.init function not available"
+        );
         return;
       }
 
-      const noupeConfig = {
-        // Basic configuration for noupe widget
-        enabled: true,
-        position: "bottom-right",
-        theme: "light",
-        // Add any other configuration options that noupe widget supports
+      const agentConfig = {
+        // Basic configuration for noupe agent
+        initialContext: "",
+        // Add any other configuration options that noupe agent supports
       };
 
       console.log(
-        "ChatWidget: Initializing noupe widget with config",
-        noupeConfig
+        "ChatWidget: Initializing noupe agent with config",
+        agentConfig
       );
 
-      // Initialize the noupe widget
-      window.initNoupeWidget(noupeConfig);
+      // Initialize the noupe agent
+      // window?.AgentInitializer?.init(agentConfig);
       setWidgetInitialized(true);
-      console.log("ChatWidget: Noupe widget initialized successfully");
+      console.log("ChatWidget: Noupe agent initialized successfully");
     } catch (error) {
-      console.error("ChatWidget: Error initializing noupe chat widget:", error);
+      console.error("ChatWidget: Error initializing noupe chat agent:", error);
       setScriptError(`Initialization error: ${error}`);
     }
   };
@@ -179,10 +190,10 @@ const ChatWidget: React.FC = () => {
   //       <button
   //         onClick={() => {
   //           console.log("Manual initialization attempt");
-  //           if (typeof window.initNoupeWidget === "function") {
+  //           if (window.AgentInitializer && typeof window.AgentInitializer.init === "function") {
   //             initializeWidget();
   //           } else {
-  //             console.log("initNoupeWidget not available");
+  //             console.log("AgentInitializer.init not available");
   //           }
   //         }}
   //         style={{
