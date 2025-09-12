@@ -33,10 +33,15 @@ import { customerAddressHandler } from "@/api/handlers/customerAddressHandler";
 import { customerProfileHandler } from "@/api/handlers/customerProfileHandler";
 import { useCart } from "@/api/handlers/cartHandler";
 import { checkoutSessionsService } from "@/api/services/checkoutSessions";
-import type { CustomerAddress } from "@/api/services/customerAddress";
+// import type { CustomerAddress } from "@/api/services/customerAddress";
 import type { CustomerProfile } from "@/api/services/customerProfile";
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 import MapSelector from "@/components/MapSelector";
+import type {
+  CustomerAddress,
+  AddAddressRequest,
+  UpdateAddressRequest,
+} from "@/api/services/customerAddress";
 
 import {
   LocalShipping,
@@ -464,6 +469,10 @@ const CheckoutForm: React.FC = () => {
       state: address.state || "",
       postalCode: address.zipCode || "",
     }));
+
+    console.log("use this address")
+
+
   };
 
   const paymentMethods = [
@@ -517,6 +526,26 @@ const CheckoutForm: React.FC = () => {
       opacity: 1,
     },
   };
+
+  const saveAddress = async (
+    newAddress: AddAddressRequest | UpdateAddressRequest
+  ) => {
+    if (!customer?.id) return;
+
+    const newAddress1 = await customerAddressHandler.addAddress(
+      customer.id,
+      newAddress as AddAddressRequest
+    );
+    if(newAddress1){
+      setAddressModalOpen(false)
+      const addresses = await customerAddressHandler.getAddresses(
+        customer.id
+      );
+      setAllAddresses(addresses);
+
+    }
+
+  }
 
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
@@ -699,7 +728,7 @@ const CheckoutForm: React.FC = () => {
                               WebkitTextFillColor: "transparent",
                             }}
                           >
-                            ${item.productPrice || 0}
+                            ${item.productPrice*item.quantity || 0}
                           </Typography>
                           <Box
                             sx={{
@@ -1979,7 +2008,7 @@ const CheckoutForm: React.FC = () => {
           <Button
             variant="contained"
             size="small"
-            onClick={() => setAddressModalOpen(false)}
+            onClick={() => saveAddress(newAddressData)}
             startIcon={<Save sx={{ fontSize: 16 }} />}
             sx={{
               backgroundColor: "#ff6b35",
