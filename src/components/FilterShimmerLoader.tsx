@@ -60,7 +60,7 @@ const FilterShimmerLoader: React.FC = () => {
                 />
                 <Skeleton
                   variant="text"
-                  width={`${Math.random() * 40 + 60}%`}
+                  width="75%"
                   height={16}
                   sx={{ backgroundColor: "#f0f0f0" }}
                 />
@@ -119,7 +119,7 @@ const FilterShimmerLoader: React.FC = () => {
                 />
                 <Skeleton
                   variant="text"
-                  width={`${Math.random() * 30 + 70}%`}
+                  width="85%"
                   height={16}
                   sx={{ backgroundColor: "#f0f0f0" }}
                 />
