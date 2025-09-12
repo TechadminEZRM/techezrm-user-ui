@@ -496,7 +496,7 @@ const CheckoutForm: React.FC = () => {
                         }}
                       >
                         <img
-                          src="/product.png"
+                          src={item?.product?.bannerImage}
                           alt={item.productName || "Product"}
                           style={{
                             width: "100%",
