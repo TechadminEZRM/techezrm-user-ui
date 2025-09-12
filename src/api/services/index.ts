@@ -17,6 +17,7 @@ export { customerProfileService } from "./customerProfile";
 export { stripeService } from "./stripe";
 export { checkoutSessionsService } from "./checkoutSessions";
 export { getCompanyDetails } from "./companyDetails";
+export { mapsService } from "./maps";
 
 // Product services
 export * from "./products";
@@ -118,3 +119,6 @@ export * from "./stripe";
 
 // Company Details services
 export * from "./companyDetails";
+
+// Maps services
+export * from "./maps";

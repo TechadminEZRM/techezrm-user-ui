@@ -36,7 +36,7 @@ import { checkoutSessionsService } from "@/api/services/checkoutSessions";
 import type { CustomerAddress } from "@/api/services/customerAddress";
 import type { CustomerProfile } from "@/api/services/customerProfile";
 import { loadStripe, Stripe } from "@stripe/stripe-js";
-import GoogleMapSelector from "@/components/GoogleMapSelector";
+import MapSelector from "@/components/MapSelector";
 
 import {
   LocalShipping,
@@ -2043,7 +2043,7 @@ const CheckoutForm: React.FC = () => {
         </DialogTitle>
 
         <DialogContent sx={{ p: 0, height: "100%" }}>
-          <GoogleMapSelector
+          <MapSelector
             onLocationSelect={handleMapSelection}
             initialCenter={{
               lat: newAddressData.coordinates.latitude
