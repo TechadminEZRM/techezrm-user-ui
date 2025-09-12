@@ -273,6 +273,8 @@ const ShoppingCart: React.FC = () => {
     );
   }
 
+  console.log(cartItems, "cartItems__cartItems");
+
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
       <Box

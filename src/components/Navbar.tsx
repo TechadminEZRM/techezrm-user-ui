@@ -102,7 +102,7 @@ const Navbar: React.FC = () => {
   );
 
   // Extract counts
-  const cartCount = cartSummary?.data?.totalItems || 0;
+  const cartCount = cartSummary?.data?.itemCount || 0;
   const wishlistCount = wishlistData?.data?.products?.length || 0;
 
   const [profileMenuAnchor, setProfileMenuAnchor] =
@@ -743,7 +743,7 @@ const Navbar: React.FC = () => {
                     zIndex: 1,
                   }}
                 >
-                  {wishlistCount > 99 ? "99+" : wishlistCount}
+                  {wishlistCount > 9 ? "9+" : wishlistCount}
                 </Box>
               )}
             </Box>
@@ -792,7 +792,7 @@ const Navbar: React.FC = () => {
                     zIndex: 1,
                   }}
                 >
-                  {cartCount > 99 ? "99+" : cartCount}
+                  {cartCount > 9 ? "9+" : cartCount}
                 </Box>
               )}
             </Box>
