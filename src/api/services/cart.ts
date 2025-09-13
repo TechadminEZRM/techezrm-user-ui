@@ -161,9 +161,11 @@ class CartService {
   }
 
   async clearCart(customerId: string): Promise<CartResponse> {
-    return this.makeRequest<CartResponse>(ENDPOINTS.CART.CLEAR, {
+    const url = `${ENDPOINTS.CART.CLEAR}?customerId=${encodeURIComponent(
+      customerId
+    )}`;
+    return this.makeRequest<CartResponse>(url, {
       method: "DELETE",
-      body: JSON.stringify({ customerId }),
     });
   }
 

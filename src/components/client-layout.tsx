@@ -12,6 +12,8 @@ import FooterSection from "@/components/FooterSection";
 import ChatWidget from "@/components/ChatWidget";
 import { useAppStore } from "@/store/use-app-store";
 import { customerAuthService } from "@/api/services/customerAuth";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface ClientLayoutProps {
   children: React.ReactNode;
@@ -93,6 +95,25 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ children }) => {
 
         {/* Chat Widget - Available on all pages */}
         <ChatWidget />
+
+        {/* Toast Container */}
+        <ToastContainer
+          position="top-center"
+          autoClose={4000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          toastStyle={{
+            fontSize: "0.875rem",
+            borderRadius: "8px",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+          }}
+        />
       </ThemeProvider>
     </QueryClientProvider>
   );
