@@ -39,6 +39,7 @@ import { loadStripe, Stripe } from "@stripe/stripe-js";
 import MapSelector from "@/components/MapSelector";
 import AddressModal from "@/components/AddressModal";
 import { useCustomerAddresses } from "@/hooks/use-customer-addresses";
+import { toast } from "react-toastify";
 
 import {
   LocalShipping,
@@ -233,12 +234,12 @@ const CheckoutForm: React.FC = () => {
 
   const handleCompletePurchase = async () => {
     if (!customer?.id) {
-      setPaymentError("Please log in to complete your purchase.");
+      toast.warning("Please log in to complete your purchase.");
       return;
     }
 
     if (!stripe) {
-      setPaymentError("Payment system is not ready. Please try again.");
+      toast.error("Payment system is not ready. Please try again.");
       return;
     }
 
@@ -257,10 +258,27 @@ const CheckoutForm: React.FC = () => {
       .map(([field]) => field);
 
     if (missingFields.length > 0) {
-      setPaymentError(
-        `Please fill in the following required fields: ${missingFields.join(
-          ", "
-        )}`
+      const fieldNames = missingFields.map((field) => {
+        switch (field) {
+          case "firstName":
+            return "First Name";
+          case "lastName":
+            return "Last Name";
+          case "email":
+            return "Email";
+          case "addressLine1":
+            return "Address";
+          case "city":
+            return "City";
+          case "state":
+            return "State";
+          default:
+            return field;
+        }
+      });
+
+      toast.warning(
+        `Please fill in the following required fields: ${fieldNames.join(", ")}`
       );
       return;
     }
@@ -268,7 +286,7 @@ const CheckoutForm: React.FC = () => {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      setPaymentError("Please enter a valid email address.");
+      toast.warning("Please enter a valid email address.");
       return;
     }
 
@@ -287,15 +305,16 @@ const CheckoutForm: React.FC = () => {
       const tax = subtotal * 0.08;
       const totalAmount = subtotal + shipping + tax;
 
+      // Get selected address details for billing
+      const selectedAddress = selectedAddressId
+        ? addresses.find((addr) => addr._id === selectedAddressId)
+        : null;
+
       // Create checkout session data
       const checkoutData = {
         customerId: customer.id,
-        orderId,
-        amount: Math.round(totalAmount * 100), // Convert to cents
-        currency: "inr",
         customerName: `${formData.firstName} ${formData.lastName}`,
         customerEmail: formData.email,
-        selectedAddressId: selectedAddressId, // Include selected address ID
         shippingAddress: {
           addressLine1: formData.addressLine1,
           city: formData.city,
@@ -303,9 +322,37 @@ const CheckoutForm: React.FC = () => {
           postalCode: formData.postalCode,
           country: "India",
         },
+        billingAddress: selectedAddress
+          ? {
+              addressLine1: selectedAddress.street,
+              city: selectedAddress.city,
+              state: selectedAddress.state,
+              postalCode: selectedAddress.zipCode,
+              country: selectedAddress.country,
+            }
+          : {
+              addressLine1: formData.addressLine1,
+              city: formData.city,
+              state: formData.state,
+              postalCode: formData.postalCode,
+              country: "India",
+            },
+        orderItems: cartItems.map((item) => ({
+          productId: item.product._id,
+          productName: item.productName || "Product",
+          quantity: item.quantity,
+          unitPrice: item.productPrice || 0,
+          totalPrice: (item.productPrice || 0) * item.quantity,
+        })),
+        subTotal: subtotal,
+        tax: tax,
+        shippingCost: shipping,
+        discount: 0, // No discount applied yet
+        totalAmount: totalAmount,
+        currency: "usd",
         lineItems: cartItems.map((item) => ({
           price_data: {
-            currency: "inr",
+            currency: "usd",
             product_data: {
               name: item.productName || "Product",
               description: `Product ID: ${item.product._id}`,
@@ -321,14 +368,14 @@ const CheckoutForm: React.FC = () => {
       };
 
       // Create checkout session
-      const checkoutSession =
+      const checkoutSession: any =
         await checkoutSessionsService.createCheckoutSession(checkoutData);
       console.log("Checkout session created:", checkoutSession);
 
       // Redirect to Stripe checkout
       if (stripe) {
         const { error } = await stripe.redirectToCheckout({
-          sessionId: checkoutSession.sessionId,
+          sessionId: checkoutSession?.data?.sessionId,
         });
 
         if (error) {
@@ -339,7 +386,7 @@ const CheckoutForm: React.FC = () => {
       }
     } catch (error) {
       console.error("Payment error:", error);
-      setPaymentError(
+      toast.error(
         error instanceof Error
           ? error.message
           : "Payment failed. Please try again."

@@ -204,9 +204,7 @@ export default function ProductDetailPage() {
       },
       {
         onSuccess: () => {
-          setSnackbarMessage(
-            `${cartQuantity} item(s) added to cart successfully!`
-          );
+          setSnackbarMessage(`added to cart successfully!`);
           setSnackbarOpen(true);
         },
         onError: (error) => {
@@ -1201,7 +1199,11 @@ export default function ProductDetailPage() {
                   variant="contained"
                   fullWidth
                   onClick={handleAddToCart}
-                  disabled={!product.inStock || addToCartMutation.isPending || minCartQuantity <=1}
+                  disabled={
+                    !product.inStock ||
+                    addToCartMutation.isPending ||
+                    minCartQuantity <= 1
+                  }
                   sx={{
                     backgroundColor: product.inStock ? "#4caf50" : "#ccc",
                     color: "white",
@@ -1263,7 +1265,9 @@ export default function ProductDetailPage() {
                   size="small"
                   sx={{ color: "#ff6b35" }}
                   onClick={handleWishlistClick}
-                  disabled={addToWishlistMutation.isPending || minCartQuantity <= 1}
+                  disabled={
+                    addToWishlistMutation.isPending || minCartQuantity <= 1
+                  }
                 >
                   <FavoriteBorder fontSize="small" />
                 </IconButton>
@@ -1325,9 +1329,13 @@ export default function ProductDetailPage() {
                   sx={{ fontWeight: 500, fontSize: "13px" }}
                 >
                   Minimum Order Quantity:
-                </Typography>                
+                </Typography>
                 <TextField
-                  value={product?.moq !== undefined && product?.moq !== null ? `${product.moq} Kg` : ""}
+                  value={
+                    product?.moq !== undefined && product?.moq !== null
+                      ? `${product.moq} Kg`
+                      : ""
+                  }
                   disabled
                   // onChange={(e) => setMinOrderQty(e.target.value)}
                   size="small"

@@ -5,9 +5,6 @@ import { API_CONFIG } from "../config";
 
 export interface CheckoutSessionRequest {
   customerId: string;
-  orderId: string;
-  amount: number;
-  currency: string;
   customerName: string;
   customerEmail: string;
   shippingAddress: {
@@ -17,6 +14,26 @@ export interface CheckoutSessionRequest {
     postalCode: string;
     country: string;
   };
+  billingAddress: {
+    addressLine1: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+  };
+  orderItems: Array<{
+    productId: string;
+    productName: string;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+  }>;
+  subTotal: number;
+  tax: number;
+  shippingCost: number;
+  discount: number;
+  totalAmount: number;
+  currency: string;
   lineItems: Array<{
     price_data: {
       currency: string;
