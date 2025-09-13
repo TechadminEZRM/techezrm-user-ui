@@ -64,22 +64,57 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>({});
-
+  interface Profile {
+    name: string;
+    phone: string;
+    companyName: string;
+    companyAddress: string;
+    businessType: string;
+    annualRevenue: string;
+    employeeCount: string;
+    website: string;
+    description: string;
+  }
+  
+  const [profile, setProfile] = useState<Profile | null>(null);
+  
   useEffect(() => {
-    if (initialData) {
+    const fetchCustomerData = async () => {
+      if (!customerId) return;
+      setLoading(true);
+      setError("");
+  
+      try {
+        const data = await customerProfileHandler.getProfile(customerId);
+        setProfile(data); 
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
+        setError(
+          "Failed to load customer information. Please fill the form manually."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchCustomerData();
+  }, [customerId]);
+  
+  useEffect(() => {
+    if (profile) {
       setFormData({
-        name: initialData.name || "",
-        phone: initialData.phone || "",
-        companyName: initialData.companyName || "",
-        companyAddress: initialData.companyAddress || "",
-        businessType: initialData.businessType || "",
-        annualRevenue: initialData.annualRevenue || "",
-        employeeCount: initialData.employeeCount || "",
-        website: initialData.website || "",
-        description: initialData.description || "",
+        name: profile.name || "",
+        phone: profile.phone || "",
+        companyName: profile.companyName || "",
+        companyAddress: profile.companyAddress || "",
+        businessType: profile.businessType || "",
+        annualRevenue: profile.annualRevenue || "",
+        employeeCount: profile.employeeCount || "",
+        website: profile.website || "",
+        description: profile.description || "",
       });
     }
-  }, [initialData]);
+  }, [profile]);
 
   const handleInputChange = (
     field: keyof UpdateProfileRequest,
@@ -237,7 +272,7 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({
             <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
               <Person sx={{ color: "#ff6b35", fontSize: 24 }} />
               <Typography variant="h6" sx={{ fontWeight: 600, color: "#333" }}>
-                Personal Information
+                Personal Information 
               </Typography>
             </Box>
 
@@ -314,7 +349,7 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({
             <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
               <Business sx={{ color: "#ff6b35", fontSize: 24 }} />
               <Typography variant="h6" sx={{ fontWeight: 600, color: "#333" }}>
-                Business Information
+                Business Information 
               </Typography>
             </Box>
 

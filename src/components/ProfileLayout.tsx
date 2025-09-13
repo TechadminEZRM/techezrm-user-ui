@@ -56,7 +56,7 @@ const ProfileLayout: React.FC<ProfileLayoutProps> = ({
         }}
       >
         {/* Header */}
-        {showBackButton && (
+        {/* {showBackButton && (
           <Box
             sx={{
               display: "flex",
@@ -89,7 +89,7 @@ const ProfileLayout: React.FC<ProfileLayoutProps> = ({
               {title}
             </Typography>
           </Box>
-        )}
+        )} */}
 
         {/* Content */}
         {children}
