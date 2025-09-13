@@ -2,25 +2,46 @@ import { API_CONFIG, ENDPOINTS } from "../config";
 
 export interface CustomerAddress {
   _id: string;
-  type: "home" | "work" | "other";
+  uniqueId: string;
+  customerId: string;
+  companyName: string;
+  receiverName: string;
+  receiverPhone: string;
+  receiverEmail: string;
+  receiverPhoneCountryCode: string;
+  type: "home" | "work" | "other" | "warehouse";
   street: string;
   city: string;
   state: string;
   country: string;
   zipCode: string;
   isDefault: boolean;
+  isActive: boolean;
+  coordinates: {
+    latitude: string;
+    longitude: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
 
 export interface AddAddressRequest {
-  type: "home" | "work" | "other";
+  companyName: string;
+  receiverName: string;
+  receiverPhone: string;
+  receiverEmail: string;
+  receiverPhoneCountryCode: string;
+  type: "home" | "work" | "other" | "warehouse";
   street: string;
   city: string;
   state: string;
   country: string;
   zipCode: string;
   isDefault?: boolean;
+  coordinates?: {
+    latitude: string;
+    longitude: string;
+  };
 }
 
 export interface UpdateAddressRequest extends Partial<AddAddressRequest> {}

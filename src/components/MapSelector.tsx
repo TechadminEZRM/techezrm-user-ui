@@ -12,6 +12,7 @@ import {
   Paper,
 } from "@mui/material";
 import { Search, MyLocation, Place } from "@mui/icons-material";
+import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import {
   mapsService,
   AutocompleteResult,
@@ -35,8 +36,21 @@ const MapSelector: React.FC<MapSelectorProps> = ({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentLocation, setCurrentLocation] = useState(initialCenter);
-  const [mapImageLoaded, setMapImageLoaded] = useState(false);
+  const [mapRef, setMapRef] = useState<google.maps.Map | null>(null);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Load Google Maps script
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey:
+      process.env.NEXT_PUBLIC_MAPS_API_KEY ||
+      "AIzaSyAzEg_-JsYTeeI7OTXghH1utbSFCJ5IlOg",
+    libraries: ["places"],
+  });
+
+  // Handle map load
+  const handleMapLoad = useCallback((map: google.maps.Map) => {
+    setMapRef(map);
+  }, []);
 
   // Debounced search function for autocomplete
   const debouncedSearch = useCallback(
@@ -106,6 +120,11 @@ const MapSelector: React.FC<MapSelectorProps> = ({
           setSearchInput(address);
           setShowSuggestions(false);
           setSuggestions([]);
+
+          // Pan map to selected location
+          if (mapRef) {
+            mapRef.panTo({ lat, lng });
+          }
         }
       } catch (error) {
         console.error("Error getting place details:", error);
@@ -163,6 +182,11 @@ const MapSelector: React.FC<MapSelectorProps> = ({
         setCurrentLocation({ lat, lng });
         onLocationSelect(lat, lng, address);
         setShowSuggestions(false);
+
+        // Pan map to selected location
+        if (mapRef) {
+          mapRef.panTo({ lat, lng });
+        }
       }
     } catch (error) {
       console.error("Error searching for address:", error);
@@ -188,6 +212,11 @@ const MapSelector: React.FC<MapSelectorProps> = ({
 
       setCurrentLocation(location);
 
+      // Pan map to current location
+      if (mapRef) {
+        mapRef.panTo({ lat, lng });
+      }
+
       // Get address for current location
       try {
         const results = await mapsService.reverseGeocode(lat, lng);
@@ -211,25 +240,11 @@ const MapSelector: React.FC<MapSelectorProps> = ({
 
   // Handle map click
   const handleMapClick = useCallback(
-    async (event: React.MouseEvent) => {
-      const rect = event.currentTarget.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
+    async (event: google.maps.MapMouseEvent) => {
+      if (!event.latLng) return;
 
-      // Convert pixel coordinates to lat/lng
-      // For zoom level 12, each pixel represents approximately 0.0003 degrees
-      const zoom = 12;
-      const degreesPerPixel = 360 / Math.pow(2, zoom) / 256;
-
-      // Calculate offset from center
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      const offsetX = (x - centerX) * degreesPerPixel;
-      const offsetY = (y - centerY) * degreesPerPixel;
-
-      // Calculate new coordinates
-      const lat = currentLocation.lat - offsetY; // Y is inverted in map coordinates
-      const lng = currentLocation.lng + offsetX;
+      const lat = event.latLng.lat();
+      const lng = event.latLng.lng();
 
       try {
         setIsLoading(true);
@@ -246,7 +261,7 @@ const MapSelector: React.FC<MapSelectorProps> = ({
         setIsLoading(false);
       }
     },
-    [currentLocation, onLocationSelect]
+    [onLocationSelect]
   );
 
   return (
@@ -435,112 +450,88 @@ const MapSelector: React.FC<MapSelectorProps> = ({
 
       {/* Map Container */}
       <Box
-        onClick={handleMapClick}
         sx={{
           height: "100%",
           width: "100%",
           borderRadius: 2,
           overflow: "hidden",
           position: "relative",
-          cursor: "crosshair",
         }}
       >
-        {/* Static Map Image */}
-        <Box
-          component="img"
-          src={`https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${currentLocation.lng},${currentLocation.lat},12,0/600x400@2x?access_token=REDACTED_MAPBOX_TOKEN`}
-          alt="Map"
-          sx={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            filter: "brightness(0.9)",
-            transition: "opacity 0.3s ease",
-            opacity: mapImageLoaded ? 1 : 0,
-          }}
-          onLoad={() => setMapImageLoaded(true)}
-          onError={(e) => {
-            // Fallback to a simple map-like background if Mapbox fails
-            const target = e.target as HTMLImageElement;
-            target.style.display = "none";
-            const parent = target.parentElement;
-            if (parent) {
-              parent.style.backgroundColor = "#e8f4f8";
-              parent.style.backgroundImage = `
-                linear-gradient(45deg, #f0f8ff 25%, transparent 25%),
-                linear-gradient(-45deg, #f0f8ff 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, #f0f8ff 75%),
-                linear-gradient(-45deg, transparent 75%, #f0f8ff 75%)
-              `;
-              parent.style.backgroundSize = "20px 20px";
-              parent.style.backgroundPosition =
-                "0 0, 0 10px, 10px -10px, -10px 0px";
-            }
-            setMapImageLoaded(true);
-          }}
-        />
-
-        {/* Loading placeholder */}
-        {!mapImageLoaded && (
+        {/* Google Maps Component */}
+        {loadError && (
           <Box
             sx={{
               position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: "#e8f4f8",
-              backgroundImage: `
-                linear-gradient(45deg, #f0f8ff 25%, transparent 25%),
-                linear-gradient(-45deg, #f0f8ff 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, #f0f8ff 75%),
-                linear-gradient(-45deg, transparent 75%, #f0f8ff 75%)
-              `,
-              backgroundSize: "20px 20px",
-              backgroundPosition: "0 0, 0 10px, 10px -10px, -10px 0px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              textAlign: "center",
+              color: "#666",
+              zIndex: 1000,
             }}
           >
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ fontSize: "0.8rem" }}
-            >
-              Loading map...
+            <Typography variant="h6">Error loading map</Typography>
+            <Typography variant="body2">
+              Please check your Google Maps API key
             </Typography>
           </Box>
         )}
 
-        {/* Location Marker */}
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "24px",
-            height: "24px",
-            backgroundColor: "#ff6b35",
-            border: "3px solid white",
-            borderRadius: "50%",
-            boxShadow: "0 3px 6px rgba(0,0,0,0.4)",
-            zIndex: 100,
-            "&::after": {
-              content: '""',
+        {!isLoaded ? (
+          <Box
+            sx={{
               position: "absolute",
-              top: "100%",
+              top: "50%",
               left: "50%",
-              transform: "translateX(-50%)",
-              width: 0,
-              height: 0,
-              borderLeft: "6px solid transparent",
-              borderRight: "6px solid transparent",
-              borderTop: "12px solid #ff6b35",
-            },
-          }}
-        />
+              transform: "translate(-50%, -50%)",
+              textAlign: "center",
+              color: "#666",
+              zIndex: 1000,
+            }}
+          >
+            <Typography variant="h6">Loading map...</Typography>
+          </Box>
+        ) : (
+          <GoogleMap
+            mapContainerStyle={{ width: "100%", height: "100%" }}
+            center={currentLocation}
+            zoom={12}
+            onLoad={handleMapLoad}
+            onClick={handleMapClick}
+            options={{
+              styles: [
+                {
+                  featureType: "poi",
+                  elementType: "labels",
+                  stylers: [{ visibility: "off" }],
+                },
+              ],
+              disableDefaultUI: false,
+              zoomControl: true,
+              mapTypeControl: true,
+              scaleControl: true,
+              streetViewControl: false,
+              rotateControl: false,
+              fullscreenControl: true,
+            }}
+          >
+            {/* Location Marker */}
+            <Marker
+              position={currentLocation}
+              icon={{
+                url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+                  <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" fill="#ff6b35" stroke="white" stroke-width="2"/>
+                    <circle cx="12" cy="12" r="4" fill="white"/>
+                  </svg>
+                `)}`,
+                scaledSize: new google.maps.Size(24, 24),
+                anchor: new google.maps.Point(12, 12),
+              }}
+            />
+          </GoogleMap>
+        )}
 
         {/* Loading Overlay */}
         {isLoading && (
@@ -604,6 +595,7 @@ const MapSelector: React.FC<MapSelectorProps> = ({
             color: "#666",
             boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
             border: "1px solid rgba(0,0,0,0.1)",
+            zIndex: 1000,
           }}
         >
           {currentLocation.lat.toFixed(6)}, {currentLocation.lng.toFixed(6)}
@@ -621,9 +613,10 @@ const MapSelector: React.FC<MapSelectorProps> = ({
             py: 0.5,
             fontSize: "0.7rem",
             color: "#666",
+            zIndex: 1000,
           }}
         >
-          © Mapbox
+          © Google Maps
         </Box>
       </Box>
 
