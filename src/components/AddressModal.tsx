@@ -1,606 +1,1050 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
+  Box,
+  Typography,
+  TextField,
+  Button,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button,
-  TextField,
+  IconButton,
   FormControl,
-  FormLabel,
-  RadioGroup,
+  Select,
+  MenuItem,
   FormControlLabel,
-  Radio,
-  Typography,
-  Box,
-  Checkbox,
-  Alert,
+  Switch,
+  Autocomplete,
   CircularProgress,
-  Chip,
-  Divider,
-  Paper,
 } from "@mui/material";
-import { Close, Home, Work, LocationOn, Star } from "@mui/icons-material";
-import type {
-  CustomerAddress,
+import {
+  LocalShipping,
+  Close,
+  Save,
+  Map,
+  Home,
+  Business,
+  Store,
+} from "@mui/icons-material";
+import MapSelector from "@/components/MapSelector";
+import {
+  customerAddressService,
   AddAddressRequest,
-  UpdateAddressRequest,
 } from "@/api/services/customerAddress";
+
+interface AddressFormData {
+  companyName: string;
+  receiverName: string;
+  receiverEmail: string;
+  receiverPhone: string;
+  receiverPhoneCountryCode: string;
+  type: string;
+  street: string;
+  city: string;
+  state: string;
+  country: string;
+  zipCode: string;
+  coordinates: {
+    latitude: string;
+    longitude: string;
+  };
+  isDefault: boolean;
+  isActive: boolean;
+}
 
 interface AddressModalProps {
   open: boolean;
   onClose: () => void;
-  onSave: (
-    addressData: AddAddressRequest | UpdateAddressRequest
-  ) => Promise<void>;
-  editAddress?: CustomerAddress | null;
-  loading?: boolean;
+  onSave?: (addressData: AddressFormData) => void;
+  initialData?: Partial<AddressFormData>;
+  customerId?: string;
+  editingAddressId?: string;
 }
 
 const AddressModal: React.FC<AddressModalProps> = ({
   open,
   onClose,
   onSave,
-  editAddress,
-  loading = false,
+  initialData,
+  customerId,
+  editingAddressId,
 }) => {
-  const [formData, setFormData] = useState<AddAddressRequest>({
+  const [mapModalOpen, setMapModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string>("");
+  const [addressData, setAddressData] = useState<AddressFormData>({
+    companyName: "",
+    receiverName: "",
+    receiverEmail: "",
+    receiverPhone: "",
+    receiverPhoneCountryCode: "+1",
     type: "home",
     street: "",
     city: "",
     state: "",
     country: "",
     zipCode: "",
+    coordinates: {
+      latitude: "",
+      longitude: "",
+    },
     isDefault: false,
+    isActive: true,
+    ...initialData,
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [submitError, setSubmitError] = useState<string>("");
 
-  useEffect(() => {
-    if (editAddress) {
-      setFormData({
-        type: editAddress.type,
-        street: editAddress.street,
-        city: editAddress.city,
-        state: editAddress.state,
-        country: editAddress.country,
-        zipCode: editAddress.zipCode,
-        isDefault: editAddress.isDefault,
-      });
-    } else {
-      setFormData({
-        type: "home",
-        street: "",
-        city: "",
-        state: "",
-        country: "",
-        zipCode: "",
-        isDefault: false,
-      });
-    }
-    setErrors({});
-    setSubmitError("");
-  }, [editAddress, open]);
+  // Address type options
+  const addressTypes = [
+    { value: "home", label: "Home", icon: <Home /> },
+    { value: "business", label: "Business", icon: <Business /> },
+    { value: "warehouse", label: "Warehouse", icon: <Store /> },
+  ];
 
-  const handleInputChange = (
-    field: keyof AddAddressRequest,
-    value: string | boolean
-  ) => {
-    setFormData((prev) => ({
+  // Country options
+  const countries = [
+    "United States",
+    "Canada",
+    "United Kingdom",
+    "Germany",
+    "France",
+    "Italy",
+    "Spain",
+    "Netherlands",
+    "Belgium",
+    "Switzerland",
+    "Austria",
+    "Sweden",
+    "Norway",
+    "Denmark",
+    "Finland",
+    "Poland",
+    "Czech Republic",
+    "Hungary",
+    "Portugal",
+    "Greece",
+    "Australia",
+    "New Zealand",
+    "Japan",
+    "South Korea",
+    "Singapore",
+    "India",
+    "China",
+    "Brazil",
+    "Mexico",
+    "Argentina",
+  ];
+
+  // Country code options
+  const countryCodes = [
+    { code: "+1", country: "US/CA" },
+    { code: "+44", country: "UK" },
+    { code: "+49", country: "Germany" },
+    { code: "+33", country: "France" },
+    { code: "+39", country: "Italy" },
+    { code: "+34", country: "Spain" },
+    { code: "+31", country: "Netherlands" },
+    { code: "+32", country: "Belgium" },
+    { code: "+41", country: "Switzerland" },
+    { code: "+43", country: "Austria" },
+    { code: "+46", country: "Sweden" },
+    { code: "+47", country: "Norway" },
+    { code: "+45", country: "Denmark" },
+    { code: "+358", country: "Finland" },
+    { code: "+48", country: "Poland" },
+    { code: "+420", country: "Czech Republic" },
+    { code: "+36", country: "Hungary" },
+    { code: "+351", country: "Portugal" },
+    { code: "+30", country: "Greece" },
+    { code: "+61", country: "Australia" },
+    { code: "+64", country: "New Zealand" },
+    { code: "+81", country: "Japan" },
+    { code: "+82", country: "South Korea" },
+    { code: "+65", country: "Singapore" },
+    { code: "+91", country: "India" },
+    { code: "+86", country: "China" },
+    { code: "+55", country: "Brazil" },
+    { code: "+52", country: "Mexico" },
+    { code: "+54", country: "Argentina" },
+  ];
+
+  const handleInputChange =
+    (field: keyof AddressFormData) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setAddressData((prev) => ({
+        ...prev,
+        [field]: e.target.value,
+      }));
+    };
+
+  const handleSelectChange = (field: keyof AddressFormData) => (value: any) => {
+    setAddressData((prev) => ({
       ...prev,
       [field]: value,
     }));
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors((prev) => ({
+  };
+
+  const handleCoordinatesChange =
+    (field: "latitude" | "longitude") =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setAddressData((prev) => ({
         ...prev,
-        [field]: "",
+        coordinates: {
+          ...prev.coordinates,
+          [field]: e.target.value,
+        },
       }));
-    }
+    };
+
+  const handleMapSelection = (lat: number, lng: number, address: string) => {
+    setAddressData((prev) => ({
+      ...prev,
+      coordinates: {
+        latitude: lat.toString(),
+        longitude: lng.toString(),
+      },
+      street: address,
+    }));
+    setMapModalOpen(false);
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.street.trim()) {
-      newErrors.street = "Street address is required";
-    }
-    if (!formData.city.trim()) {
-      newErrors.city = "City is required";
-    }
-    if (!formData.state.trim()) {
-      newErrors.state = "State is required";
-    }
-    if (!formData.country.trim()) {
-      newErrors.country = "Country is required";
-    }
-    if (!formData.zipCode.trim()) {
-      newErrors.zipCode = "ZIP code is required";
-    } else if (!/^\d{5,6}$/.test(formData.zipCode.trim())) {
-      newErrors.zipCode = "ZIP code must be 5-6 digits";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async () => {
-    if (!validateForm()) {
-      return;
-    }
+  const handleSave = async () => {
+    setIsLoading(true);
+    setError("");
 
     try {
-      setSubmitError("");
-      await onSave(formData);
-      onClose();
-    } catch (error) {
-      console.error("Error saving address:", error);
-      setSubmitError("Failed to save address. Please try again.");
+      // Validate required fields
+      if (
+        !addressData.companyName ||
+        !addressData.receiverName ||
+        !addressData.receiverEmail ||
+        !addressData.receiverPhone ||
+        !addressData.street ||
+        !addressData.city ||
+        !addressData.state ||
+        !addressData.country ||
+        !addressData.zipCode
+      ) {
+        setError("Please fill in all required fields");
+        setIsLoading(false);
+        return;
+      }
+
+      const addressRequest: AddAddressRequest = {
+        companyName: addressData.companyName,
+        receiverName: addressData.receiverName,
+        receiverEmail: addressData.receiverEmail,
+        receiverPhone: addressData.receiverPhone,
+        receiverPhoneCountryCode: addressData.receiverPhoneCountryCode,
+        type: addressData.type as "home" | "work" | "other" | "warehouse",
+        street: addressData.street,
+        city: addressData.city,
+        state: addressData.state,
+        country: addressData.country,
+        zipCode: addressData.zipCode,
+        isDefault: addressData.isDefault,
+        coordinates: {
+          latitude: addressData.coordinates.latitude,
+          longitude: addressData.coordinates.longitude,
+        },
+      };
+
+      // If onSave callback is provided, use it (for hook-based approach)
+      if (onSave) {
+        await onSave(addressData);
+        onClose();
+      } else if (customerId) {
+        // Fallback to direct API call if no callback provided
+        let result;
+        if (editingAddressId) {
+          // Update existing address
+          result = await customerAddressService.updateAddress(
+            customerId,
+            editingAddressId,
+            addressRequest
+          );
+        } else {
+          // Add new address
+          result = await customerAddressService.addAddress(
+            customerId,
+            addressRequest
+          );
+        }
+
+        if (result.success) {
+          onClose();
+        } else {
+          setError("Failed to save address");
+        }
+      } else {
+        setError("Customer ID is required");
+      }
+    } catch (err) {
+      console.error("Error saving address:", err);
+      setError(err instanceof Error ? err.message : "Failed to save address");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const isEditing = !!editAddress;
-
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="md"
-      fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 3,
-          boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
-          overflow: "hidden",
-        },
-      }}
-    >
-      <DialogTitle
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          pb: 3,
-          background: "linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)",
-          color: "white",
-          position: "relative",
+    <>
+      <Dialog
+        open={open}
+        onClose={onClose}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: "0 20px 60px rgba(0, 0, 0, 0.15)",
+          },
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <LocationOn sx={{ fontSize: 28 }} />
-          <Typography variant="h5" component="div" sx={{ fontWeight: 600 }}>
-            {isEditing ? "Edit Address" : "Add New Address"}
-          </Typography>
-        </Box>
-        <Button
-          onClick={onClose}
+        <DialogTitle
           sx={{
-            minWidth: "auto",
-            p: 1,
-            color: "white",
-            "&:hover": {
-              backgroundColor: "rgba(255,255,255,0.1)",
-            },
-          }}
-        >
-          <Close />
-        </Button>
-      </DialogTitle>
-
-      <DialogContent sx={{ p: 4 }}>
-        {submitError && (
-          <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
-            {submitError}
-          </Alert>
-        )}
-
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          {/* Address Type Selection */}
-          <Paper
-            elevation={0}
-            sx={{
-              p: 3,
-              border: "1px solid #e0e0e0",
-              borderRadius: 2,
-              backgroundColor: "#fafafa",
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{
-                mb: 2,
-                fontWeight: 600,
-                color: "#333",
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-              }}
-            >
-              <LocationOn sx={{ color: "#ff6b35" }} />
-              Address Type
-            </Typography>
-            <RadioGroup
-              row
-              value={formData.type}
-              onChange={(e) =>
-                handleInputChange(
-                  "type",
-                  e.target.value as "home" | "work" | "other"
-                )
-              }
-              sx={{ gap: 2 }}
-            >
-              <FormControlLabel
-                value="home"
-                control={
-                  <Radio
-                    size="small"
-                    sx={{
-                      color: "#ff6b35",
-                      "&.Mui-checked": {
-                        color: "#ff6b35",
-                      },
-                    }}
-                  />
-                }
-                label={
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Home sx={{ fontSize: 20, color: "#ff6b35" }} />
-                    <Typography sx={{ fontWeight: 500 }}>Home</Typography>
-                  </Box>
-                }
-                sx={{
-                  border:
-                    formData.type === "home"
-                      ? "2px solid #ff6b35"
-                      : "2px solid transparent",
-                  borderRadius: 2,
-                  p: 2,
-                  backgroundColor:
-                    formData.type === "home"
-                      ? "rgba(255, 107, 53, 0.05)"
-                      : "transparent",
-                  transition: "all 0.2s ease",
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 107, 53, 0.05)",
-                  },
-                }}
-              />
-              <FormControlLabel
-                value="work"
-                control={
-                  <Radio
-                    size="small"
-                    sx={{
-                      color: "#ff6b35",
-                      "&.Mui-checked": {
-                        color: "#ff6b35",
-                      },
-                    }}
-                  />
-                }
-                label={
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Work sx={{ fontSize: 20, color: "#ff6b35" }} />
-                    <Typography sx={{ fontWeight: 500 }}>Work</Typography>
-                  </Box>
-                }
-                sx={{
-                  border:
-                    formData.type === "work"
-                      ? "2px solid #ff6b35"
-                      : "2px solid transparent",
-                  borderRadius: 2,
-                  p: 2,
-                  backgroundColor:
-                    formData.type === "work"
-                      ? "rgba(255, 107, 53, 0.05)"
-                      : "transparent",
-                  transition: "all 0.2s ease",
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 107, 53, 0.05)",
-                  },
-                }}
-              />
-              <FormControlLabel
-                value="other"
-                control={
-                  <Radio
-                    size="small"
-                    sx={{
-                      color: "#ff6b35",
-                      "&.Mui-checked": {
-                        color: "#ff6b35",
-                      },
-                    }}
-                  />
-                }
-                label={
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <LocationOn sx={{ fontSize: 20, color: "#ff6b35" }} />
-                    <Typography sx={{ fontWeight: 500 }}>Other</Typography>
-                  </Box>
-                }
-                sx={{
-                  border:
-                    formData.type === "other"
-                      ? "2px solid #ff6b35"
-                      : "2px solid transparent",
-                  borderRadius: 2,
-                  p: 2,
-                  backgroundColor:
-                    formData.type === "other"
-                      ? "rgba(255, 107, 53, 0.05)"
-                      : "transparent",
-                  transition: "all 0.2s ease",
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 107, 53, 0.05)",
-                  },
-                }}
-              />
-            </RadioGroup>
-          </Paper>
-
-          {/* Address Details */}
-          <Paper
-            elevation={0}
-            sx={{
-              p: 3,
-              border: "1px solid #e0e0e0",
-              borderRadius: 2,
-              backgroundColor: "#fafafa",
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{
-                mb: 3,
-                fontWeight: 600,
-                color: "#333",
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-              }}
-            >
-              <LocationOn sx={{ color: "#ff6b35" }} />
-              Address Details
-            </Typography>
-
-            {/* Street Address */}
-            <TextField
-              label="Street Address"
-              value={formData.street}
-              onChange={(e) => handleInputChange("street", e.target.value)}
-              error={!!errors.street}
-              helperText={errors.street}
-              fullWidth
-              size="medium"
-              required
-              sx={{
-                mb: 3,
-                "& .MuiOutlinedInput-root": {
-                  backgroundColor: "white",
-                  "& fieldset": {
-                    borderColor: "#e0e0e0",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: "#c0c0c0",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#ff6b35",
-                  },
-                },
-              }}
-            />
-
-            {/* City and State */}
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 3,
-                mb: 3,
-              }}
-            >
-              <TextField
-                label="City"
-                value={formData.city}
-                onChange={(e) => handleInputChange("city", e.target.value)}
-                error={!!errors.city}
-                helperText={errors.city}
-                size="medium"
-                required
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    backgroundColor: "white",
-                    "& fieldset": {
-                      borderColor: "#e0e0e0",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: "#c0c0c0",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#ff6b35",
-                    },
-                  },
-                }}
-              />
-              <TextField
-                label="State"
-                value={formData.state}
-                onChange={(e) => handleInputChange("state", e.target.value)}
-                error={!!errors.state}
-                helperText={errors.state}
-                size="medium"
-                required
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    backgroundColor: "white",
-                    "& fieldset": {
-                      borderColor: "#e0e0e0",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: "#c0c0c0",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#ff6b35",
-                    },
-                  },
-                }}
-              />
-            </Box>
-
-            {/* Country and ZIP Code */}
-            <Box
-              sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3 }}
-            >
-              <TextField
-                label="Country"
-                value={formData.country}
-                onChange={(e) => handleInputChange("country", e.target.value)}
-                error={!!errors.country}
-                helperText={errors.country}
-                size="medium"
-                required
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    backgroundColor: "white",
-                    "& fieldset": {
-                      borderColor: "#e0e0e0",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: "#c0c0c0",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#ff6b35",
-                    },
-                  },
-                }}
-              />
-              <TextField
-                label="ZIP Code"
-                value={formData.zipCode}
-                onChange={(e) => handleInputChange("zipCode", e.target.value)}
-                error={!!errors.zipCode}
-                helperText={errors.zipCode}
-                size="medium"
-                required
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    backgroundColor: "white",
-                    "& fieldset": {
-                      borderColor: "#e0e0e0",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: "#c0c0c0",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#ff6b35",
-                    },
-                  },
-                }}
-              />
-            </Box>
-          </Paper>
-
-          {/* Default Address Setting */}
-          <Paper
-            elevation={0}
-            sx={{
-              p: 3,
-              border: "1px solid #e0e0e0",
-              borderRadius: 2,
-              backgroundColor: "#fafafa",
-            }}
-          >
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={formData.isDefault}
-                  onChange={(e) =>
-                    handleInputChange("isDefault", e.target.checked)
-                  }
-                  size="medium"
-                  sx={{
-                    color: "#ff6b35",
-                    "&.Mui-checked": {
-                      color: "#ff6b35",
-                    },
-                  }}
-                />
-              }
-              label={
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Star sx={{ color: "#ff6b35" }} />
-                  <Typography sx={{ fontWeight: 500, color: "#333" }}>
-                    Set as default address
-                  </Typography>
-                  {formData.isDefault && (
-                    <Chip
-                      label="Default"
-                      size="small"
-                      sx={{
-                        backgroundColor: "#ff6b35",
-                        color: "white",
-                        fontSize: "0.7rem",
-                        height: 20,
-                        fontWeight: 500,
-                      }}
-                    />
-                  )}
-                </Box>
-              }
-            />
-            <Typography variant="body2" sx={{ color: "#666", mt: 1, ml: 4 }}>
-              This address will be used as the default for shipping and billing
-            </Typography>
-          </Paper>
-        </Box>
-      </DialogContent>
-
-      <DialogActions sx={{ p: 4, pt: 2, gap: 2 }}>
-        <Button
-          onClick={onClose}
-          variant="outlined"
-          disabled={loading}
-          sx={{
-            borderColor: "#e0e0e0",
-            color: "#666",
-            "&:hover": {
-              borderColor: "#c0c0c0",
-              backgroundColor: "#f5f5f5",
-            },
-          }}
-        >
-          Cancel
-        </Button>
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-          disabled={loading}
-          sx={{
-            minWidth: 120,
             backgroundColor: "#ff6b35",
-            "&:hover": {
-              backgroundColor: "#e55a2b",
-            },
-            fontWeight: 600,
-            textTransform: "none",
+            color: "white",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            py: 2,
             px: 3,
           }}
         >
-          {loading ? (
-            <CircularProgress size={20} color="inherit" />
-          ) : isEditing ? (
-            "Update Address"
-          ) : (
-            "Add Address"
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            <LocalShipping sx={{ fontSize: 20 }} />
+            <Typography
+              variant="subtitle1"
+              sx={{ fontWeight: 600, fontSize: "1rem" }}
+            >
+              Enter Shipping Address
+            </Typography>
+          </Box>
+          <IconButton
+            onClick={onClose}
+            sx={{ color: "white", p: 0.5 }}
+            size="small"
+          >
+            <Close sx={{ fontSize: 20 }} />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent sx={{ p: 3, maxHeight: "80vh", overflowY: "auto" }}>
+          {error && (
+            <Box
+              sx={{
+                backgroundColor: "#ffebee",
+                color: "#c62828",
+                p: 2,
+                borderRadius: 1,
+                mb: 2,
+                border: "1px solid #ffcdd2",
+              }}
+            >
+              <Typography variant="body2">{error}</Typography>
+            </Box>
           )}
-        </Button>
-      </DialogActions>
-    </Dialog>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+            {/* Company Name */}
+            <Box>
+              <Typography
+                sx={{
+                  color: "#333",
+                  fontSize: "0.875rem",
+                  fontWeight: 600,
+                  mb: 1,
+                }}
+              >
+                Company Name *
+              </Typography>
+              <TextField
+                placeholder="Enter Company Name"
+                variant="outlined"
+                fullWidth
+                value={addressData.companyName}
+                onChange={handleInputChange("companyName")}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "white",
+                    fontSize: "0.875rem",
+                    "& fieldset": {
+                      borderColor: "#e0e0e0",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#ccc",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#ff6b35",
+                    },
+                  },
+                }}
+              />
+            </Box>
+
+            {/* Receiver Information Row */}
+            <Box sx={{ display: "flex", gap: 3 }}>
+              <Box sx={{ flex: 1 }}>
+                <Typography
+                  sx={{
+                    color: "#333",
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    mb: 1,
+                  }}
+                >
+                  Receiver Name *
+                </Typography>
+                <TextField
+                  placeholder="Enter Receiver Name"
+                  variant="outlined"
+                  fullWidth
+                  value={addressData.receiverName}
+                  onChange={handleInputChange("receiverName")}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "white",
+                      fontSize: "0.875rem",
+                      "& fieldset": {
+                        borderColor: "#e0e0e0",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#ccc",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#ff6b35",
+                      },
+                    },
+                  }}
+                />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography
+                  sx={{
+                    color: "#333",
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    mb: 1,
+                  }}
+                >
+                  Receiver Email *
+                </Typography>
+                <TextField
+                  placeholder="Enter Receiver Email"
+                  variant="outlined"
+                  fullWidth
+                  type="email"
+                  value={addressData.receiverEmail}
+                  onChange={handleInputChange("receiverEmail")}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "white",
+                      fontSize: "0.875rem",
+                      "& fieldset": {
+                        borderColor: "#e0e0e0",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#ccc",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#ff6b35",
+                      },
+                    },
+                  }}
+                />
+              </Box>
+            </Box>
+
+            {/* Phone Number Row */}
+            <Box sx={{ display: "flex", gap: 3 }}>
+              <Box sx={{ flex: 0.3 }}>
+                <Typography
+                  sx={{
+                    color: "#333",
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    mb: 1,
+                  }}
+                >
+                  Country Code *
+                </Typography>
+                <FormControl fullWidth>
+                  <Select
+                    value={addressData.receiverPhoneCountryCode}
+                    onChange={(e) =>
+                      handleSelectChange("receiverPhoneCountryCode")(
+                        e.target.value
+                      )
+                    }
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        backgroundColor: "white",
+                        fontSize: "0.875rem",
+                        "& fieldset": {
+                          borderColor: "#e0e0e0",
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "#ccc",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#ff6b35",
+                        },
+                      },
+                    }}
+                  >
+                    {countryCodes.map((country) => (
+                      <MenuItem key={country.code} value={country.code}>
+                        {country.code} ({country.country})
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
+              <Box sx={{ flex: 0.7 }}>
+                <Typography
+                  sx={{
+                    color: "#333",
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    mb: 1,
+                  }}
+                >
+                  Phone Number *
+                </Typography>
+                <TextField
+                  placeholder="Enter Phone Number"
+                  variant="outlined"
+                  fullWidth
+                  value={addressData.receiverPhone}
+                  onChange={handleInputChange("receiverPhone")}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "white",
+                      fontSize: "0.875rem",
+                      "& fieldset": {
+                        borderColor: "#e0e0e0",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#ccc",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#ff6b35",
+                      },
+                    },
+                  }}
+                />
+              </Box>
+            </Box>
+
+            {/* Address Type */}
+            <Box>
+              <Typography
+                sx={{
+                  color: "#333",
+                  fontSize: "0.875rem",
+                  fontWeight: 600,
+                  mb: 1,
+                }}
+              >
+                Address Type *
+              </Typography>
+              <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+                {addressTypes.map((type) => (
+                  <Button
+                    key={type.value}
+                    variant={
+                      addressData.type === type.value ? "contained" : "outlined"
+                    }
+                    startIcon={type.icon}
+                    onClick={() => handleSelectChange("type")(type.value)}
+                    sx={{
+                      borderColor: "#ff6b35",
+                      color:
+                        addressData.type === type.value ? "white" : "#ff6b35",
+                      backgroundColor:
+                        addressData.type === type.value
+                          ? "#ff6b35"
+                          : "transparent",
+                      textTransform: "none",
+                      fontWeight: 600,
+                      px: 3,
+                      py: 1.5,
+                      borderRadius: 2,
+                      "&:hover": {
+                        borderColor: "#e55a2b",
+                        backgroundColor:
+                          addressData.type === type.value
+                            ? "#e55a2b"
+                            : "rgba(255, 107, 53, 0.04)",
+                      },
+                    }}
+                  >
+                    {type.label}
+                  </Button>
+                ))}
+              </Box>
+            </Box>
+
+            {/* Street Address with Map Button */}
+            <Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  mb: 1,
+                }}
+              >
+                <Typography
+                  sx={{
+                    color: "#333",
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                  }}
+                >
+                  Street Address *
+                </Typography>
+                <Button
+                  variant="outlined"
+                  startIcon={<Map />}
+                  onClick={() => setMapModalOpen(true)}
+                  sx={{
+                    borderColor: "#ff6b35",
+                    color: "#ff6b35",
+                    textTransform: "none",
+                    fontWeight: 600,
+                    px: 2,
+                    py: 0.5,
+                    fontSize: "0.75rem",
+                    "&:hover": {
+                      borderColor: "#e55a2b",
+                      backgroundColor: "rgba(255, 107, 53, 0.04)",
+                    },
+                  }}
+                >
+                  Choose on Map
+                </Button>
+              </Box>
+              <TextField
+                placeholder="Enter Street Address"
+                variant="outlined"
+                fullWidth
+                value={addressData.street}
+                onChange={handleInputChange("street")}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "white",
+                    fontSize: "0.875rem",
+                    "& fieldset": {
+                      borderColor: "#e0e0e0",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#ccc",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#ff6b35",
+                    },
+                  },
+                }}
+              />
+            </Box>
+
+            {/* City, State, Country Row */}
+            <Box sx={{ display: "flex", gap: 3 }}>
+              <Box sx={{ flex: 1 }}>
+                <Typography
+                  sx={{
+                    color: "#333",
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    mb: 1,
+                  }}
+                >
+                  City *
+                </Typography>
+                <TextField
+                  placeholder="Enter City"
+                  variant="outlined"
+                  fullWidth
+                  value={addressData.city}
+                  onChange={handleInputChange("city")}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "white",
+                      fontSize: "0.875rem",
+                      "& fieldset": {
+                        borderColor: "#e0e0e0",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#ccc",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#ff6b35",
+                      },
+                    },
+                  }}
+                />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography
+                  sx={{
+                    color: "#333",
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    mb: 1,
+                  }}
+                >
+                  State *
+                </Typography>
+                <TextField
+                  placeholder="Enter State"
+                  variant="outlined"
+                  fullWidth
+                  value={addressData.state}
+                  onChange={handleInputChange("state")}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "white",
+                      fontSize: "0.875rem",
+                      "& fieldset": {
+                        borderColor: "#e0e0e0",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#ccc",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#ff6b35",
+                      },
+                    },
+                  }}
+                />
+              </Box>
+            </Box>
+
+            {/* Country and ZIP Code Row */}
+            <Box sx={{ display: "flex", gap: 3 }}>
+              <Box sx={{ flex: 1 }}>
+                <Typography
+                  sx={{
+                    color: "#333",
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    mb: 1,
+                  }}
+                >
+                  Country *
+                </Typography>
+                <Autocomplete
+                  options={countries}
+                  value={addressData.country}
+                  onChange={(_, value) =>
+                    handleSelectChange("country")(value || "")
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      placeholder="Select Country"
+                      variant="outlined"
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          backgroundColor: "white",
+                          fontSize: "0.875rem",
+                          "& fieldset": {
+                            borderColor: "#e0e0e0",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "#ccc",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "#ff6b35",
+                          },
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography
+                  sx={{
+                    color: "#333",
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    mb: 1,
+                  }}
+                >
+                  ZIP Code *
+                </Typography>
+                <TextField
+                  placeholder="Enter ZIP Code"
+                  variant="outlined"
+                  fullWidth
+                  value={addressData.zipCode}
+                  onChange={handleInputChange("zipCode")}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "white",
+                      fontSize: "0.875rem",
+                      "& fieldset": {
+                        borderColor: "#e0e0e0",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#ccc",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#ff6b35",
+                      },
+                    },
+                  }}
+                />
+              </Box>
+            </Box>
+
+            {/* Coordinates Row */}
+            <Box sx={{ display: "flex", gap: 3 }}>
+              <Box sx={{ flex: 1 }}>
+                <Typography
+                  sx={{
+                    color: "#333",
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    mb: 1,
+                  }}
+                >
+                  Latitude
+                </Typography>
+                <TextField
+                  placeholder="Enter Latitude"
+                  variant="outlined"
+                  fullWidth
+                  value={addressData.coordinates.latitude}
+                  onChange={handleCoordinatesChange("latitude")}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "white",
+                      fontSize: "0.875rem",
+                      "& fieldset": {
+                        borderColor: "#e0e0e0",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#ccc",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#ff6b35",
+                      },
+                    },
+                  }}
+                />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography
+                  sx={{
+                    color: "#333",
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    mb: 1,
+                  }}
+                >
+                  Longitude
+                </Typography>
+                <TextField
+                  placeholder="Enter Longitude"
+                  variant="outlined"
+                  fullWidth
+                  value={addressData.coordinates.longitude}
+                  onChange={handleCoordinatesChange("longitude")}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "white",
+                      fontSize: "0.875rem",
+                      "& fieldset": {
+                        borderColor: "#e0e0e0",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "#ccc",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#ff6b35",
+                      },
+                    },
+                  }}
+                />
+              </Box>
+            </Box>
+
+            {/* Options Row */}
+            <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={addressData.isDefault}
+                    onChange={(e) =>
+                      handleSelectChange("isDefault")(e.target.checked)
+                    }
+                    sx={{
+                      "& .MuiSwitch-switchBase.Mui-checked": {
+                        color: "#ff6b35",
+                      },
+                      "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
+                        {
+                          backgroundColor: "#ff6b35",
+                        },
+                    }}
+                  />
+                }
+                label="Set as Default Address"
+                sx={{
+                  "& .MuiFormControlLabel-label": {
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    color: "#333",
+                  },
+                }}
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={addressData.isActive}
+                    onChange={(e) =>
+                      handleSelectChange("isActive")(e.target.checked)
+                    }
+                    sx={{
+                      "& .MuiSwitch-switchBase.Mui-checked": {
+                        color: "#ff6b35",
+                      },
+                      "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
+                        {
+                          backgroundColor: "#ff6b35",
+                        },
+                    }}
+                  />
+                }
+                label="Active Address"
+                sx={{
+                  "& .MuiFormControlLabel-label": {
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    color: "#333",
+                  },
+                }}
+              />
+            </Box>
+          </Box>
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2, gap: 1.5 }}>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={onClose}
+            sx={{
+              borderColor: "#ddd",
+              color: "#666",
+              textTransform: "none",
+              fontWeight: 500,
+              fontSize: "0.875rem",
+              px: 2.5,
+              py: 1,
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={handleSave}
+            disabled={isLoading}
+            startIcon={
+              isLoading ? (
+                <CircularProgress size={16} color="inherit" />
+              ) : (
+                <Save sx={{ fontSize: 16 }} />
+              )
+            }
+            sx={{
+              backgroundColor: "#ff6b35",
+              color: "white",
+              textTransform: "none",
+              fontWeight: 500,
+              fontSize: "0.875rem",
+              px: 2.5,
+              py: 1,
+              "&:hover": {
+                backgroundColor: "#e55a2b",
+              },
+              "&:disabled": {
+                backgroundColor: "#ccc",
+              },
+            }}
+          >
+            {isLoading
+              ? "Saving..."
+              : editingAddressId
+              ? "Update Address"
+              : "Save Address"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Map Modal */}
+      <Dialog
+        open={mapModalOpen}
+        onClose={() => setMapModalOpen(false)}
+        maxWidth="lg"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: "0 20px 60px rgba(0, 0, 0, 0.15)",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            backgroundColor: "#ff6b35",
+            color: "white",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            py: 2,
+            px: 3,
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            <Map sx={{ fontSize: 20 }} />
+            <Typography
+              variant="subtitle1"
+              sx={{ fontWeight: 600, fontSize: "1rem" }}
+            >
+              Select Location on Map
+            </Typography>
+          </Box>
+          <IconButton
+            onClick={() => setMapModalOpen(false)}
+            sx={{ color: "white", p: 0.5 }}
+            size="small"
+          >
+            <Close sx={{ fontSize: 20 }} />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent sx={{ p: 0 }}>
+          <MapSelector
+            onLocationSelect={handleMapSelection}
+            initialCenter={{
+              lat: addressData.coordinates.latitude
+                ? parseFloat(addressData.coordinates.latitude)
+                : 40.7128,
+              lng: addressData.coordinates.longitude
+                ? parseFloat(addressData.coordinates.longitude)
+                : -74.006,
+            }}
+            height="500px"
+          />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

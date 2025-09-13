@@ -51,6 +51,7 @@ import { useAppStore } from "@/store/use-app-store";
 import { customerAddressHandler } from "@/api/handlers/customerAddressHandler";
 import { passwordChangeHandler } from "@/api/handlers/passwordChangeHandler";
 import { customerProfileHandler } from "@/api/handlers/customerProfileHandler";
+import { useCustomerAddresses } from "@/hooks/use-customer-addresses";
 import type {
   CustomerAddress,
   AddAddressRequest,
@@ -70,9 +71,6 @@ const PixelPerfectClone: React.FC = () => {
   const { customer } = useAppStore();
 
   // Address management state
-  const [addresses, setAddresses] = useState<CustomerAddress[]>([]);
-  const [addressLoading, setAddressLoading] = useState<boolean>(false);
-  const [addressError, setAddressError] = useState<string>("");
   const [addressModalOpen, setAddressModalOpen] = useState<boolean>(false);
   const [editingAddress, setEditingAddress] = useState<CustomerAddress | null>(
     null
@@ -81,6 +79,18 @@ const PixelPerfectClone: React.FC = () => {
     useState<null | HTMLElement>(null);
   const [selectedAddressId, setSelectedAddressId] = useState<string>("");
   const [modalLoading, setModalLoading] = useState<boolean>(false);
+
+  // Use the customer addresses hook
+  const {
+    addresses,
+    isLoading: addressLoading,
+    error: addressError,
+    addAddress,
+    updateAddress,
+    deleteAddress,
+    updateDefaultAddress,
+    refetch: refetchAddresses,
+  } = useCustomerAddresses(customer?.id);
   const handleMyOrdersClick = () => {
     setCurrentPage("orders");
   };
@@ -110,23 +120,6 @@ const PixelPerfectClone: React.FC = () => {
   };
 
   // Address management functions
-  const fetchAddresses = async () => {
-    if (!customer?.id) return;
-
-    setAddressLoading(true);
-    setAddressError("");
-    try {
-      const addressList = await customerAddressHandler.getAddresses(
-        customer.id
-      );
-      setAddresses(addressList);
-    } catch (error) {
-      console.error("Error fetching addresses:", error);
-      setAddressError("Failed to load addresses");
-    } finally {
-      setAddressLoading(false);
-    }
-  };
 
   const handleAddAddress = () => {
     setEditingAddress(null);
@@ -140,67 +133,58 @@ const PixelPerfectClone: React.FC = () => {
   };
 
   const handleDeleteAddress = async (addressId: string) => {
-    if (!customer?.id) return;
-
     try {
-      await customerAddressHandler.deleteAddress(customer.id, addressId);
-      setAddresses((prev) => prev.filter((addr) => addr._id !== addressId));
+      await deleteAddress(addressId);
       setAddressMenuAnchor(null);
     } catch (error) {
       console.error("Error deleting address:", error);
-      setAddressError("Failed to delete address");
     }
   };
 
   const handleSetDefaultAddress = async (addressId: string) => {
-    if (!customer?.id) return;
-
     try {
-      await customerAddressHandler.setDefaultAddress(customer.id, addressId);
-      setAddresses((prev) =>
-        prev.map((addr) => ({
-          ...addr,
-          isDefault: addr._id === addressId,
-        }))
-      );
+      await updateDefaultAddress(addressId);
       setAddressMenuAnchor(null);
     } catch (error) {
       console.error("Error setting default address:", error);
-      setAddressError("Failed to set default address");
     }
   };
 
-  const handleSaveAddress = async (
-    addressData: AddAddressRequest | UpdateAddressRequest
-  ) => {
-    if (!customer?.id) return;
-
+  const handleSaveAddress = async (addressData: any) => {
     setModalLoading(true);
     try {
+      // Convert AddressFormData to AddAddressRequest/UpdateAddressRequest
+      const addressRequest: AddAddressRequest = {
+        companyName: addressData.companyName,
+        receiverName: addressData.receiverName,
+        receiverEmail: addressData.receiverEmail,
+        receiverPhone: addressData.receiverPhone,
+        receiverPhoneCountryCode: addressData.receiverPhoneCountryCode,
+        type: addressData.type as "home" | "work" | "other" | "warehouse",
+        street: addressData.street,
+        city: addressData.city,
+        state: addressData.state,
+        country: addressData.country,
+        zipCode: addressData.zipCode,
+        isDefault: addressData.isDefault,
+        coordinates: {
+          latitude: addressData.coordinates.latitude,
+          longitude: addressData.coordinates.longitude,
+        },
+      };
+
       if (editingAddress) {
         // Update existing address
-        const updatedAddress = await customerAddressHandler.updateAddress(
-          customer.id,
+        await updateAddress(
           editingAddress._id,
-          addressData as UpdateAddressRequest
+          addressRequest as UpdateAddressRequest
         );
-        if (updatedAddress) {
-          setAddresses((prev) =>
-            prev.map((addr) =>
-              addr._id === editingAddress._id ? updatedAddress : addr
-            )
-          );
-        }
       } else {
         // Add new address
-        const newAddress = await customerAddressHandler.addAddress(
-          customer.id,
-          addressData as AddAddressRequest
-        );
-        if (newAddress) {
-          setAddresses((prev) => [...prev, newAddress]);
-        }
+        await addAddress(addressRequest as AddAddressRequest);
       }
+      // Reset editing state after successful save
+      setEditingAddress(null);
     } catch (error) {
       console.error("Error saving address:", error);
       throw error; // Re-throw to let modal handle the error
@@ -225,11 +209,15 @@ const PixelPerfectClone: React.FC = () => {
   const getAddressIcon = (type: string) => {
     switch (type) {
       case "home":
-        return <Home sx={{ fontSize: 20, color: "#666" }} />;
+        return <Home sx={{ fontSize: 16, color: "#ff6b35" }} />;
       case "work":
-        return <Work sx={{ fontSize: 20, color: "#666" }} />;
+        return <Work sx={{ fontSize: 16, color: "#ff6b35" }} />;
+      case "warehouse":
+        return <Work sx={{ fontSize: 16, color: "#ff6b35" }} />;
+      case "other":
+        return <LocationOn sx={{ fontSize: 16, color: "#ff6b35" }} />;
       default:
-        return <LocationOn sx={{ fontSize: 20, color: "#666" }} />;
+        return <LocationOn sx={{ fontSize: 16, color: "#ff6b35" }} />;
     }
   };
 
@@ -245,12 +233,7 @@ const PixelPerfectClone: React.FC = () => {
     }
   };
 
-  // Load addresses when customer is available
-  useEffect(() => {
-    if (customer?.id && currentPage === "addresses") {
-      fetchAddresses();
-    }
-  }, [customer?.id, currentPage]);
+  // Addresses are automatically loaded by the hook when customer.id is available
 
   if (currentPage === "orders") {
     return (
@@ -772,7 +755,14 @@ const PixelPerfectClone: React.FC = () => {
                 </Box>
               </Card>
             ) : (
-              <Box sx={{ display: "grid", gap: 3, maxWidth: 800 }}>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+                  gap: 2,
+                  maxWidth: "100%",
+                }}
+              >
                 {addresses.map((address) => (
                   <Card
                     key={address._id}
@@ -780,60 +770,64 @@ const PixelPerfectClone: React.FC = () => {
                       border: address.isDefault
                         ? "2px solid #ff6b35"
                         : "1px solid #e0e0e0",
-                      borderRadius: 3,
+                      borderRadius: 2,
                       position: "relative",
                       overflow: "hidden",
                       "&:hover": {
-                        boxShadow: "0 12px 32px rgba(0,0,0,0.15)",
-                        transform: "translateY(-4px)",
+                        boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                        transform: "translateY(-2px)",
                       },
-                      transition: "all 0.3s ease-in-out",
+                      transition: "all 0.2s ease-in-out",
                       background: address.isDefault
-                        ? "linear-gradient(135deg, #fff 0%, #fff8f5 100%)"
+                        ? "rgba(255, 107, 53, 0.03)"
                         : "white",
                     }}
                   >
-                    {/* Premium Badge for Default Address */}
+                    {/* Default Badge */}
                     {address.isDefault && (
-                      <Box
+                      <Chip
+                        label="DEFAULT"
+                        size="small"
                         sx={{
                           position: "absolute",
-                          top: 0,
-                          right: 0,
-                          background:
-                            "linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)",
+                          bottom: 8,
+                          right: 8,
+                          backgroundColor: "#ff6b35",
                           color: "white",
-                          px: 2,
-                          py: 0.5,
-                          borderRadius: "0 12px 0 12px",
-                          fontSize: "0.7rem",
-                          fontWeight: 600,
+                          fontSize: "0.65rem",
+                          fontWeight: 700,
+                          height: 20,
                           zIndex: 1,
+                          "& .MuiChip-label": {
+                            px: 1,
+                          },
                         }}
-                      >
-                        DEFAULT
-                      </Box>
+                      />
                     )}
 
-                    <CardContent sx={{ p: 4 }}>
+                    <CardContent sx={{ p: 2.5 }}>
                       <Box
                         sx={{
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "flex-start",
-                          mb: 3,
+                          mb: 2,
                         }}
                       >
                         <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 3 }}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1.5,
+                          }}
                         >
                           <Box
                             sx={{
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
-                              width: 56,
-                              height: 56,
+                              width: 40,
+                              height: 40,
                               borderRadius: "50%",
                               backgroundColor: address.isDefault
                                 ? "rgba(255, 107, 53, 0.1)"
@@ -848,41 +842,26 @@ const PixelPerfectClone: React.FC = () => {
                           <Box>
                             <Typography
                               sx={{
-                                fontSize: "20px",
+                                fontSize: "0.8rem",
                                 fontWeight: 700,
-                                color: "#333",
-                                textTransform: "capitalize",
-                                mb: 1,
+                                color: address.isDefault ? "#ff6b35" : "#333",
+                                textTransform: "uppercase",
+                                letterSpacing: "0.5px",
                               }}
                             >
                               {address.type} Address
                             </Typography>
-                            {address.isDefault && (
-                              <Chip
-                                icon={<Star sx={{ fontSize: 16 }} />}
-                                label="Primary Address"
-                                size="small"
-                                sx={{
-                                  backgroundColor: "#ff6b35",
-                                  color: "white",
-                                  fontSize: "0.75rem",
-                                  height: 24,
-                                  fontWeight: 600,
-                                  "& .MuiChip-icon": {
-                                    color: "white",
-                                  },
-                                }}
-                              />
-                            )}
                           </Box>
                         </Box>
                         <IconButton
-                          size="medium"
+                          size="small"
                           onClick={(e) => handleAddressMenuOpen(e, address._id)}
                           sx={{
                             color: "#666",
                             backgroundColor: "#f8f9fa",
                             border: "1px solid #e0e0e0",
+                            width: 32,
+                            height: 32,
                             "&:hover": {
                               backgroundColor: "#ff6b35",
                               color: "white",
@@ -891,72 +870,84 @@ const PixelPerfectClone: React.FC = () => {
                             transition: "all 0.2s ease",
                           }}
                         >
-                          <MoreVert />
+                          <MoreVert sx={{ fontSize: 16 }} />
                         </IconButton>
                       </Box>
 
-                      <Box
-                        sx={{
-                          pl: 7,
-                          position: "relative",
-                        }}
-                      >
+                      <Box sx={{ ml: 5.5, pr: 4 }}>
+                        {/* Company Name */}
+                        {address.companyName && (
+                          <Typography
+                            sx={{
+                              fontSize: "0.75rem",
+                              fontWeight: 600,
+                              color: "#1e293b",
+                              mb: 0.5,
+                            }}
+                          >
+                            {address.companyName}
+                          </Typography>
+                        )}
+
+                        {/* Receiver Name */}
                         <Typography
                           sx={{
-                            fontSize: "16px",
-                            color: "#333",
-                            lineHeight: 1.8,
-                            fontWeight: 500,
-                            mb: 2,
+                            fontSize: "0.75rem",
+                            fontWeight: 600,
+                            color: "#1e293b",
+                            mb: 0.5,
+                          }}
+                        >
+                          {address.receiverName}
+                        </Typography>
+
+                        {/* Street Address */}
+                        <Typography
+                          sx={{
+                            fontSize: "0.7rem",
+                            color: "#64748b",
+                            lineHeight: 1.4,
+                            mb: 0.5,
                           }}
                         >
                           {address.street}
                         </Typography>
 
-                        <Box
+                        {/* City, State, Zip */}
+                        <Typography
                           sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 0.5,
+                            fontSize: "0.7rem",
+                            color: "#64748b",
+                            lineHeight: 1.4,
+                            mb: 0.5,
                           }}
                         >
-                          <Typography
-                            sx={{
-                              fontSize: "15px",
-                              color: "#666",
-                              fontWeight: 500,
-                            }}
-                          >
-                            {address.city}, {address.state} {address.zipCode}
-                          </Typography>
-                          <Typography
-                            sx={{
-                              fontSize: "15px",
-                              color: "#666",
-                              fontWeight: 500,
-                            }}
-                          >
-                            {address.country}
-                          </Typography>
-                        </Box>
+                          {address.city}, {address.state} {address.zipCode}
+                        </Typography>
 
-                        {/* Address Type Badge */}
-                        <Box sx={{ mt: 2 }}>
-                          <Chip
-                            label={address.type.toUpperCase()}
-                            size="small"
-                            variant="outlined"
-                            sx={{
-                              borderColor: address.isDefault
-                                ? "#ff6b35"
-                                : "#e0e0e0",
-                              color: address.isDefault ? "#ff6b35" : "#666",
-                              fontSize: "0.7rem",
-                              fontWeight: 600,
-                              height: 22,
-                            }}
-                          />
-                        </Box>
+                        {/* Country */}
+                        <Typography
+                          sx={{
+                            fontSize: "0.7rem",
+                            color: "#64748b",
+                            lineHeight: 1.4,
+                            mb: 0.5,
+                          }}
+                        >
+                          {address.country}
+                        </Typography>
+
+                        {/* Contact Info */}
+                        <Typography
+                          sx={{
+                            fontSize: "0.65rem",
+                            color: "#94a3b8",
+                            lineHeight: 1.3,
+                          }}
+                        >
+                          📞 {address.receiverPhone} • ✉️{" "}
+                          {address.receiverEmail}
+                        </Typography>
                       </Box>
                     </CardContent>
                   </Card>
@@ -1013,8 +1004,32 @@ const PixelPerfectClone: React.FC = () => {
               open={addressModalOpen}
               onClose={() => setAddressModalOpen(false)}
               onSave={handleSaveAddress}
-              editAddress={editingAddress}
-              loading={modalLoading}
+              initialData={
+                editingAddress
+                  ? {
+                      companyName: editingAddress.companyName || "",
+                      receiverName: editingAddress.receiverName || "",
+                      receiverEmail: editingAddress.receiverEmail || "",
+                      receiverPhone: editingAddress.receiverPhone || "",
+                      receiverPhoneCountryCode:
+                        editingAddress.receiverPhoneCountryCode || "+1",
+                      type: editingAddress.type || "home",
+                      street: editingAddress.street || "",
+                      city: editingAddress.city || "",
+                      state: editingAddress.state || "",
+                      country: editingAddress.country || "",
+                      zipCode: editingAddress.zipCode || "",
+                      coordinates: {
+                        latitude: editingAddress.coordinates?.latitude || "",
+                        longitude: editingAddress.coordinates?.longitude || "",
+                      },
+                      isDefault: editingAddress.isDefault || false,
+                      isActive: editingAddress.isActive || true,
+                    }
+                  : undefined
+              }
+              customerId={customer?.id}
+              editingAddressId={editingAddress?._id}
             />
           </Box>
         </Box>
