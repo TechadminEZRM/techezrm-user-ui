@@ -287,19 +287,7 @@ const FavouritesSection: React.FC = () => {
         maxWidth="xl"
         sx={{ py: { xs: 2, md: 4 }, px: { xs: 1, md: 3 } }}
       >
-        <Typography
-          variant="h4"
-          sx={{
-            fontWeight: 600,
-            color: "#333",
-            mb: { xs: 2, md: 3 },
-            fontSize: { xs: "1.5rem", md: "2rem" },
-            fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-          }}
-        >
-          Wishlist
-        </Typography>
-
+        {/* Enhanced Animated Empty State */}
         <Box
           sx={{
             display: "flex",
@@ -307,43 +295,234 @@ const FavouritesSection: React.FC = () => {
             alignItems: "center",
             justifyContent: "center",
             py: 8,
+            px: 4,
             textAlign: "center",
+            minHeight: "60vh",
           }}
         >
-          <Typography
-            variant="h6"
+          {/* Animated Heart Container */}
+          <Box
             sx={{
-              color: "#666",
-              mb: 2,
-              fontSize: { xs: "1rem", md: "1.25rem" },
+              width: 160,
+              height: 160,
+              mb: 4,
+              position: "relative",
+              animation: "float 3s ease-in-out infinite",
+              "@keyframes float": {
+                "0%, 100%": {
+                  transform: "translateY(0px) rotate(0deg)",
+                },
+                "50%": {
+                  transform: "translateY(-20px) rotate(2deg)",
+                },
+              },
             }}
           >
-            No favourites yet
+            {/* Outer Container with Gradient */}
+            <Box
+              sx={{
+                width: "100%",
+                height: "100%",
+                background: "linear-gradient(135deg, #fff5f2 0%, #ffe8e0 100%)",
+                border: "3px dashed #ff6b35",
+                borderRadius: "25px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                position: "relative",
+                boxShadow: "0 12px 40px rgba(255, 107, 53, 0.15)",
+                animation: "pulse 2s ease-in-out infinite",
+                "@keyframes pulse": {
+                  "0%, 100%": {
+                    boxShadow: "0 12px 40px rgba(255, 107, 53, 0.15)",
+                  },
+                  "50%": {
+                    boxShadow: "0 16px 50px rgba(255, 107, 53, 0.25)",
+                  },
+                },
+              }}
+            >
+              {/* Animated Heart Icon */}
+              <Box
+                sx={{
+                  position: "relative",
+                  width: "80px",
+                  height: "80px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  animation: "heartBeat 2s ease-in-out infinite",
+                  "@keyframes heartBeat": {
+                    "0%, 100%": {
+                      transform: "scale(1)",
+                    },
+                    "25%": {
+                      transform: "scale(1.1)",
+                    },
+                    "50%": {
+                      transform: "scale(1.05)",
+                    },
+                    "75%": {
+                      transform: "scale(1.15)",
+                    },
+                  },
+                }}
+              >
+                {/* Heart Icon */}
+                <Favorite
+                  sx={{
+                    fontSize: "60px",
+                    color: "#ff6b35",
+                    filter: "drop-shadow(0 2px 4px rgba(255, 107, 53, 0.3))",
+                  }}
+                />
+
+                {/* Sparkle Effects */}
+                {[...Array(6)].map((_, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      position: "absolute",
+                      width: "4px",
+                      height: "4px",
+                      backgroundColor: "#ff6b35",
+                      borderRadius: "50%",
+                      opacity: 0.8,
+                      animation: `sparkle${index + 1} 3s ease-in-out infinite`,
+                      [`@keyframes sparkle${index + 1}`]: {
+                        "0%, 100%": {
+                          transform: `translate(${
+                            Math.cos(index * 60) * 100
+                          }px, ${Math.sin(index * 60) * 100}px)`,
+                          opacity: 0,
+                        },
+                        "50%": {
+                          opacity: 1,
+                        },
+                      },
+                    }}
+                  />
+                ))}
+              </Box>
+            </Box>
+
+            {/* Floating Hearts */}
+            {[...Array(4)].map((_, index) => (
+              <Favorite
+                key={index}
+                sx={{
+                  position: "absolute",
+                  fontSize: "16px",
+                  color: "#ff6b35",
+                  opacity: 0.6,
+                  animation: `floatingHeart${
+                    index + 1
+                  } 4s ease-in-out infinite`,
+                  [`@keyframes floatingHeart${index + 1}`]: {
+                    "0%, 100%": {
+                      transform: `translate(${Math.cos(index * 90) * 120}px, ${
+                        Math.sin(index * 90) * 120
+                      }px)`,
+                      opacity: 0,
+                    },
+                    "50%": {
+                      opacity: 0.8,
+                    },
+                  },
+                }}
+              />
+            ))}
+          </Box>
+
+          {/* Enhanced Typography */}
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 600,
+              color: "#333",
+              mb: 2,
+              fontSize: { xs: "1.5rem", md: "2rem" },
+              animation: "fadeInUp 1s ease-out 0.5s both",
+              "@keyframes fadeInUp": {
+                "0%": {
+                  opacity: 0,
+                  transform: "translateY(30px)",
+                },
+                "100%": {
+                  opacity: 1,
+                  transform: "translateY(0)",
+                },
+              },
+            }}
+          >
+            No Favourites Yet
           </Typography>
+
           <Typography
             variant="body1"
             sx={{
-              color: "#999",
-              mb: 3,
-              fontSize: { xs: "0.875rem", md: "1rem" },
+              color: "#666",
+              mb: 4,
+              maxWidth: "500px",
+              fontSize: { xs: "0.9rem", md: "1.1rem" },
+              lineHeight: 1.6,
+              animation: "fadeInUp 1s ease-out 0.8s both",
+              "@keyframes fadeInUp": {
+                "0%": {
+                  opacity: 0,
+                  transform: "translateY(30px)",
+                },
+                "100%": {
+                  opacity: 1,
+                  transform: "translateY(0)",
+                },
+              },
             }}
           >
-            Start adding products to your favourites to see them here
+            Start adding products to your favourites to see them here. Your
+            wishlist will help you keep track of products you love!
           </Typography>
+
+          {/* Enhanced CTA Button */}
           <Button
             variant="contained"
             onClick={() => router.push("/product")}
             sx={{
               backgroundColor: "#ff6b35",
               color: "white",
-              px: 4,
-              py: 1.5,
-              fontSize: "1rem",
+              px: 6,
+              py: 2,
+              fontSize: "1.1rem",
               fontWeight: 600,
               textTransform: "none",
+              borderRadius: "12px",
+              boxShadow: "0 6px 20px rgba(255, 107, 53, 0.3)",
+              animation:
+                "fadeInUp 1s ease-out 1.1s both, buttonGlow 2s ease-in-out infinite 2s",
+              "@keyframes fadeInUp": {
+                "0%": {
+                  opacity: 0,
+                  transform: "translateY(30px)",
+                },
+                "100%": {
+                  opacity: 1,
+                  transform: "translateY(0)",
+                },
+              },
+              "@keyframes buttonGlow": {
+                "0%, 100%": {
+                  boxShadow: "0 6px 20px rgba(255, 107, 53, 0.3)",
+                },
+                "50%": {
+                  boxShadow: "0 8px 30px rgba(255, 107, 53, 0.5)",
+                },
+              },
               "&:hover": {
                 backgroundColor: "#e55a2b",
+                boxShadow: "0 8px 30px rgba(255, 107, 53, 0.6)",
+                transform: "translateY(-3px) scale(1.02)",
               },
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
           >
             Browse Products

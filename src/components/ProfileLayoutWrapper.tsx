@@ -21,7 +21,7 @@ import {
   Lock,
   Business,
   Description,
-  Edit,
+  RequestQuote,
 } from "@mui/icons-material";
 import { useRouter, usePathname } from "next/navigation";
 import { useAppStore } from "@/store/use-app-store";
@@ -47,10 +47,10 @@ const ProfileLayoutWrapper: React.FC<ProfileLayoutWrapperProps> = ({
       path: "/profile/account",
     },
     {
-      id: "edit-profile",
-      label: "Edit Profile",
-      icon: <Edit />,
-      path: "/profile/account/edit",
+      id: "rfq",
+      label: "RFQ Management",
+      icon: <RequestQuote />,
+      path: "/profile/rfq-management",
     },
     {
       id: "addresses",
