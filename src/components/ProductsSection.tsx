@@ -33,6 +33,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onButtonClick,
   isAuthenticated,
 }) => {
+  const { isAuthenticated: authState } = useAppStore();
   const handleCardClick = () => {
     onClick(product._id, product.name);
   };
@@ -142,22 +143,59 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </Box>
         {/* Content Section with padding */}
         <Box sx={{ p: 2, flex: 1, display: "flex", flexDirection: "column" }}>
-          {/* Product Name */}
-          <Typography
-            variant="h6"
-            title={product.name} // Tooltip for long names
+          {/* Product Name and Price Row */}
+          <Box
             sx={{
-              fontWeight: 600,
-              color: "#333",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
               mb: 1,
-              fontSize: "0.95rem",
-              overflow: "hidden",
-              whiteSpace: "nowrap",
-              textOverflow: "ellipsis",
+              gap: 1,
             }}
           >
-            {product.name}
-          </Typography>
+            <Typography
+              variant="h6"
+              title={product.name} // Tooltip for long names
+              sx={{
+                fontWeight: 600,
+                color: "#333",
+                fontSize: "0.95rem",
+                overflow: "hidden",
+                whiteSpace: "nowrap",
+                textOverflow: "ellipsis",
+                flex: 1,
+              }}
+            >
+              {product.name}
+            </Typography>
+
+            {/* Price Section - Show only for authenticated users */}
+            {authState && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                  flexShrink: 0,
+                  minWidth: "fit-content",
+                }}
+              >
+                <Typography
+                  sx={{
+                    color: "#ff7849",
+                    fontWeight: 700,
+                    fontSize: "0.75rem",
+                    backgroundColor: "rgba(255, 120, 73, 0.1)",
+                    padding: "2px 6px",
+                    borderRadius: "4px",
+                    border: "1px solid rgba(255, 120, 73, 0.2)",
+                  }}
+                >
+                  ${product.price}/kg
+                </Typography>
+              </Box>
+            )}
+          </Box>
           {/* Description */}
           <Typography
             variant="body2"

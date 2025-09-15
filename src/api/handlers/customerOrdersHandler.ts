@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useQuery } from "@tanstack/react-query"
-import { customerOrderService, type CustomerOrdersParams } from "../services/"
+import { useQuery } from "@tanstack/react-query";
+import { customerOrderService, type CustomerOrdersParams } from "../services/";
 
-export const useCustomerOrders = (customerId: string, params?: CustomerOrdersParams) => {
+export const useCustomerOrders = (customerId: string, params?: any) => {
   return useQuery({
     queryKey: ["customer-orders", customerId, params],
     queryFn: () => customerOrderService.getCustomerOrders(customerId, params),
@@ -11,8 +11,8 @@ export const useCustomerOrders = (customerId: string, params?: CustomerOrdersPar
     staleTime: 2 * 60 * 1000, // 2 minutes
     retry: 2,
     retryDelay: 1000,
-  })
-}
+  });
+};
 
 export const useCustomerOrder = (orderId: string) => {
   return useQuery({
@@ -21,5 +21,5 @@ export const useCustomerOrder = (orderId: string) => {
     enabled: !!orderId,
     retry: 2,
     retryDelay: 1000,
-  })
-}
+  });
+};

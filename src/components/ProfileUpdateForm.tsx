@@ -75,18 +75,18 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({
     website: string;
     description: string;
   }
-  
+
   const [profile, setProfile] = useState<Profile | null>(null);
-  
+
   useEffect(() => {
     const fetchCustomerData = async () => {
       if (!customerId) return;
       setLoading(true);
       setError("");
-  
+
       try {
         const data = await customerProfileHandler.getProfile(customerId);
-        setProfile(data); 
+        setProfile(data);
       } catch (error) {
         console.error("Error fetching customer data:", error);
         setError(
@@ -96,10 +96,10 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({
         setLoading(false);
       }
     };
-  
+
     fetchCustomerData();
   }, [customerId]);
-  
+
   useEffect(() => {
     if (profile) {
       setFormData({
@@ -218,24 +218,33 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({
   ];
 
   return (
-    <Box sx={{ maxWidth: 800, mx: "auto" }}>
+    <Box sx={{ maxWidth: 1000, mx: "auto", px: 2 }}>
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: 3 }}>
         <Typography
-          variant="h4"
+          variant="h5"
           sx={{
-            fontWeight: 700,
-            color: "#333",
-            mb: 1,
+            fontWeight: 600,
+            color: "#2c3e50",
+            mb: 0.5,
             display: "flex",
             alignItems: "center",
-            gap: 2,
+            gap: 1.5,
+            fontSize: "1.5rem",
           }}
         >
-          <Person sx={{ color: "#ff6b35", fontSize: 32 }} />
+          <Person sx={{ color: "#ff6b35", fontSize: 24 }} />
           Profile Information
         </Typography>
-        <Typography variant="body1" sx={{ color: "#666", lineHeight: 1.6 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "#7f8c8d",
+            lineHeight: 1.5,
+            fontSize: "0.875rem",
+            fontWeight: 400,
+          }}
+        >
           Update your personal and business information to help us provide
           better service
         </Typography>
@@ -263,20 +272,30 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({
         {/* Personal Information Section */}
         <Card
           sx={{
-            mb: 4,
-            borderRadius: 3,
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            mb: 3,
+            borderRadius: 2,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+            border: "1px solid #f0f0f0",
           }}
         >
-          <CardContent sx={{ p: 4 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
-              <Person sx={{ color: "#ff6b35", fontSize: 24 }} />
-              <Typography variant="h6" sx={{ fontWeight: 600, color: "#333" }}>
-                Personal Information 
+          <CardContent sx={{ p: 3 }}>
+            <Box
+              sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2.5 }}
+            >
+              <Person sx={{ color: "#ff6b35", fontSize: 20 }} />
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontWeight: 600,
+                  color: "#2c3e50",
+                  fontSize: "1rem",
+                }}
+              >
+                Personal Information
               </Typography>
             </Box>
 
-            <Grid container spacing={3}>
+            <Grid container spacing={2.5}>
               <Grid item xs={12} md={6}>
                 <TextField
                   label="Full Name"
@@ -286,21 +305,34 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({
                   helperText={errors.name}
                   fullWidth
                   required
+                  size="small"
                   InputProps={{
-                    startAdornment: <Person sx={{ mr: 1, color: "#666" }} />,
+                    startAdornment: (
+                      <Person sx={{ mr: 1, color: "#7f8c8d", fontSize: 18 }} />
+                    ),
                   }}
                   sx={{
                     "& .MuiOutlinedInput-root": {
-                      backgroundColor: "white",
+                      backgroundColor: "#fafafa",
+                      fontSize: "0.875rem",
                       "& fieldset": {
-                        borderColor: "#e0e0e0",
+                        borderColor: "#e8e8e8",
+                        borderWidth: "1px",
                       },
                       "&:hover fieldset": {
-                        borderColor: "#c0c0c0",
+                        borderColor: "#d0d0d0",
                       },
                       "&.Mui-focused fieldset": {
                         borderColor: "#ff6b35",
+                        borderWidth: "2px",
                       },
+                    },
+                    "& .MuiInputLabel-root": {
+                      fontSize: "0.875rem",
+                      color: "#7f8c8d",
+                    },
+                    "& .MuiFormHelperText-root": {
+                      fontSize: "0.75rem",
                     },
                   }}
                 />
@@ -314,21 +346,34 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({
                   error={!!errors.phone}
                   helperText={errors.phone}
                   fullWidth
+                  size="small"
                   InputProps={{
-                    startAdornment: <Phone sx={{ mr: 1, color: "#666" }} />,
+                    startAdornment: (
+                      <Phone sx={{ mr: 1, color: "#7f8c8d", fontSize: 18 }} />
+                    ),
                   }}
                   sx={{
                     "& .MuiOutlinedInput-root": {
-                      backgroundColor: "white",
+                      backgroundColor: "#fafafa",
+                      fontSize: "0.875rem",
                       "& fieldset": {
-                        borderColor: "#e0e0e0",
+                        borderColor: "#e8e8e8",
+                        borderWidth: "1px",
                       },
                       "&:hover fieldset": {
-                        borderColor: "#c0c0c0",
+                        borderColor: "#d0d0d0",
                       },
                       "&.Mui-focused fieldset": {
                         borderColor: "#ff6b35",
+                        borderWidth: "2px",
                       },
+                    },
+                    "& .MuiInputLabel-root": {
+                      fontSize: "0.875rem",
+                      color: "#7f8c8d",
+                    },
+                    "& .MuiFormHelperText-root": {
+                      fontSize: "0.75rem",
                     },
                   }}
                 />
@@ -340,20 +385,30 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({
         {/* Business Information Section */}
         <Card
           sx={{
-            mb: 4,
-            borderRadius: 3,
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            mb: 3,
+            borderRadius: 2,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+            border: "1px solid #f0f0f0",
           }}
         >
-          <CardContent sx={{ p: 4 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
-              <Business sx={{ color: "#ff6b35", fontSize: 24 }} />
-              <Typography variant="h6" sx={{ fontWeight: 600, color: "#333" }}>
-                Business Information 
+          <CardContent sx={{ p: 3 }}>
+            <Box
+              sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2.5 }}
+            >
+              <Business sx={{ color: "#ff6b35", fontSize: 20 }} />
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontWeight: 600,
+                  color: "#2c3e50",
+                  fontSize: "1rem",
+                }}
+              >
+                Business Information
               </Typography>
             </Box>
 
-            <Grid container spacing={3}>
+            <Grid container spacing={2.5}>
               <Grid item xs={12} md={6}>
                 <TextField
                   label="Company Name"
@@ -362,29 +417,43 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({
                     handleInputChange("companyName", e.target.value)
                   }
                   fullWidth
+                  size="small"
                   InputProps={{
-                    startAdornment: <Business sx={{ mr: 1, color: "#666" }} />,
+                    startAdornment: (
+                      <Business
+                        sx={{ mr: 1, color: "#7f8c8d", fontSize: 18 }}
+                      />
+                    ),
                   }}
                   sx={{
                     "& .MuiOutlinedInput-root": {
-                      backgroundColor: "white",
+                      backgroundColor: "#fafafa",
+                      fontSize: "0.875rem",
                       "& fieldset": {
-                        borderColor: "#e0e0e0",
+                        borderColor: "#e8e8e8",
+                        borderWidth: "1px",
                       },
                       "&:hover fieldset": {
-                        borderColor: "#c0c0c0",
+                        borderColor: "#d0d0d0",
                       },
                       "&.Mui-focused fieldset": {
                         borderColor: "#ff6b35",
+                        borderWidth: "2px",
                       },
+                    },
+                    "& .MuiInputLabel-root": {
+                      fontSize: "0.875rem",
+                      color: "#7f8c8d",
                     },
                   }}
                 />
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Business Type</InputLabel>
+                <FormControl fullWidth size="small">
+                  <InputLabel sx={{ fontSize: "0.875rem", color: "#7f8c8d" }}>
+                    Business Type
+                  </InputLabel>
                   <Select
                     value={formData.businessType}
                     onChange={(e) =>
@@ -392,23 +461,32 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({
                     }
                     label="Business Type"
                     startAdornment={
-                      <BusinessCenter sx={{ mr: 1, color: "#666" }} />
+                      <BusinessCenter
+                        sx={{ mr: 1, color: "#7f8c8d", fontSize: 18 }}
+                      />
                     }
                     sx={{
-                      backgroundColor: "white",
+                      backgroundColor: "#fafafa",
+                      fontSize: "0.875rem",
                       "& .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "#e0e0e0",
+                        borderColor: "#e8e8e8",
+                        borderWidth: "1px",
                       },
                       "&:hover .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "#c0c0c0",
+                        borderColor: "#d0d0d0",
                       },
                       "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
                         borderColor: "#ff6b35",
+                        borderWidth: "2px",
                       },
                     }}
                   >
                     {businessTypes.map((type) => (
-                      <MenuItem key={type} value={type}>
+                      <MenuItem
+                        key={type}
+                        value={type}
+                        sx={{ fontSize: "0.875rem" }}
+                      >
                         {type}
                       </MenuItem>
                     ))}
@@ -426,31 +504,43 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({
                   fullWidth
                   multiline
                   rows={2}
+                  size="small"
                   InputProps={{
                     startAdornment: (
-                      <LocationOn sx={{ mr: 1, color: "#666", mt: 1 }} />
+                      <LocationOn
+                        sx={{ mr: 1, color: "#7f8c8d", mt: 1, fontSize: 18 }}
+                      />
                     ),
                   }}
                   sx={{
                     "& .MuiOutlinedInput-root": {
-                      backgroundColor: "white",
+                      backgroundColor: "#fafafa",
+                      fontSize: "0.875rem",
                       "& fieldset": {
-                        borderColor: "#e0e0e0",
+                        borderColor: "#e8e8e8",
+                        borderWidth: "1px",
                       },
                       "&:hover fieldset": {
-                        borderColor: "#c0c0c0",
+                        borderColor: "#d0d0d0",
                       },
                       "&.Mui-focused fieldset": {
                         borderColor: "#ff6b35",
+                        borderWidth: "2px",
                       },
+                    },
+                    "& .MuiInputLabel-root": {
+                      fontSize: "0.875rem",
+                      color: "#7f8c8d",
                     },
                   }}
                 />
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Annual Revenue</InputLabel>
+                <FormControl fullWidth size="small">
+                  <InputLabel sx={{ fontSize: "0.875rem", color: "#7f8c8d" }}>
+                    Annual Revenue
+                  </InputLabel>
                   <Select
                     value={formData.annualRevenue}
                     onChange={(e) =>
@@ -458,23 +548,32 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({
                     }
                     label="Annual Revenue"
                     startAdornment={
-                      <AttachMoney sx={{ mr: 1, color: "#666" }} />
+                      <AttachMoney
+                        sx={{ mr: 1, color: "#7f8c8d", fontSize: 18 }}
+                      />
                     }
                     sx={{
-                      backgroundColor: "white",
+                      backgroundColor: "#fafafa",
+                      fontSize: "0.875rem",
                       "& .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "#e0e0e0",
+                        borderColor: "#e8e8e8",
+                        borderWidth: "1px",
                       },
                       "&:hover .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "#c0c0c0",
+                        borderColor: "#d0d0d0",
                       },
                       "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
                         borderColor: "#ff6b35",
+                        borderWidth: "2px",
                       },
                     }}
                   >
                     {revenueRanges.map((range) => (
-                      <MenuItem key={range} value={range}>
+                      <MenuItem
+                        key={range}
+                        value={range}
+                        sx={{ fontSize: "0.875rem" }}
+                      >
                         {range}
                       </MenuItem>
                     ))}
@@ -483,30 +582,41 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Employee Count</InputLabel>
+                <FormControl fullWidth size="small">
+                  <InputLabel sx={{ fontSize: "0.875rem", color: "#7f8c8d" }}>
+                    Employee Count
+                  </InputLabel>
                   <Select
                     value={formData.employeeCount}
                     onChange={(e) =>
                       handleInputChange("employeeCount", e.target.value)
                     }
                     label="Employee Count"
-                    startAdornment={<Group sx={{ mr: 1, color: "#666" }} />}
+                    startAdornment={
+                      <Group sx={{ mr: 1, color: "#7f8c8d", fontSize: 18 }} />
+                    }
                     sx={{
-                      backgroundColor: "white",
+                      backgroundColor: "#fafafa",
+                      fontSize: "0.875rem",
                       "& .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "#e0e0e0",
+                        borderColor: "#e8e8e8",
+                        borderWidth: "1px",
                       },
                       "&:hover .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "#c0c0c0",
+                        borderColor: "#d0d0d0",
                       },
                       "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
                         borderColor: "#ff6b35",
+                        borderWidth: "2px",
                       },
                     }}
                   >
                     {employeeRanges.map((range) => (
-                      <MenuItem key={range} value={range}>
+                      <MenuItem
+                        key={range}
+                        value={range}
+                        sx={{ fontSize: "0.875rem" }}
+                      >
                         {range}
                       </MenuItem>
                     ))}
@@ -522,21 +632,36 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({
                   error={!!errors.website}
                   helperText={errors.website}
                   fullWidth
+                  size="small"
                   InputProps={{
-                    startAdornment: <Language sx={{ mr: 1, color: "#666" }} />,
+                    startAdornment: (
+                      <Language
+                        sx={{ mr: 1, color: "#7f8c8d", fontSize: 18 }}
+                      />
+                    ),
                   }}
                   sx={{
                     "& .MuiOutlinedInput-root": {
-                      backgroundColor: "white",
+                      backgroundColor: "#fafafa",
+                      fontSize: "0.875rem",
                       "& fieldset": {
-                        borderColor: "#e0e0e0",
+                        borderColor: "#e8e8e8",
+                        borderWidth: "1px",
                       },
                       "&:hover fieldset": {
-                        borderColor: "#c0c0c0",
+                        borderColor: "#d0d0d0",
                       },
                       "&.Mui-focused fieldset": {
                         borderColor: "#ff6b35",
+                        borderWidth: "2px",
                       },
+                    },
+                    "& .MuiInputLabel-root": {
+                      fontSize: "0.875rem",
+                      color: "#7f8c8d",
+                    },
+                    "& .MuiFormHelperText-root": {
+                      fontSize: "0.75rem",
                     },
                   }}
                 />
@@ -551,24 +676,34 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({
                   }
                   fullWidth
                   multiline
-                  rows={4}
+                  rows={3}
+                  size="small"
                   InputProps={{
                     startAdornment: (
-                      <Description sx={{ mr: 1, color: "#666", mt: 1 }} />
+                      <Description
+                        sx={{ mr: 1, color: "#7f8c8d", mt: 1, fontSize: 18 }}
+                      />
                     ),
                   }}
                   sx={{
                     "& .MuiOutlinedInput-root": {
-                      backgroundColor: "white",
+                      backgroundColor: "#fafafa",
+                      fontSize: "0.875rem",
                       "& fieldset": {
-                        borderColor: "#e0e0e0",
+                        borderColor: "#e8e8e8",
+                        borderWidth: "1px",
                       },
                       "&:hover fieldset": {
-                        borderColor: "#c0c0c0",
+                        borderColor: "#d0d0d0",
                       },
                       "&.Mui-focused fieldset": {
                         borderColor: "#ff6b35",
+                        borderWidth: "2px",
                       },
+                    },
+                    "& .MuiInputLabel-root": {
+                      fontSize: "0.875rem",
+                      color: "#7f8c8d",
                     },
                   }}
                 />
@@ -578,29 +713,40 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({
         </Card>
 
         {/* Submit Button */}
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
           <Button
             type="submit"
             variant="contained"
             disabled={loading}
-            startIcon={loading ? <CircularProgress size={20} /> : <Save />}
+            startIcon={
+              loading ? (
+                <CircularProgress size={16} />
+              ) : (
+                <Save sx={{ fontSize: 18 }} />
+              )
+            }
             sx={{
               background: "linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)",
               "&:hover": {
                 background: "linear-gradient(135deg, #e55a2b 0%, #ff6b35 100%)",
-                transform: "translateY(-2px)",
-                boxShadow: "0 8px 24px rgba(255, 107, 53, 0.3)",
+                transform: "translateY(-1px)",
+                boxShadow: "0 6px 20px rgba(255, 107, 53, 0.25)",
+              },
+              "&:disabled": {
+                background: "#bdc3c7",
+                color: "#7f8c8d",
               },
               textTransform: "none",
-              borderRadius: 3,
-              px: 6,
-              py: 2,
-              fontWeight: 600,
-              fontSize: "1.1rem",
-              transition: "all 0.3s ease",
+              borderRadius: 2,
+              px: 4,
+              py: 1.5,
+              fontWeight: 500,
+              fontSize: "0.9rem",
+              transition: "all 0.2s ease",
+              minWidth: 160,
             }}
           >
-            {loading ? "Updating Profile..." : "Save Changes"}
+            {loading ? "Updating..." : "Save Changes"}
           </Button>
         </Box>
       </form>

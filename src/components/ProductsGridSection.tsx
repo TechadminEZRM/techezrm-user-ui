@@ -1,20 +1,30 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { Box, Typography, Container, Card, CardContent, Button, IconButton, Skeleton, Alert } from "@mui/material"
-import { ChevronLeft, ChevronRight } from "@mui/icons-material"
-import { useRouter } from "next/navigation"
-import { useAppStore } from "@/store/use-app-store"
-import QuoteFormModal from "./quote-form-modal"
-import type { Product } from "@/api/services"
-import Image from "next/image"
+import type React from "react";
+import { useState, useEffect } from "react";
+import {
+  Box,
+  Typography,
+  Container,
+  Card,
+  CardContent,
+  Button,
+  IconButton,
+  Skeleton,
+  Alert,
+} from "@mui/material";
+import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+import { useRouter } from "next/navigation";
+import { useAppStore } from "@/store/use-app-store";
+import QuoteFormModal from "./quote-form-modal";
+import type { Product } from "@/api/services";
+import Image from "next/image";
 
 interface ProductGridCardProps {
-  product: Product
-  onClick: (productId: string, productName: string) => void
-  onButtonClick: (productId: string, productName: string) => void
-  isAuthenticated: boolean
+  product: Product;
+  onClick: (productId: string, productName: string) => void;
+  onButtonClick: (productId: string, productName: string) => void;
+  isAuthenticated: boolean;
 }
 
 const ProductGridCard: React.FC<ProductGridCardProps> = ({
@@ -23,29 +33,30 @@ const ProductGridCard: React.FC<ProductGridCardProps> = ({
   onButtonClick,
   isAuthenticated,
 }) => {
+  const { isAuthenticated: authState } = useAppStore();
   const handleCardClick = () => {
-    onClick(product._id, product.name)
-  }
+    onClick(product._id, product.name);
+  };
 
   const handleButtonClick = (e: React.MouseEvent) => {
-    e.stopPropagation() // Prevent card click when clicking the button
-    onButtonClick(product._id, product.name)
-  }
+    e.stopPropagation(); // Prevent card click when clicking the button
+    onButtonClick(product._id, product.name);
+  };
 
   const getProductImage = (product: Product) => {
     if (product.bannerImage) {
       return product.bannerImage.startsWith("http")
         ? product.bannerImage
-        : `${process.env.NEXT_PUBLIC_API_URL}/${product.bannerImage}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/${product.bannerImage}`;
     }
     if (product.images && product.images.length > 0) {
-      const firstImage = product.images[0]
+      const firstImage = product.images[0];
       return firstImage.startsWith("http")
         ? firstImage
-        : `${process.env.NEXT_PUBLIC_API_URL}/${firstImage}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/${firstImage}`;
     }
-    return "/productGrid.png" // Default fallback image
-  }
+    return "/productGrid.png"; // Default fallback image
+  };
 
   return (
     <Card
@@ -65,7 +76,9 @@ const ProductGridCard: React.FC<ProductGridCardProps> = ({
         },
       }}
     >
-      <CardContent sx={{ p: 0, height: "100%", display: "flex", flexDirection: "column" }}>
+      <CardContent
+        sx={{ p: 0, height: "100%", display: "flex", flexDirection: "column" }}
+      >
         {/* Product Image Container */}
         <Box
           sx={{
@@ -82,8 +95,8 @@ const ProductGridCard: React.FC<ProductGridCardProps> = ({
             style={{ objectFit: "cover" }} // Changed from "contain" to "cover" to fill entire container
             onError={(e) => {
               // Fallback to default image
-              const target = e.target as HTMLImageElement
-              target.src = "/productGrid.png"
+              const target = e.target as HTMLImageElement;
+              target.src = "/productGrid.png";
             }}
           />
         </Box>
@@ -109,13 +122,14 @@ const ProductGridCard: React.FC<ProductGridCardProps> = ({
         </Button>
         {/* Content Section */}
         <Box sx={{ p: 2.5, flex: 1, display: "flex", flexDirection: "column" }}>
-          {/* Product Name Row - PRICE HIDDEN */}
+          {/* Product Name and Price Row */}
           <Box
             sx={{
               display: "flex",
-              justifyContent: "flex-start",
+              justifyContent: "space-between",
               alignItems: "flex-start",
               mb: 1,
+              gap: 1,
             }}
           >
             <Typography
@@ -127,13 +141,40 @@ const ProductGridCard: React.FC<ProductGridCardProps> = ({
                 lineHeight: 1.2,
                 overflow: "hidden",
                 display: "-webkit-box",
-                WebkitLineClamp: 1,
+                WebkitLineClamp: 2,
                 WebkitBoxOrient: "vertical",
                 flex: 1,
               }}
             >
               {product.name}
             </Typography>
+
+            {/* Price Section - Show only for authenticated users */}
+            {authState && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                  flexShrink: 0,
+                  minWidth: "fit-content",
+                }}
+              >
+                <Typography
+                  sx={{
+                    color: "#ff6b35",
+                    fontWeight: 700,
+                    fontSize: "0.7rem",
+                    backgroundColor: "rgba(255, 107, 53, 0.1)",
+                    padding: "2px 5px",
+                    borderRadius: "3px",
+                    border: "1px solid rgba(255, 107, 53, 0.2)",
+                  }}
+                >
+                  ${product.price}/kg
+                </Typography>
+              </Box>
+            )}
           </Box>
           {/* Description Row - PRICE DESCRIPTION HIDDEN */}
           <Box
@@ -161,9 +202,8 @@ const ProductGridCard: React.FC<ProductGridCardProps> = ({
         </Box>
       </CardContent>
     </Card>
-  )
-}
-
+  );
+};
 
 const ProductGridCardSkeleton: React.FC = () => (
   <Card
@@ -175,7 +215,9 @@ const ProductGridCardSkeleton: React.FC = () => (
       height: "320px", // Exact same height
     }}
   >
-    <CardContent sx={{ p: 0, height: "100%", display: "flex", flexDirection: "column" }}>
+    <CardContent
+      sx={{ p: 0, height: "100%", display: "flex", flexDirection: "column" }}
+    >
       <Skeleton variant="rectangular" height={200} />
       <Skeleton variant="rectangular" height={40} />
       <Box sx={{ p: 2.5, flex: 1 }}>
@@ -185,80 +227,82 @@ const ProductGridCardSkeleton: React.FC = () => (
       </Box>
     </CardContent>
   </Card>
-)
+);
 
 const ProductsGridSection: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const router = useRouter()
-  const { isAuthenticated } = useAppStore()
-  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false)
-  const [selectedProduct, setSelectedProduct] = useState<string>("")
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const router = useRouter();
+  const { isAuthenticated } = useAppStore();
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<string>("");
 
   // API integration state
-  const [allProducts, setAllProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch products from API
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        setLoading(true)
+        setLoading(true);
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/public/products/listing?page=1&limit=20&sortBy=createdAt&sortOrder=desc`
-        )
+        );
 
         if (!response.ok) {
-          throw new Error("Failed to fetch products")
+          throw new Error("Failed to fetch products");
         }
 
-        const data = await response.json()
+        const data = await response.json();
         if (data.success && data.products) {
-          setAllProducts(data.products)
-          setError(null)
+          setAllProducts(data.products);
+          setError(null);
         } else {
-          setAllProducts([])
-          setError("No products found")
+          setAllProducts([]);
+          setError("No products found");
         }
       } catch (err) {
-        console.error("Error fetching products:", err)
-        setError(err instanceof Error ? err.message : "Failed to load products")
-        setAllProducts([])
+        console.error("Error fetching products:", err);
+        setError(
+          err instanceof Error ? err.message : "Failed to load products"
+        );
+        setAllProducts([]);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchProducts()
-  }, [])
+    fetchProducts();
+  }, []);
 
   const handleCardClick = (productId: string) => {
     // Always redirect to detail page when clicking on card
-    router.push(`/product/detail/${productId}`)
-  }
+    router.push(`/product/detail/${productId}`);
+  };
 
   const handleButtonClick = (productId: string, productName: string) => {
     if (isAuthenticated) {
       // If authenticated, redirect to detail page
-      router.push(`/product/detail/${productId}`)
+      router.push(`/product/detail/${productId}`);
     } else {
       // If not authenticated, open quote form modal
-      setSelectedProduct(productName)
-      setIsQuoteModalOpen(true)
+      setSelectedProduct(productName);
+      setIsQuoteModalOpen(true);
     }
-  }
+  };
 
   const handlePrevious = () => {
-    setCurrentIndex((prev) => Math.max(0, prev - 1))
-  }
+    setCurrentIndex((prev) => Math.max(0, prev - 1));
+  };
 
   const handleNext = () => {
-    const maxIndex = Math.max(0, allProducts.length - 4)
-    setCurrentIndex((prev) => Math.min(maxIndex, prev + 1))
-  }
+    const maxIndex = Math.max(0, allProducts.length - 4);
+    setCurrentIndex((prev) => Math.min(maxIndex, prev + 1));
+  };
 
   // Get exactly 4 products to display
-  const visibleProducts = allProducts.slice(currentIndex, currentIndex + 4)
+  const visibleProducts = allProducts.slice(currentIndex, currentIndex + 4);
 
   // Loading state
   if (loading) {
@@ -315,7 +359,7 @@ const ProductsGridSection: React.FC = () => {
           </Box>
         </Container>
       </Box>
-    )
+    );
   }
 
   // Error state
@@ -334,7 +378,7 @@ const ProductsGridSection: React.FC = () => {
           </Alert>
         </Container>
       </Box>
-    )
+    );
   }
 
   // Empty state
@@ -357,7 +401,7 @@ const ProductsGridSection: React.FC = () => {
           </Box>
         </Container>
       </Box>
-    )
+    );
   }
 
   return (
@@ -478,7 +522,7 @@ const ProductsGridSection: React.FC = () => {
         productName={selectedProduct}
       />
     </>
-  )
-}
+  );
+};
 
-export default ProductsGridSection
+export default ProductsGridSection;

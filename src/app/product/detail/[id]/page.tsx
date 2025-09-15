@@ -583,7 +583,7 @@ export default function ProductDetailPage() {
                     </Typography>
                   </Box>
 
-                  {/* Product Details Grid */}
+                  {/* Product Details Table */}
                   <Box sx={{ mb: 4 }}>
                     <Typography
                       variant="h6"
@@ -591,275 +591,446 @@ export default function ProductDetailPage() {
                     >
                       Product Details
                     </Typography>
-                    <Box
+
+                    <TableContainer
+                      component={Paper}
                       sx={{
-                        display: "flex",
-                        flexDirection: { xs: "column", md: "row" },
-                        gap: 3,
+                        borderRadius: "12px",
+                        border: "1px solid #e8e8e8",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                        overflow: "hidden",
                       }}
                     >
-                      {/* Left Column */}
-                      <Box sx={{ flex: 1 }}>
-                        <Box sx={{ mb: 3 }}>
-                          <Typography
-                            variant="subtitle1"
-                            sx={{ fontWeight: 600, mb: 1, color: "#ff6b35" }}
+                      <Table sx={{ minWidth: 650 }}>
+                        <TableBody>
+                          {/* Appearance */}
+                          <TableRow
+                            sx={{
+                              "&:nth-of-type(odd)": {
+                                backgroundColor: "#fafafa",
+                              },
+                              "&:hover": {
+                                backgroundColor: "rgba(255, 107, 53, 0.02)",
+                              },
+                            }}
                           >
-                            Appearance
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            sx={{ color: "#666", pl: 2 }}
-                          >
-                            {product.appearance || "Not specified"}
-                          </Typography>
-                        </Box>
-
-                        <Box sx={{ mb: 3 }}>
-                          <Typography
-                            variant="subtitle1"
-                            sx={{ fontWeight: 600, mb: 1, color: "#ff6b35" }}
-                          >
-                            Category
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            sx={{ color: "#666", pl: 2 }}
-                          >
-                            {product.category?.name || "Not specified"}
-                          </Typography>
-                        </Box>
-
-                        <Box sx={{ mb: 3 }}>
-                          <Typography
-                            variant="subtitle1"
-                            sx={{ fontWeight: 600, mb: 1, color: "#ff6b35" }}
-                          >
-                            Product ID
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            sx={{ color: "#666", pl: 2 }}
-                          >
-                            {product.uniqueId}
-                          </Typography>
-                        </Box>
-
-                        <Box sx={{ mb: 3 }}>
-                          <Typography
-                            variant="subtitle1"
-                            sx={{ fontWeight: 600, mb: 1, color: "#ff6b35" }}
-                          >
-                            Stock Status
-                          </Typography>
-                          <Box sx={{ pl: 2 }}>
-                            <Chip
-                              label={
-                                product.inStock ? "In Stock" : "Out of Stock"
-                              }
+                            <TableCell
                               sx={{
-                                backgroundColor: product.inStock
-                                  ? "#e8f5e8"
-                                  : "#ffeaea",
-                                color: product.inStock ? "#2e7d32" : "#d32f2f",
-                                fontWeight: 500,
-                                fontSize: "12px",
+                                fontWeight: 600,
+                                color: "#ff6b35",
+                                fontSize: "0.9rem",
+                                borderRight: "1px solid #e8e8e8",
+                                width: "30%",
+                                backgroundColor: "rgba(255, 107, 53, 0.03)",
                               }}
-                            />
-                          </Box>
-                        </Box>
-                      </Box>
+                            >
+                              Appearance
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                color: "#333",
+                                fontSize: "0.9rem",
+                                borderBottom: "1px solid #e8e8e8",
+                              }}
+                            >
+                              {product.appearance || "Not specified"}
+                            </TableCell>
+                          </TableRow>
 
-                      {/* Right Column */}
-                      <Box sx={{ flex: 1 }}>
-                        <Box sx={{ mb: 3 }}>
-                          <Typography
-                            variant="subtitle1"
-                            sx={{ fontWeight: 600, mb: 1, color: "#ff6b35" }}
+                          {/* Category */}
+                          <TableRow
+                            sx={{
+                              "&:nth-of-type(odd)": {
+                                backgroundColor: "#fafafa",
+                              },
+                              "&:hover": {
+                                backgroundColor: "rgba(255, 107, 53, 0.02)",
+                              },
+                            }}
                           >
-                            Applications
-                          </Typography>
-                          <Box sx={{ pl: 2 }}>
-                            {product.applications &&
-                            product.applications.length > 0 ? (
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  flexWrap: "wrap",
-                                  gap: 1,
-                                }}
-                              >
-                                {product.applications.map(
-                                  (app: string, index: number) => (
-                                    <Chip
-                                      key={index}
-                                      label={app
-                                        .replace(/-/g, " ")
-                                        .replace(/\b\w/g, (l: string) =>
-                                          l.toUpperCase()
-                                        )}
-                                      sx={{
-                                        backgroundColor:
-                                          "rgba(255, 107, 53, 0.1)",
-                                        color: "#ff6b35",
-                                        fontSize: "11px",
-                                        fontWeight: 500,
-                                      }}
-                                    />
-                                  )
-                                )}
-                              </Box>
-                            ) : (
-                              <Typography
-                                variant="body2"
-                                sx={{ color: "#666" }}
-                              >
-                                Not specified
-                              </Typography>
-                            )}
-                          </Box>
-                        </Box>
+                            <TableCell
+                              sx={{
+                                fontWeight: 600,
+                                color: "#ff6b35",
+                                fontSize: "0.9rem",
+                                borderRight: "1px solid #e8e8e8",
+                                backgroundColor: "rgba(255, 107, 53, 0.03)",
+                              }}
+                            >
+                              Category
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                color: "#333",
+                                fontSize: "0.9rem",
+                                borderBottom: "1px solid #e8e8e8",
+                              }}
+                            >
+                              {product.category?.name || "Not specified"}
+                            </TableCell>
+                          </TableRow>
 
-                        <Box sx={{ mb: 3 }}>
-                          <Typography
-                            variant="subtitle1"
-                            sx={{ fontWeight: 600, mb: 1, color: "#ff6b35" }}
+                          {/* Product ID */}
+                          <TableRow
+                            sx={{
+                              "&:nth-of-type(odd)": {
+                                backgroundColor: "#fafafa",
+                              },
+                              "&:hover": {
+                                backgroundColor: "rgba(255, 107, 53, 0.02)",
+                              },
+                            }}
                           >
-                            Functions
-                          </Typography>
-                          <Box sx={{ pl: 2 }}>
-                            {product.functions &&
-                            product.functions.length > 0 ? (
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  flexWrap: "wrap",
-                                  gap: 1,
-                                }}
-                              >
-                                {product.functions.map(
-                                  (func: string, index: number) => (
-                                    <Chip
-                                      key={index}
-                                      label={func
-                                        .replace(/-/g, " ")
-                                        .replace(/\b\w/g, (l: string) =>
-                                          l.toUpperCase()
-                                        )}
-                                      sx={{
-                                        backgroundColor:
-                                          "rgba(255, 107, 53, 0.1)",
-                                        color: "#ff6b35",
-                                        fontSize: "11px",
-                                        fontWeight: 500,
-                                      }}
-                                    />
-                                  )
-                                )}
-                              </Box>
-                            ) : (
-                              <Typography
-                                variant="body2"
-                                sx={{ color: "#666" }}
-                              >
-                                Not specified
-                              </Typography>
-                            )}
-                          </Box>
-                        </Box>
+                            <TableCell
+                              sx={{
+                                fontWeight: 600,
+                                color: "#ff6b35",
+                                fontSize: "0.9rem",
+                                borderRight: "1px solid #e8e8e8",
+                                backgroundColor: "rgba(255, 107, 53, 0.03)",
+                              }}
+                            >
+                              Product ID
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                color: "#333",
+                                fontSize: "0.9rem",
+                                borderBottom: "1px solid #e8e8e8",
+                                fontFamily: "monospace",
+                                fontWeight: 500,
+                              }}
+                            >
+                              {product.uniqueId}
+                            </TableCell>
+                          </TableRow>
 
-                        <Box sx={{ mb: 3 }}>
-                          <Typography
-                            variant="subtitle1"
-                            sx={{ fontWeight: 600, mb: 1, color: "#ff6b35" }}
+                          {/* Stock Status */}
+                          <TableRow
+                            sx={{
+                              "&:nth-of-type(odd)": {
+                                backgroundColor: "#fafafa",
+                              },
+                              "&:hover": {
+                                backgroundColor: "rgba(255, 107, 53, 0.02)",
+                              },
+                            }}
                           >
-                            Tags
-                          </Typography>
-                          <Box sx={{ pl: 2 }}>
-                            {product.tags && product.tags.length > 0 ? (
-                              <Box
+                            <TableCell
+                              sx={{
+                                fontWeight: 600,
+                                color: "#ff6b35",
+                                fontSize: "0.9rem",
+                                borderRight: "1px solid #e8e8e8",
+                                backgroundColor: "rgba(255, 107, 53, 0.03)",
+                              }}
+                            >
+                              Stock Status
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                borderBottom: "1px solid #e8e8e8",
+                              }}
+                            >
+                              <Chip
+                                label={
+                                  product.inStock ? "In Stock" : "Out of Stock"
+                                }
                                 sx={{
-                                  display: "flex",
-                                  flexWrap: "wrap",
-                                  gap: 1,
+                                  backgroundColor: product.inStock
+                                    ? "#e8f5e8"
+                                    : "#ffeaea",
+                                  color: product.inStock
+                                    ? "#2e7d32"
+                                    : "#d32f2f",
+                                  fontWeight: 600,
+                                  fontSize: "0.8rem",
+                                  borderRadius: "6px",
+                                  border: product.inStock
+                                    ? "1px solid #c8e6c9"
+                                    : "1px solid #ffcdd2",
                                 }}
-                              >
-                                {product.tags.map(
-                                  (tag: string, index: number) => (
-                                    <Chip
-                                      key={index}
-                                      label={tag
-                                        .replace(/-/g, " ")
-                                        .replace(/\b\w/g, (l: string) =>
-                                          l.toUpperCase()
-                                        )}
-                                      sx={{
-                                        backgroundColor:
-                                          "rgba(255, 107, 53, 0.1)",
-                                        color: "#ff6b35",
-                                        fontSize: "11px",
-                                        fontWeight: 500,
-                                      }}
-                                    />
-                                  )
-                                )}
-                              </Box>
-                            ) : (
-                              <Typography
-                                variant="body2"
-                                sx={{ color: "#666" }}
-                              >
-                                Not specified
-                              </Typography>
-                            )}
-                          </Box>
-                        </Box>
+                              />
+                            </TableCell>
+                          </TableRow>
 
-                        <Box sx={{ mb: 3 }}>
-                          <Typography
-                            variant="subtitle1"
-                            sx={{ fontWeight: 600, mb: 1, color: "#ff6b35" }}
+                          {/* Applications */}
+                          <TableRow
+                            sx={{
+                              "&:nth-of-type(odd)": {
+                                backgroundColor: "#fafafa",
+                              },
+                              "&:hover": {
+                                backgroundColor: "rgba(255, 107, 53, 0.02)",
+                              },
+                            }}
                           >
-                            Countries of Origin
-                          </Typography>
-                          <Box sx={{ pl: 2 }}>
-                            {product.countryOfOrigin &&
-                            product.countryOfOrigin.length > 0 ? (
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  flexWrap: "wrap",
-                                  gap: 1,
-                                }}
-                              >
-                                {product.countryOfOrigin.map(
-                                  (country: string, index: number) => (
-                                    <Chip
-                                      key={index}
-                                      label={country}
-                                      sx={{
-                                        backgroundColor:
-                                          "rgba(255, 107, 53, 0.1)",
-                                        color: "#ff6b35",
-                                        fontSize: "11px",
-                                        fontWeight: 500,
-                                      }}
-                                    />
-                                  )
-                                )}
-                              </Box>
-                            ) : (
-                              <Typography
-                                variant="body2"
-                                sx={{ color: "#666" }}
-                              >
-                                Not specified
-                              </Typography>
-                            )}
-                          </Box>
-                        </Box>
-                      </Box>
-                    </Box>
+                            <TableCell
+                              sx={{
+                                fontWeight: 600,
+                                color: "#ff6b35",
+                                fontSize: "0.9rem",
+                                borderRight: "1px solid #e8e8e8",
+                                backgroundColor: "rgba(255, 107, 53, 0.03)",
+                              }}
+                            >
+                              Applications
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                borderBottom: "1px solid #e8e8e8",
+                              }}
+                            >
+                              {product.applications &&
+                              product.applications.length > 0 ? (
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    flexWrap: "wrap",
+                                    gap: 1,
+                                  }}
+                                >
+                                  {product.applications.map(
+                                    (app: string, index: number) => (
+                                      <Chip
+                                        key={index}
+                                        label={app
+                                          .replace(/-/g, " ")
+                                          .replace(/\b\w/g, (l: string) =>
+                                            l.toUpperCase()
+                                          )}
+                                        sx={{
+                                          backgroundColor:
+                                            "rgba(255, 107, 53, 0.1)",
+                                          color: "#ff6b35",
+                                          fontSize: "0.75rem",
+                                          fontWeight: 500,
+                                          borderRadius: "6px",
+                                          border:
+                                            "1px solid rgba(255, 107, 53, 0.2)",
+                                        }}
+                                      />
+                                    )
+                                  )}
+                                </Box>
+                              ) : (
+                                <Typography
+                                  variant="body2"
+                                  sx={{ color: "#999", fontStyle: "italic" }}
+                                >
+                                  Not specified
+                                </Typography>
+                              )}
+                            </TableCell>
+                          </TableRow>
+
+                          {/* Functions */}
+                          <TableRow
+                            sx={{
+                              "&:nth-of-type(odd)": {
+                                backgroundColor: "#fafafa",
+                              },
+                              "&:hover": {
+                                backgroundColor: "rgba(255, 107, 53, 0.02)",
+                              },
+                            }}
+                          >
+                            <TableCell
+                              sx={{
+                                fontWeight: 600,
+                                color: "#ff6b35",
+                                fontSize: "0.9rem",
+                                borderRight: "1px solid #e8e8e8",
+                                backgroundColor: "rgba(255, 107, 53, 0.03)",
+                              }}
+                            >
+                              Functions
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                borderBottom: "1px solid #e8e8e8",
+                              }}
+                            >
+                              {product.functions &&
+                              product.functions.length > 0 ? (
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    flexWrap: "wrap",
+                                    gap: 1,
+                                  }}
+                                >
+                                  {product.functions.map(
+                                    (func: string, index: number) => (
+                                      <Chip
+                                        key={index}
+                                        label={func
+                                          .replace(/-/g, " ")
+                                          .replace(/\b\w/g, (l: string) =>
+                                            l.toUpperCase()
+                                          )}
+                                        sx={{
+                                          backgroundColor:
+                                            "rgba(255, 107, 53, 0.1)",
+                                          color: "#ff6b35",
+                                          fontSize: "0.75rem",
+                                          fontWeight: 500,
+                                          borderRadius: "6px",
+                                          border:
+                                            "1px solid rgba(255, 107, 53, 0.2)",
+                                        }}
+                                      />
+                                    )
+                                  )}
+                                </Box>
+                              ) : (
+                                <Typography
+                                  variant="body2"
+                                  sx={{ color: "#999", fontStyle: "italic" }}
+                                >
+                                  Not specified
+                                </Typography>
+                              )}
+                            </TableCell>
+                          </TableRow>
+
+                          {/* Tags */}
+                          <TableRow
+                            sx={{
+                              "&:nth-of-type(odd)": {
+                                backgroundColor: "#fafafa",
+                              },
+                              "&:hover": {
+                                backgroundColor: "rgba(255, 107, 53, 0.02)",
+                              },
+                            }}
+                          >
+                            <TableCell
+                              sx={{
+                                fontWeight: 600,
+                                color: "#ff6b35",
+                                fontSize: "0.9rem",
+                                borderRight: "1px solid #e8e8e8",
+                                backgroundColor: "rgba(255, 107, 53, 0.03)",
+                              }}
+                            >
+                              Tags
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                borderBottom: "1px solid #e8e8e8",
+                              }}
+                            >
+                              {product.tags && product.tags.length > 0 ? (
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    flexWrap: "wrap",
+                                    gap: 1,
+                                  }}
+                                >
+                                  {product.tags.map(
+                                    (tag: string, index: number) => (
+                                      <Chip
+                                        key={index}
+                                        label={tag
+                                          .replace(/-/g, " ")
+                                          .replace(/\b\w/g, (l: string) =>
+                                            l.toUpperCase()
+                                          )}
+                                        sx={{
+                                          backgroundColor:
+                                            "rgba(255, 107, 53, 0.1)",
+                                          color: "#ff6b35",
+                                          fontSize: "0.75rem",
+                                          fontWeight: 500,
+                                          borderRadius: "6px",
+                                          border:
+                                            "1px solid rgba(255, 107, 53, 0.2)",
+                                        }}
+                                      />
+                                    )
+                                  )}
+                                </Box>
+                              ) : (
+                                <Typography
+                                  variant="body2"
+                                  sx={{ color: "#999", fontStyle: "italic" }}
+                                >
+                                  Not specified
+                                </Typography>
+                              )}
+                            </TableCell>
+                          </TableRow>
+
+                          {/* Countries of Origin */}
+                          <TableRow
+                            sx={{
+                              "&:nth-of-type(odd)": {
+                                backgroundColor: "#fafafa",
+                              },
+                              "&:hover": {
+                                backgroundColor: "rgba(255, 107, 53, 0.02)",
+                              },
+                            }}
+                          >
+                            <TableCell
+                              sx={{
+                                fontWeight: 600,
+                                color: "#ff6b35",
+                                fontSize: "0.9rem",
+                                borderRight: "1px solid #e8e8e8",
+                                backgroundColor: "rgba(255, 107, 53, 0.03)",
+                              }}
+                            >
+                              Countries of Origin
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                borderBottom: "none",
+                              }}
+                            >
+                              {product.countryOfOrigin &&
+                              product.countryOfOrigin.length > 0 ? (
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    flexWrap: "wrap",
+                                    gap: 1,
+                                  }}
+                                >
+                                  {product.countryOfOrigin.map(
+                                    (country: string, index: number) => (
+                                      <Chip
+                                        key={index}
+                                        label={country}
+                                        sx={{
+                                          backgroundColor:
+                                            "rgba(255, 107, 53, 0.1)",
+                                          color: "#ff6b35",
+                                          fontSize: "0.75rem",
+                                          fontWeight: 500,
+                                          borderRadius: "6px",
+                                          border:
+                                            "1px solid rgba(255, 107, 53, 0.2)",
+                                        }}
+                                      />
+                                    )
+                                  )}
+                                </Box>
+                              ) : (
+                                <Typography
+                                  variant="body2"
+                                  sx={{ color: "#999", fontStyle: "italic" }}
+                                >
+                                  Not specified
+                                </Typography>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
                   </Box>
 
                   {/* Dietary Attributes Section */}

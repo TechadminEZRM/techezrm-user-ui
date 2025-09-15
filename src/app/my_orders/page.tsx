@@ -407,6 +407,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onBuyAgain }) => {
 const OrdersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [activeTab, setActiveTab] = useState(0);
   const { customer } = useAppStore();
+  console.log(activeTab, "activeTab");
 
   // Get filter based on active tab
   const getOrderStatusFilter = () => {
@@ -430,6 +431,7 @@ const OrdersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   } = useCustomerOrders(customer?.id || "", {
     orderStatus: getOrderStatusFilter(),
     limit: 20,
+    activeTab: activeTab,
   });
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {

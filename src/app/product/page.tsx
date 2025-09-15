@@ -583,6 +583,13 @@ const ProductPage: React.FC = () => {
                               alignItems: "center",
                               gap: 1,
                               cursor: "pointer",
+                              padding: "6px 8px",
+                              borderRadius: "6px",
+                              transition: "all 0.2s ease",
+                              "&:hover": {
+                                backgroundColor: "rgba(255, 107, 53, 0.08)",
+                                transform: "translateX(2px)",
+                              },
                             }}
                             onClick={() =>
                               handleCategoryFilter(
@@ -692,6 +699,13 @@ const ProductPage: React.FC = () => {
                                 alignItems: "center",
                                 gap: 1,
                                 cursor: "pointer",
+                                padding: "6px 8px",
+                                borderRadius: "6px",
+                                transition: "all 0.2s ease",
+                                "&:hover": {
+                                  backgroundColor: "rgba(255, 107, 53, 0.08)",
+                                  transform: "translateX(2px)",
+                                },
                               }}
                               onClick={() =>
                                 handleSubCategoryFilter(
@@ -804,6 +818,13 @@ const ProductPage: React.FC = () => {
                                 alignItems: "center",
                                 gap: 1,
                                 cursor: "pointer",
+                                padding: "6px 8px",
+                                borderRadius: "6px",
+                                transition: "all 0.2s ease",
+                                "&:hover": {
+                                  backgroundColor: "rgba(255, 107, 53, 0.08)",
+                                  transform: "translateX(2px)",
+                                },
                               }}
                               onClick={() =>
                                 handleApplicationFilter(
@@ -915,6 +936,13 @@ const ProductPage: React.FC = () => {
                               alignItems: "center",
                               gap: 1,
                               cursor: "pointer",
+                              padding: "6px 8px",
+                              borderRadius: "6px",
+                              transition: "all 0.2s ease",
+                              "&:hover": {
+                                backgroundColor: "rgba(255, 107, 53, 0.08)",
+                                transform: "translateX(2px)",
+                              },
                             }}
                             onClick={() =>
                               handleFunctionFilter(
@@ -1020,6 +1048,13 @@ const ProductPage: React.FC = () => {
                             alignItems: "center",
                             gap: 1,
                             cursor: "pointer",
+                            padding: "6px 8px",
+                            borderRadius: "6px",
+                            transition: "all 0.2s ease",
+                            "&:hover": {
+                              backgroundColor: "rgba(255, 107, 53, 0.08)",
+                              transform: "translateX(2px)",
+                            },
                           }}
                           onClick={() =>
                             handleTagFilter(
@@ -1125,6 +1160,13 @@ const ProductPage: React.FC = () => {
                                 alignItems: "center",
                                 gap: 1,
                                 cursor: "pointer",
+                                padding: "6px 8px",
+                                borderRadius: "6px",
+                                transition: "all 0.2s ease",
+                                "&:hover": {
+                                  backgroundColor: "rgba(255, 107, 53, 0.08)",
+                                  transform: "translateX(2px)",
+                                },
                               }}
                               onClick={() =>
                                 handleCountryFilter(
@@ -1238,7 +1280,7 @@ const ProductPage: React.FC = () => {
                 fontSize: "24px",
               }}
             >
-              Product
+              Our Products
             </Typography>
 
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -1885,18 +1927,59 @@ const ProductPage: React.FC = () => {
 
                   {/* Product Content */}
                   <Box sx={{ p: 2 }}>
-                    {/* Product Name */}
-                    <Typography
+                    {/* Product Name and Price Row */}
+                    <Box
                       sx={{
-                        fontSize: "14px",
-                        fontWeight: 600,
-                        color: "#333",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
                         mb: 1,
-                        lineHeight: 1.3,
+                        gap: 1,
                       }}
                     >
-                      {product.name}
-                    </Typography>
+                      <Typography
+                        sx={{
+                          fontSize: "14px",
+                          fontWeight: 600,
+                          color: "#333",
+                          lineHeight: 1.3,
+                          flex: 1,
+                          overflow: "hidden",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                        }}
+                      >
+                        {product.name}
+                      </Typography>
+
+                      {/* Price Section - Show only for authenticated users */}
+                      {isAuthenticated && (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "flex-end",
+                            flexShrink: 0,
+                            minWidth: "fit-content",
+                          }}
+                        >
+                          <Typography
+                            sx={{
+                              color: "#ff6b35",
+                              fontWeight: 700,
+                              fontSize: "0.8rem",
+                              backgroundColor: "rgba(255, 107, 53, 0.1)",
+                              padding: "2px 6px",
+                              borderRadius: "4px",
+                              border: "1px solid rgba(255, 107, 53, 0.2)",
+                            }}
+                          >
+                            ${product.price}/kg
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
 
                     {/* Short description */}
                     <Typography
