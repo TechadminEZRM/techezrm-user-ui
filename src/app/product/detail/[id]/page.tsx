@@ -1427,7 +1427,7 @@ export default function ProductDetailPage() {
 
               {/* Social Icons */}
               <Box
-                sx={{ display: "flex", gap: 1, alignItems: "center", mt: 2 }}
+                sx={{ display: "flex", gap: 1, alignItems: "center", mt: 2, height:100}}
               >
                 <Typography variant="body2" sx={{ mr: 1, fontSize: "12px" }}>
                   Add to Wishlist
@@ -1454,7 +1454,7 @@ export default function ProductDetailPage() {
               </Box>
             </Box>
 
-            <Box sx={{ height: 200 }}></Box>
+            <Box sx={{ height: 200, mt:3}}></Box>
             {/* Company Specific Documents Section */}
             <CompanyDocumentsSection
               companySpecific={companySpecific}

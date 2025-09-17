@@ -224,7 +224,7 @@ const CompanyDocumentsSection: React.FC<CompanyDocumentsSectionProps> = ({
           mb: 3,
           fontSize: { xs: "1.1rem", md: "1.2rem" },
           color: "#333",
-          textAlign: "center",
+          textAlign: "left",
         }}
       >
         Company Specific Documents
