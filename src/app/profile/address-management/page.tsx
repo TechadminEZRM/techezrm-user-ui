@@ -93,9 +93,7 @@ const AddressManagementPage: React.FC = () => {
 
   const handleSetDefaultAddress = async (addressId: string) => {
     try {
-      console.log("Setting default address:", addressId);
       const result = await updateDefaultAddress(addressId);
-      console.log("Set default result:", result);
       setAddressMenuAnchor(null);
 
       // Show success message
@@ -121,6 +119,7 @@ const AddressManagementPage: React.FC = () => {
   const handleAddressMenuClose = () => {
     setAddressMenuAnchor(null);
     setSelectedAddressId("");
+    setEditingAddress(null)
   };
 
   const handleShowDetails = (address: CustomerAddress) => {
@@ -519,6 +518,7 @@ const AddressManagementPage: React.FC = () => {
           <AddressModal
             open={addressModalOpen}
             onClose={() => {
+              console.log("close")
               setAddressModalOpen(false);
               setEditingAddress(null);
             }}
