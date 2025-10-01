@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter,usePathname, useSearchParams } from "next/navigation";
 import {
   Box,
   Typography,
@@ -75,7 +75,12 @@ export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
   const productId = params.id as string;
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { data: variantsResponse } = useProductVariants(productId);
+
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
+  const currentUrl = `${baseUrl}${pathname}${searchParams}`;
 
   // Auth state
   const { customer, isAuthenticated } = useAppStore();
@@ -323,6 +328,26 @@ export default function ProductDetailPage() {
       logo: attr.logo,
       certificateLink: attr.certificateLink,
     })) || [];
+
+
+    // share on whatsapp
+
+    const handleWhatsAppShare = (product:any) => {
+      const message = `To checkout ${product.name} on EZRM, please click on the below link:\n${currentUrl}`;
+      const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(url, "_blank");
+    };
+
+    // share on mail
+
+
+    const handleEmailShare = (product:any) => {
+      const subject = "Check out product on EZRM!";
+      const body = `Hi,\n\nTo checkout ${product.name} on EZRM, please click on the below link:\n${currentUrl}`;
+      const url = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = url;
+    };
+  
 
   return (
     <Container maxWidth="xl" sx={{ py: 2 }}>
@@ -1442,10 +1467,10 @@ export default function ProductDetailPage() {
                 >
                   <FavoriteBorder fontSize="small" />
                 </IconButton>
-                <IconButton size="small" sx={{ color: "#25d366" }}>
+                <IconButton size="small" sx={{ color: "#25d366" }} onClick={() => handleWhatsAppShare(product)}>
                   <WhatsApp fontSize="small" />
                 </IconButton>
-                <IconButton size="small" sx={{ color: "#ea4335" }}>
+                <IconButton size="small" sx={{ color: "#ea4335" }} onClick={()=> handleEmailShare(product)}>
                   <Email fontSize="small" />
                 </IconButton>
                 <IconButton size="small" sx={{ color: "#ff6b35" }}>

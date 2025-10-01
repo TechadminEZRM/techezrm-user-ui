@@ -156,7 +156,7 @@ const FAQSection: React.FC<FAQSectionProps> = ({ faqs, isLoading, error }) => {
         color="primary"
         sx={{
           mb: 3,
-          textAlign: "center",
+          // textAlign: "center",
           background: "linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)",
           backgroundClip: "text",
           WebkitBackgroundClip: "text",
@@ -167,7 +167,7 @@ const FAQSection: React.FC<FAQSectionProps> = ({ faqs, isLoading, error }) => {
         Frequently Asked Questions
       </Typography>
 
-      <Box sx={{ maxWidth: 800, mx: "auto" }}>
+      <Box sx={{ maxWidth: 800}}>
         {faqs.map((faq, index) => (
           <StyledAccordion
             key={faq._id}
