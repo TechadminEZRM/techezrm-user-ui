@@ -58,3 +58,6 @@ export * from "./faqHandler";
 
 // RFQ handlers
 export * from "./rfqHandler";
+
+// Book call handlers
+export * from "./callHandler"
