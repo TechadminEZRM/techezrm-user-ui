@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -39,12 +39,12 @@ import { useCustomerLogout } from "@/api/handlers";
 import { useCartSummary } from "@/api/handlers/cartHandler";
 import { useWishlist } from "@/api/handlers/wishlistHandler";
 import { useCompanyDetails } from "@/hooks/use-company-details";
+import { searchSuggestionService } from "@/api/services/searchSuggestionService";
 
 interface SearchResult {
-  id: string;
+  // id: string;
   title: string;
-  category: string;
-  type: "product" | "category";
+  type:string;
 }
 
 const Navbar: React.FC = () => {
@@ -60,36 +60,54 @@ const Navbar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-
-  // Mock search results - replace with actual search logic
-  const mockResults: SearchResult[] = [
-    { id: "1", title: "Vitamin C", category: "Vitamins", type: "product" },
-    {
-      id: "2",
-      title: "Amino Acids",
-      category: "Supplements",
-      type: "category",
-    },
-    {
-      id: "3",
-      title: "Liposomal Formulations",
-      category: "Advanced",
-      type: "product",
-    },
-    {
-      id: "4",
-      title: "Microencapsulation",
-      category: "Technology",
-      type: "product",
-    },
-    { id: "5", title: "Omega-3", category: "Fatty Acids", type: "product" },
-    {
-      id: "6",
-      title: "Probiotics",
-      category: "Digestive Health",
-      type: "category",
-    },
-  ];
+  
+  interface SuggestionItem {
+    suggestions: string[];
+    type: "product" | "category";
+  }
+  
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (!searchQuery.trim()) {
+        setSearchResults([]);
+        return;
+      }
+  
+      try {
+        const res = await searchSuggestionService.getSuggestions({
+          q: searchQuery,
+          limit: 10,
+        });
+  
+        if (res.success && Array.isArray(res.data)) {
+          const formatted: SearchResult[] = [];
+  
+          // Loop over each item
+          res.data.forEach((item: any) => {
+            if (item.suggestions && item.suggestions.length > 0) {
+              item.suggestions.forEach((s:any) => {
+                formatted.push({
+                  title: s,
+                  type: item.type,
+                });
+              });
+            }
+          });
+  
+          setSearchResults(formatted);
+        } else {
+          setSearchResults([]);
+        }
+      } catch (err) {
+        console.error(err);
+        setSearchResults([]);
+      }
+    };
+  
+    fetchSuggestions();
+  }, [searchQuery]);
+  
+  
 
   // Fetch cart and wishlist counts when authenticated
   const { data: cartSummary } = useCartSummary(customer?.id || "", {
@@ -140,10 +158,10 @@ const Navbar: React.FC = () => {
     // Simulate search delay
     setTimeout(() => {
       if (query.trim()) {
-        const filtered = mockResults.filter(
+        const filtered = searchResults.filter(
           (item) =>
             item.title.toLowerCase().includes(query.toLowerCase()) ||
-            item.category.toLowerCase().includes(query.toLowerCase())
+            item.type.toLowerCase().includes(query.toLowerCase())
         );
         setSearchResults(filtered);
       } else {
@@ -175,9 +193,9 @@ const Navbar: React.FC = () => {
     console.log("Selected:", result);
     // Handle navigation based on result type
     if (result.type === "product") {
-      router.push(`/product/${result.id}`);
+      // router.push(`/product/${result.id}`);
     } else {
-      router.push(`/category/${result.id}`);
+      // router.push(`/category/${result.id}`);
     }
     setIsSearchExpanded(false);
     setSearchQuery("");

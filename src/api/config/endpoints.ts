@@ -102,6 +102,7 @@ export const ENDPOINTS = {
   // Search endpoints
   SEARCH: {
     QUERY: "/public/search",
+    SUGGESTIONS:"/public/search/suggestions"
   },
 
   // Countries endpoints

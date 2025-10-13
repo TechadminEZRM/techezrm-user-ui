@@ -121,7 +121,7 @@ const ProductGridCard: React.FC<ProductGridCardProps> = ({
           {isAuthenticated ? "Buy" : "Get Quote"}
         </Button>
         {/* Content Section */}
-        <Box sx={{ p: 2.5, flex: 1, display: "flex", flexDirection: "column" }}>
+        <Box sx={{ p: 2.5,pb:0, flex: 1, display: "flex", flexDirection: "column" }}>
           {/* Product Name and Price Row */}
           <Box
             sx={{
@@ -196,7 +196,7 @@ const ProductGridCard: React.FC<ProductGridCardProps> = ({
                 overflow: "hidden",
               }}
             >
-              {product.description}
+              {product.description}--
             </Typography>
           </Box>
         </Box>

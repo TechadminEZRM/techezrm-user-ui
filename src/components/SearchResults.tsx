@@ -120,7 +120,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
       {/* Search Header */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h5" sx={{ fontWeight: 600, color: "#333", mb: 1 }}>
-          Search Results
+          Search Results --
         </Typography>
         <Typography variant="body1" sx={{ color: "#666", mb: 2 }}>
           {hasResults ? (

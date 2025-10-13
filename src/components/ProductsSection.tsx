@@ -252,10 +252,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
             bgcolor: "#ff7849",
             color: "white",
             fontWeight: 500,
-            py: 0.7,
             borderRadius: "0 0 12px 12px",
             textTransform: "none",
             fontSize: "0.9rem",
+            height: 30,                  // fixed height
+            display: "flex",
+            alignItems: "center",        // vertical center
+            justifyContent: "center",    // horizontal center
             "&:hover": {
               bgcolor: "#e66a3c",
             },
