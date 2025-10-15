@@ -3,8 +3,11 @@ import type React from "react"
 import { Box, Typography, Button, Container } from "@mui/material"
 import { ArrowForward } from "@mui/icons-material"
 import Image from "next/image"
+import { useState } from "react"
+import BookCallModal from "@/components/BookCallModal"
 
 const PixelPerfectClone: React.FC = () => {
+  const [bookCallModalOpen, setBookCallModalOpen] = useState(false);
   return (
     <Box sx={{ width: "100%" }}>
       {/* Hero Section */}
@@ -116,6 +119,7 @@ const PixelPerfectClone: React.FC = () => {
             {/* Book a Call Button */}
             <Button
               variant="contained"
+              onClick={() => setBookCallModalOpen(true)}
               sx={{
                 backgroundColor: "#ff6b35",
                 color: "white",
@@ -1213,7 +1217,11 @@ const PixelPerfectClone: React.FC = () => {
           </Box>
         </Container>
       </Box>
-    </Box>
+      <BookCallModal
+        open={bookCallModalOpen}
+        onClose={() => setBookCallModalOpen(false)}
+      />
+    </Box>  
   )
 }
 

@@ -321,24 +321,27 @@ const FooterSection: React.FC = () => {
         >
           {/* Left - Navigation Links */}
           <Box sx={{ display: "flex", gap: 4 }}>
-            {["Team", "Products", "Connect"].map((link) => (
-              <Typography
-                key={link}
-                component="a"
-                href="#"
-                sx={{
-                  color: "white",
-                  fontSize: "0.95rem",
-                  textDecoration: "none",
-                  "&:hover": {
-                    opacity: 0.8,
-                  },
-                }}
-              >
-                {link}
-              </Typography>
-            ))}
-          </Box>
+              {[
+                { label: "Team", href: "/about" },
+                { label: "Products", href: "/product" },
+                { label: "Connect", href: "/#" },
+              ].map((item) => (
+                <Typography
+                  key={item.label}
+                  component="a"
+                  href={item.href}
+                  sx={{
+                    color: "white",
+                    fontSize: "0.95rem",
+                    textDecoration: "none",
+                    "&:hover": { opacity: 0.8 },
+                  }}
+                >
+                  {item.label}
+                </Typography>
+              ))}
+            </Box>
+
           {/* Center - Logo */}
           <Typography
             sx={{

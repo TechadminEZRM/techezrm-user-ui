@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -94,6 +94,52 @@ const AddressModal: React.FC<AddressModalProps> = ({
     isActive: true,
     ...initialData,
   });
+  useEffect(() => {
+    if (initialData) {
+      setAddressData({
+        companyName: "",
+        receiverName: "",
+        receiverEmail: "",
+        receiverPhone: "",
+        receiverPhoneCountryCode: "+1",
+        type: "home",
+        street: "",
+        city: "",
+        state: "",
+        country: "",
+        zipCode: "",
+        coordinates: {
+          latitude: "",
+          longitude: "",
+        },
+        isDefault: false,
+        isActive: true,
+        ...initialData, // merge
+      });
+    } else {
+      setAddressData({
+        companyName: "",
+        receiverName: "",
+        receiverEmail: "",
+        receiverPhone: "",
+        receiverPhoneCountryCode: "+1",
+        type: "home",
+        street: "",
+        city: "",
+        state: "",
+        country: "",
+        zipCode: "",
+        coordinates: {
+          latitude: "",
+          longitude: "",
+        },
+        isDefault: false,
+        isActive: true,
+      });
+    }
+  }, [initialData]);
+  
+
 
   // Address type options
   const addressTypes = [
@@ -104,71 +150,72 @@ const AddressModal: React.FC<AddressModalProps> = ({
 
   // Country options
   const countries = [
-    "United States",
-    "Canada",
-    "United Kingdom",
-    "Germany",
-    "France",
-    "Italy",
-    "Spain",
-    "Netherlands",
-    "Belgium",
-    "Switzerland",
+    "Argentina",
+    "Australia",
     "Austria",
-    "Sweden",
-    "Norway",
+    "Belgium",
+    "Brazil",
+    "Canada",
+    "China",
+    "Czech Republic",
     "Denmark",
     "Finland",
-    "Poland",
-    "Czech Republic",
-    "Hungary",
-    "Portugal",
+    "France",
+    "Germany",
     "Greece",
-    "Australia",
-    "New Zealand",
-    "Japan",
-    "South Korea",
-    "Singapore",
+    "Hungary",
     "India",
-    "China",
-    "Brazil",
+    "Italy",
+    "Japan",
     "Mexico",
-    "Argentina",
+    "Netherlands",
+    "New Zealand",
+    "Norway",
+    "Poland",
+    "Portugal",
+    "Singapore",
+    "South Korea",
+    "Spain",
+    "Sweden",
+    "Switzerland",
+    "United Kingdom",
+    "United States",
   ];
+  
 
   // Country code options
   const countryCodes = [
-    { code: "+1", country: "US/CA" },
-    { code: "+44", country: "UK" },
-    { code: "+49", country: "Germany" },
-    { code: "+33", country: "France" },
-    { code: "+39", country: "Italy" },
-    { code: "+34", country: "Spain" },
-    { code: "+31", country: "Netherlands" },
-    { code: "+32", country: "Belgium" },
-    { code: "+41", country: "Switzerland" },
+    { code: "+54", country: "Argentina" },
+    { code: "+61", country: "Australia" },
     { code: "+43", country: "Austria" },
-    { code: "+46", country: "Sweden" },
-    { code: "+47", country: "Norway" },
+    { code: "+32", country: "Belgium" },
+    { code: "+55", country: "Brazil" },
+    { code: "+86", country: "China" },
+    { code: "+420", country: "Czech Republic" },
     { code: "+45", country: "Denmark" },
     { code: "+358", country: "Finland" },
-    { code: "+48", country: "Poland" },
-    { code: "+420", country: "Czech Republic" },
-    { code: "+36", country: "Hungary" },
-    { code: "+351", country: "Portugal" },
+    { code: "+33", country: "France" },
+    { code: "+49", country: "Germany" },
     { code: "+30", country: "Greece" },
-    { code: "+61", country: "Australia" },
-    { code: "+64", country: "New Zealand" },
-    { code: "+81", country: "Japan" },
-    { code: "+82", country: "South Korea" },
-    { code: "+65", country: "Singapore" },
+    { code: "+36", country: "Hungary" },
     { code: "+91", country: "India" },
-    { code: "+86", country: "China" },
-    { code: "+55", country: "Brazil" },
+    { code: "+39", country: "Italy" },
+    { code: "+81", country: "Japan" },
     { code: "+52", country: "Mexico" },
-    { code: "+54", country: "Argentina" },
+    { code: "+31", country: "Netherlands" },
+    { code: "+64", country: "New Zealand" },
+    { code: "+47", country: "Norway" },
+    { code: "+48", country: "Poland" },
+    { code: "+351", country: "Portugal" },
+    { code: "+65", country: "Singapore" },
+    { code: "+82", country: "South Korea" },
+    { code: "+34", country: "Spain" },
+    { code: "+46", country: "Sweden" },
+    { code: "+41", country: "Switzerland" },
+    { code: "+44", country: "UK" },
+    { code: "+1", country: "US/CA" },
   ];
-
+  
   const handleInputChange =
     (field: keyof AddressFormData) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {

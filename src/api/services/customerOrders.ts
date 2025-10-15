@@ -58,6 +58,7 @@ export interface CustomerOrdersResponse {
   success: boolean;
   data: {
     orders: CustomerOrder[];
+    totalCountTabWise:{total:number, pending:number, cancelled:number, shipped:number, processing:number, delivered:number};
     total: number;
     page: number;
     totalPages: number;

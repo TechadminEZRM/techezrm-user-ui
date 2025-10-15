@@ -407,13 +407,12 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onBuyAgain }) => {
 const OrdersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [activeTab, setActiveTab] = useState(0);
   const { customer } = useAppStore();
-  console.log(activeTab, "activeTab");
 
   // Get filter based on active tab
   const getOrderStatusFilter = () => {
     switch (activeTab) {
       case 1:
-        return "processing,confirmed,shipped";
+        return "pending";  // processing,confirmed,shipped
       case 2:
         return "delivered";
       case 3:
@@ -566,10 +565,16 @@ const OrdersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               },
             }}
           >
-            <Tab label={`All Orders (${response?.data?.total || 0})`} />
-            <Tab label="In Progress" />
-            <Tab label="Delivered" />
-            <Tab label="Cancelled" />
+            <Tab label={`All Orders (${response?.data?.totalCountTabWise?.total || 0})`} />
+            <Tab
+                label={`In Progress (${
+                  (response?.data?.totalCountTabWise?.pending || 0) +
+                  (response?.data?.totalCountTabWise?.processing || 0) +
+                  (response?.data?.totalCountTabWise?.shipped || 0)
+                })`}
+              />
+            <Tab label={`Delivered (${response?.data?.totalCountTabWise?.delivered || 0})`} />
+            <Tab label={`Cancelled (${response?.data?.totalCountTabWise?.cancelled || 0}) `} />
           </Tabs>
         </Box>
 
