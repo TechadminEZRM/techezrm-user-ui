@@ -15,7 +15,7 @@ export interface SuggestionResponse {
 
 export interface SuggestionParams {
   q: string;
-  limit?: number;
+  limit?: number; // keep this optional if you might need it later
 }
 
 class SearchSuggestionService {
@@ -37,9 +37,9 @@ class SearchSuggestionService {
   }
 
   async getSuggestions(params: SuggestionParams): Promise<SuggestionResponse> {
+    // ✅ Only send 'q' in the query
     const searchParams = new URLSearchParams();
     searchParams.append("q", params.q);
-    if (params.limit) searchParams.append("limit", params.limit.toString());
 
     const endpoint = `${ENDPOINTS.SEARCH.SUGGESTIONS}?${searchParams.toString()}`;
     return this.makeRequest<SuggestionResponse>(endpoint);

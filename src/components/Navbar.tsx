@@ -42,7 +42,7 @@ import { useCompanyDetails } from "@/hooks/use-company-details";
 import { searchSuggestionService } from "@/api/services/searchSuggestionService";
 
 interface SearchResult {
-  // id: string;
+  id: string;
   title: string;
   type:string;
 }
@@ -65,7 +65,6 @@ const Navbar: React.FC = () => {
     suggestions: string[];
     type: "product" | "category";
   }
-  
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (!searchQuery.trim()) {
@@ -74,21 +73,18 @@ const Navbar: React.FC = () => {
       }
   
       try {
-        const res = await searchSuggestionService.getSuggestions({
-          q: searchQuery,
-          limit: 10,
-        });
+        const res = await searchSuggestionService.getSuggestions({ q: searchQuery });
   
         if (res.success && Array.isArray(res.data)) {
           const formatted: SearchResult[] = [];
   
-          // Loop over each item
           res.data.forEach((item: any) => {
-            if (item.suggestions && item.suggestions.length > 0) {
-              item.suggestions.forEach((s:any) => {
+            if (Array.isArray(item.suggestions) && item.suggestions.length > 0) {
+              item.suggestions.forEach((s: any) => {
                 formatted.push({
-                  title: s,
-                  type: item.type,
+                  id: s.id,            // ✅ now includes ID
+                  title: s.title,      // ✅ extract title instead of using the whole string
+                  type: item.type,     // ✅ preserve type (product/category/tag)
                 });
               });
             }
@@ -193,9 +189,9 @@ const Navbar: React.FC = () => {
     console.log("Selected:", result);
     // Handle navigation based on result type
     if (result.type === "product") {
-      // router.push(`/product/${result.id}`);
+      router.push(`/product/detail/${result.id}`);
     } else {
-      // router.push(`/category/${result.id}`);
+      router.push(`product?category=${result.title.toLowerCase()}`);
     }
     setIsSearchExpanded(false);
     setSearchQuery("");
@@ -647,7 +643,9 @@ const Navbar: React.FC = () => {
                               sx={{
                                 "&:hover": {
                                   backgroundColor: "#f5f5f5",
+                                  cursor:"pointer"
                                 },
+                                
                                 borderBottom: "1px solid #f0f0f0",
                                 "&:last-child": {
                                   borderBottom: "none",
