@@ -15,7 +15,12 @@ const Hero: React.FC = () => {
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
         width: "100vw",
-        height: "28.75rem", // 572px converted to rem (572/16 = 35.75rem)
+      //  height: "28.75rem", // 572px converted to rem (572/16 = 35.75rem)
+      height: {
+        xs: "28.75rem",  // phones / small devices
+        md: "31.75rem",  // tablets / medium screens
+        xl: "40rem",     // desktops / large screens
+      },
         position: "relative",
         marginLeft: "50%",
         transform: "translateX(-50%)", // Centers the full-width element
@@ -67,6 +72,7 @@ const Hero: React.FC = () => {
             sx={{
               width: "100%",
               maxWidth: "48rem",
+              marginBottom:"20px"
             }}
           >
             <SearchBox

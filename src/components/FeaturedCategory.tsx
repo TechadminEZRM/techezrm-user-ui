@@ -225,6 +225,7 @@ const FeaturedCategory: React.FC = () => {
       sx={{
         bgcolor: "#f8f9fa",
         py: { xs: 4, md: 6 },
+        mt: { xs: -4, md: -12, lg:-15}
       }}
     >
       <Container maxWidth="lg">
@@ -250,6 +251,8 @@ const FeaturedCategory: React.FC = () => {
               fontWeight: 600,
               color: "#333",
               fontSize: { xs: "1.5rem", md: "2rem" },
+              py:2
+
             }}
           >
             Featured Category
