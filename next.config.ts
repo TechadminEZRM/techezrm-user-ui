@@ -13,6 +13,7 @@ const nextConfig = {
     domains: ['localhost', 'storage.googleapis.com'],
     unoptimized: true,
   },
+  output: 'standalone',
 }
 
 export default nextConfig
