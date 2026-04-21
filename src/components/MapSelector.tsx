@@ -42,8 +42,7 @@ const MapSelector: React.FC<MapSelectorProps> = ({
   // Load Google Maps script
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey:
-      process.env.NEXT_PUBLIC_MAPS_API_KEY ||
-      "AIzaSyAzEg_-JsYTeeI7OTXghH1utbSFCJ5IlOg",
+      process.env.NEXT_PUBLIC_MAPS_API_KEY,
     libraries: ["places"],
   });
 
