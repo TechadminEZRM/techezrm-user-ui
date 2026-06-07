@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -17,7 +17,7 @@ import {
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useInitiateSignup, useCompleteSignup } from "@/api/handlers";
+import { useInitiateSignup, useVerifyOtp, useCompleteSignup } from "@/api/handlers";
 import ChatWidget from "@/components/ChatWidget";
 
 const theme = createTheme({
@@ -31,7 +31,7 @@ const theme = createTheme({
   },
 });
 
-type SignupStep = "email" | "details" | "success";
+type SignupStep = "email" | "otp" | "details" | "success";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -42,15 +42,24 @@ export default function RegisterPage() {
   const [organizationName, setOrganizationName] = useState("");
   const [address, setAddress] = useState("");
   const [connectBy, setConnectBy] = useState("email"); // Include in UI state but not in API
+  const [otp, setOtp] = useState("");
 
   const [emailError, setEmailError] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [nameError, setNameError] = useState("");
+  const [otpError, setOtpError] = useState("");
   const [organizationError, setOrganizationError] = useState("");
   const [addressError, setAddressError] = useState("");
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const emailParam = params.get("email");
+    if (emailParam) setEmail(emailParam);
+  }, []);
+
   // API hooks
   const initiateSignupMutation = useInitiateSignup();
+  const verifyOtpMutation = useVerifyOtp();
   const completeSignupMutation = useCompleteSignup();
 
   // Email validation function
@@ -105,12 +114,35 @@ export default function RegisterPage() {
           email,
           phone,
           name,
-          // connectBy is NOT sent to API
+          connectBy
         });
-        setCurrentStep("details");
+        setCurrentStep("otp");
       } catch (error) {
         console.error("Step 1 submission failed:", error);
       }
+    }
+  };
+
+  // Handle OTP verification
+  const handleOtpSubmit = async () => {
+    if (!otp || otp.length !== 6) {
+      setOtpError("Please enter a valid 6-digit OTP");
+      return;
+    }
+    setOtpError("");
+    try {
+      await verifyOtpMutation.mutateAsync({ email, otp });
+      setCurrentStep("details");
+    } catch (error) {
+      console.error("OTP verification failed:", error);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    try {
+      await initiateSignupMutation.mutateAsync({ email, phone, name, connectBy });
+    } catch (error) {
+      console.error("Resend OTP failed:", error);
     }
   };
 
@@ -453,6 +485,157 @@ export default function RegisterPage() {
     </>
   );
 
+  const renderOtpStep = () => (
+    <>
+      <Typography
+        sx={{
+          fontWeight: 600,
+          color: "#333",
+          mb: 4,
+          fontSize: "20px",
+        }}
+      >
+        Buyer Registration
+      </Typography>
+
+      <Box sx={{ width: "100%", maxWidth: "400px" }}>
+        <Typography
+          sx={{
+            color: "#5A607F",
+            mb: 3,
+            fontSize: "14px",
+            fontWeight: 600,
+          }}
+        >
+          Step 2 : Verify your Email
+        </Typography>
+
+        {verifyOtpMutation.isError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {verifyOtpMutation.error instanceof Error
+              ? verifyOtpMutation.error.message
+              : "Failed to verify OTP"}
+          </Alert>
+        )}
+
+        <Typography
+          sx={{
+            color: "#666",
+            fontSize: "14px",
+            mb: 3,
+            textAlign: "left",
+          }}
+        >
+          We sent a 6-digit OTP to <strong>{email}</strong>. Please enter it below.
+        </Typography>
+
+        <TextField
+          fullWidth
+          placeholder="Enter OTP"
+          variant="standard"
+          value={otp}
+          onChange={(e) => {
+            const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+            setOtp(value);
+            if (otpError) setOtpError("");
+          }}
+          error={!!otpError}
+          disabled={verifyOtpMutation.isPending}
+          inputProps={{ maxLength: 6, inputMode: "numeric" }}
+          sx={{
+            mb: otpError ? 1 : 4,
+            "& .MuiInput-underline:before": {
+              borderBottomColor: otpError ? "#f44336" : "#e0e0e0",
+            },
+            "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
+              borderBottomColor: otpError ? "#f44336" : "#FF7A59",
+            },
+            "& .MuiInput-underline:after": {
+              borderBottomColor: otpError ? "#f44336" : "#FF7A59",
+            },
+            "& .MuiInputBase-input": {
+              padding: "12px 0",
+              fontSize: "1rem",
+              color: "#333",
+              letterSpacing: "8px",
+              textAlign: "center",
+              "&::placeholder": {
+                color: "#999",
+                opacity: 1,
+              },
+            },
+          }}
+        />
+        {otpError && (
+          <Typography
+            sx={{
+              color: "#f44336",
+              fontSize: "12px",
+              mb: 3,
+              textAlign: "left",
+              width: "100%",
+            }}
+          >
+            {otpError}
+          </Typography>
+        )}
+
+        <Button
+          fullWidth
+          variant="contained"
+          onClick={handleOtpSubmit}
+          disabled={verifyOtpMutation.isPending || otp.length !== 6}
+          sx={{
+            backgroundColor: "#FF7A59",
+            color: "white",
+            py: 1.8,
+            borderRadius: "8px",
+            fontSize: "1rem",
+            fontWeight: 500,
+            textTransform: "none",
+            mb: 2,
+            maxWidth: "500px",
+            "&:hover": {
+              backgroundColor: "#FF5722",
+            },
+            "&:disabled": {
+              backgroundColor: "#ccc",
+            },
+          }}
+        >
+          {verifyOtpMutation.isPending ? (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <CircularProgress size={20} color="inherit" />
+              Verifying...
+            </Box>
+          ) : (
+            "Verify OTP"
+          )}
+        </Button>
+
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
+          <Typography sx={{ color: "#666", fontSize: "13px" }}>
+            Didnt receive the code?
+          </Typography>
+          <Typography
+            onClick={!initiateSignupMutation.isPending ? handleResendOtp : undefined}
+            sx={{
+              color: "#FF7A59",
+              fontSize: "13px",
+              fontWeight: 600,
+              cursor: initiateSignupMutation.isPending ? "default" : "pointer",
+              "&:hover": {
+                textDecoration: "underline",
+              },
+            }}
+          >
+            {initiateSignupMutation.isPending ? "Sending..." : "Resend OTP"}
+          </Typography>
+        </Box>
+      </Box>
+    </>
+  );
+
   const renderStep2 = () => (
     <>
       <Typography
@@ -475,7 +658,7 @@ export default function RegisterPage() {
             fontWeight: 600,
           }}
         >
-          Step 2 : Provide your Details
+          Step 3 : Provide your Details
         </Typography>
 
         {completeSignupMutation.isError && (
@@ -650,28 +833,6 @@ export default function RegisterPage() {
         mt: 2,
       }}
     >
-      <Typography
-        sx={{
-          fontWeight: 600,
-          color: "#333",
-          mb: 4,
-          fontSize: "20px",
-        }}
-      >
-        Welcome Back
-      </Typography>
-
-      <Typography
-        sx={{
-          color: "#5A607F",
-          fontSize: "14px",
-          mb: 4,
-        }}
-      >
-        Sign In to your account
-      </Typography>
-
-      {/* Success Icon - Circular checkmark */}
       <Box
         sx={{
           width: 80,
@@ -711,7 +872,7 @@ export default function RegisterPage() {
           fontSize: "18px",
         }}
       >
-        Almost Done
+        Application Submitted
       </Typography>
 
       <Typography
@@ -722,7 +883,7 @@ export default function RegisterPage() {
           mb: 1,
         }}
       >
-        Verify your email to start your EZRM registration.
+        Thank you, {name}! Your registration has been submitted successfully.
       </Typography>
 
       <Typography
@@ -730,31 +891,10 @@ export default function RegisterPage() {
           color: "#666",
           fontSize: "14px",
           lineHeight: 1.5,
-          mb: 1,
+          mb: 3,
         }}
       >
-        We sent a verification link to
-      </Typography>
-
-      <Typography
-        sx={{
-          color: "#FF7A59",
-          fontSize: "14px",
-          fontWeight: 600,
-          mb: 2,
-        }}
-      >
-        shruti@ezrm.in
-      </Typography>
-
-      <Typography
-        sx={{
-          color: "#666",
-          fontSize: "14px",
-          mb: 4,
-        }}
-      >
-        Check your spam folder if you cant find it.
+        Our team will review your application and you will receive login credentials via email once approved.
       </Typography>
 
       <Button
@@ -898,6 +1038,7 @@ export default function RegisterPage() {
 
               {/* Conditional Rendering based on current step */}
               {currentStep === "email" && renderStep1()}
+              {currentStep === "otp" && renderOtpStep()}
               {currentStep === "details" && renderStep2()}
               {currentStep === "success" && renderSuccessStep()}
             </Box>

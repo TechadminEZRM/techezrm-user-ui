@@ -3,8 +3,9 @@ import { API_CONFIG, ENDPOINTS } from "../config"
 
 export interface InitiateSignupRequest {
   email: string,
-  name:string,
-  phone:string
+  name: string,
+  phone: string,
+  connectBy?: string, // Optional field to track how the user found out about the service
 }
 
 export interface InitiateSignupResponse {
@@ -29,6 +30,7 @@ export interface CompleteSignupRequest {
   name: string
   phone: string
   organizationName: string
+  address: string
   industry: string
   website: string
   employeeCount: number

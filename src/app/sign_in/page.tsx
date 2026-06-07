@@ -73,9 +73,12 @@ export default function LoginPage() {
 
       // Redirect to home page on successful login
       router.push("/");
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.signupStep) {
+        router.push(`/sign_up?email=${encodeURIComponent(email)}`);
+        return;
+      }
       console.error("Login error:", error);
-      // Error is handled by the mutation's onError callback
     }
   };
 
