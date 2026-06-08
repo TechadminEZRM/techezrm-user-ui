@@ -1,4 +1,3 @@
-import { Api } from "@mui/icons-material";
 import { ENDPOINTS } from "../config/endpoints";
 
 export interface ProductVariant {

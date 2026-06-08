@@ -2,42 +2,8 @@
 
 import type React from "react";
 import { useEffect, useState } from "react";
-import { useParams, useRouter,usePathname, useSearchParams } from "next/navigation";
-import {
-  Box,
-  Typography,
-  Button,
-  IconButton,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Grid,
-  Select,
-  MenuItem,
-  FormControl,
-  TextField,
-  Tabs,
-  Tab,
-  Container,
-  CircularProgress,
-  Alert,
-  Snackbar,
-  Chip,
-  // InputLabel,
-} from "@mui/material";
-import {
-  FavoriteBorder,
-  WhatsApp,
-  Email,
-  Share,
-  ShoppingCart,
-  Add,
-  Remove,
-} from "@mui/icons-material";
+import { useParams, useRouter, usePathname, useSearchParams } from "next/navigation";
+import { Heart, MessageCircle, Mail, Share2, ShoppingCart, Plus, Minus } from "lucide-react";
 import Image from "next/image";
 import { useProductDetail } from "@/api/handlers/productDetailsHandler";
 import { useAddToWishlist } from "@/api/handlers/wishlistHandler";
@@ -49,6 +15,7 @@ import FAQSection from "@/components/FAQSection";
 import ProductVariants from "@/components/ProductVariants";
 import { useProductVariants } from "@/api/handlers/productVariantsHandler";
 import CompanyDocumentsSection from "@/components/CompanyDocumentsSection";
+import { Spinner } from "@/components/ui/spinner";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -56,17 +23,10 @@ interface TabPanelProps {
   value: number;
 }
 
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
+function TabPanel({ children, value, index }: TabPanelProps) {
   return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`product-tabpanel-${index}`}
-      aria-labelledby={`product-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
+    <div role="tabpanel" hidden={value !== index} id={`product-tabpanel-${index}`}>
+      {value === index && <div className="py-6">{children}</div>}
     </div>
   );
 }
@@ -82,168 +42,85 @@ export default function ProductDetailPage() {
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
   const currentUrl = `${baseUrl}${pathname}${searchParams}`;
 
-  // Auth state
   const { customer, isAuthenticated } = useAppStore();
 
-  // Fetch product details
-  const {
-    data: response,
-    isLoading,
-    error,
-    isError,
-  } = useProductDetail(productId);
-
-  // Wishlist mutation
+  const { data: response, isLoading, error, isError } = useProductDetail(productId);
   const addToWishlistMutation = useAddToWishlist();
-
-  // Cart mutation
   const addToCartMutation = useAddToCart();
 
-  // FAQ data
-  const {
-    data: faqResponse,
-    isLoading: faqLoading,
-    error: faqError,
-  } = useProductFAQs(productId);
-
+  const { data: faqResponse, isLoading: faqLoading, error: faqError } = useProductFAQs(productId);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const faqs = (faqResponse as any)?.data || [];
 
-  // Tab state
-  const [tabValue, setTabValue] = useState(0); // Product Description is active by default
-
-  // Quote modal state
+  const [tabValue, setTabValue] = useState(0);
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
-
-  // Snackbar state for feedback
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-
-  // Cart quantity state
   const [minCartQuantity, setMinCartQuantity] = useState(1);
   const [cartQuantity, setCartQuantity] = useState(1);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isMagnified, setIsMagnified] = useState(false);
+  const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
 
-  // Get minimum value of variant to set add quantity
+  const [companySpecific, setCompanySpecific] = useState("Documents - Company Specific");
+  const [facilitySpecific, setFacilitySpecific] = useState("Documents - Facility Specific");
+  const [productSpecific, setProductSpecific] = useState("Documents - Product Specific");
+  const [batchSpecific, setBatchSpecific] = useState("Documents - Batch Specific");
+
   useEffect(() => {
     if (variantsResponse?.data?.length) {
-      const minUnitSize = Math.min(
-        ...variantsResponse.data.map((v) => v.unitSize)
-      );
+      const minUnitSize = Math.min(...variantsResponse.data.map((v) => v.unitSize));
       setMinCartQuantity(minUnitSize);
       setCartQuantity(minUnitSize);
     }
   }, [variantsResponse]);
 
-  // Image gallery state
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [isMagnified, setIsMagnified] = useState(false);
-  const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
+  useEffect(() => {
+    if (snackbarOpen) {
+      const timer = setTimeout(() => setSnackbarOpen(false), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [snackbarOpen]);
 
-  // Dropdown states
-  const [companySpecific, setCompanySpecific] = useState(
-    "Documents - Company Specific"
-  );
-  const [facilitySpecific, setFacilitySpecific] = useState(
-    "Documents - Facility Specific"
-  );
-  const [productSpecific, setProductSpecific] = useState(
-    "Documents - Product Specific"
-  );
-  const [batchSpecific, setBatchSpecific] = useState(
-    "Documents - Batch Specific"
-  );
-  const [minOrderQty, setMinOrderQty] = useState("25000");
-
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
-  };
-
-  const handlePlaceEnquiry = () => {
-    setIsQuoteModalOpen(true);
-  };
+  const handlePlaceEnquiry = () => setIsQuoteModalOpen(true);
 
   const handleWishlistClick = () => {
-    // Check if user is authenticated
-    if (!isAuthenticated || !customer) {
-      // Redirect to login page
-      router.push("/sign_in");
-      return;
-    }
-
-    // Add to wishlist if authenticated
+    if (!isAuthenticated || !customer) { router.push("/sign_in"); return; }
     addToWishlistMutation.mutate(
+      { customerId: customer.id, productId },
       {
-        customerId: customer.id,
-        productId: productId,
-      },
-      {
-        onSuccess: () => {
-          setSnackbarMessage("Product added to wishlist successfully!");
-          setSnackbarOpen(true);
-        },
-        onError: (error) => {
-          console.error("Failed to add to wishlist:", error);
-          setSnackbarMessage(
-            "Failed to add product to wishlist. Please try again."
-          );
-          setSnackbarOpen(true);
-        },
+        onSuccess: () => { setSnackbarMessage("Product added to wishlist successfully!"); setSnackbarOpen(true); },
+        onError: () => { setSnackbarMessage("Failed to add product to wishlist. Please try again."); setSnackbarOpen(true); },
       }
     );
   };
 
   const handleAddToCart = () => {
-    // Check if user is authenticated
-    if (!isAuthenticated || !customer) {
-      // Redirect to login page
-      router.push("/sign_in");
-      return;
-    }
-
-    // Add to cart if authenticated
+    if (!isAuthenticated || !customer) { router.push("/sign_in"); return; }
     addToCartMutation.mutate(
+      { customerId: customer.id, productId, quantity: cartQuantity },
       {
-        customerId: customer.id,
-        productId: productId,
-        quantity: cartQuantity,
-      },
-      {
-        onSuccess: () => {
-          setSnackbarMessage(`added to cart successfully!`);
-          setSnackbarOpen(true);
-        },
-        onError: (error) => {
-          console.error("Failed to add to cart:", error);
-          setSnackbarMessage(
-            "Failed to add product to cart. Please try again."
-          );
-          setSnackbarOpen(true);
-        },
+        onSuccess: () => { setSnackbarMessage("Added to cart successfully!"); setSnackbarOpen(true); },
+        onError: () => { setSnackbarMessage("Failed to add product to cart. Please try again."); setSnackbarOpen(true); },
       }
     );
   };
 
-  // Loading state
   if (isLoading) {
     return (
-      <Container
-        maxWidth="xl"
-        sx={{ py: 4, display: "flex", justifyContent: "center" }}
-      >
-        <CircularProgress />
-      </Container>
+      <div className="max-w-7xl mx-auto py-8 px-4 flex justify-center">
+        <Spinner />
+      </div>
     );
   }
 
-  // Error state
   if (isError) {
     return (
-      <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Alert severity="error">
-          Error loading product details:{" "}
-          {error instanceof Error ? error.message : "Something went wrong"}
-        </Alert>
-      </Container>
+      <div className="max-w-7xl mx-auto py-8 px-4">
+        <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700">
+          Error loading product details: {error instanceof Error ? error.message : "Something went wrong"}
+        </div>
+      </div>
     );
   }
 
@@ -252,1302 +129,497 @@ export default function ProductDetailPage() {
 
   if (!product) {
     return (
-      <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Alert severity="warning">Product not found</Alert>
-      </Container>
+      <div className="max-w-7xl mx-auto py-8 px-4">
+        <div className="p-4 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-700">Product not found</div>
+      </div>
     );
   }
 
-  // Get product images array
   const getProductImages = () => {
     const images = [];
-
-    // Add banner image if exists
     if (product.bannerImage) {
       images.push({
-        src: product.bannerImage.startsWith("http")
-          ? product.bannerImage
-          : `${process.env.NEXT_PUBLIC_API_URL}/${product.bannerImage}`,
+        src: product.bannerImage.startsWith("http") ? product.bannerImage : `${process.env.NEXT_PUBLIC_API_URL}/${product.bannerImage}`,
         alt: `${product.name} - Banner`,
         type: "banner",
       });
     }
-
-    // Add other images if exist
-    if (product.images && product.images.length > 0) {
+    if (product.images?.length > 0) {
       product.images.forEach((image: string, index: number) => {
         images.push({
-          src: image.startsWith("http")
-            ? image
-            : `${process.env.NEXT_PUBLIC_API_URL}/${image}`,
+          src: image.startsWith("http") ? image : `${process.env.NEXT_PUBLIC_API_URL}/${image}`,
           alt: `${product.name} - Image ${index + 1}`,
           type: "gallery",
         });
       });
     }
-
-    // If no images, add placeholder
     if (images.length === 0) {
-      images.push({
-        src: "/placeholder.svg?height=400&width=600",
-        alt: "Product placeholder",
-        type: "placeholder",
-      });
+      images.push({ src: "/placeholder.svg?height=400&width=600", alt: "Product placeholder", type: "placeholder" });
     }
-
     return images;
   };
 
-  // Get current selected image
   const getCurrentImage = () => {
     const images = getProductImages();
     return images[selectedImageIndex] || images[0];
   };
 
-  // Handle image selection
-  const handleImageSelect = (index: number) => {
-    setSelectedImageIndex(index);
-  };
-
-  // Handle mouse move for magnification
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!isMagnified) return;
-
     const rect = event.currentTarget.getBoundingClientRect();
     const x = ((event.clientX - rect.left) / rect.width) * 100;
     const y = ((event.clientY - rect.top) / rect.height) * 100;
-
     setMagnifierPosition({ x, y });
   };
 
-  // Dynamic features from product dietaryAttributes
   const features =
     product?.dietaryAttributes?.map((attr: any) => ({
       label: attr.title,
-      color: "#ff6b35",
+      color: "#F9A922",
       logo: attr.logo,
       certificateLink: attr.certificateLink,
     })) || [];
 
+  const handleWhatsAppShare = (prod: any) => {
+    const message = `To checkout ${prod.name} on EZRM, please click on the below link:\n${currentUrl}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank");
+  };
 
-    // share on whatsapp
+  const handleEmailShare = (prod: any) => {
+    const subject = "Check out product on EZRM!";
+    const body = `Hi,\n\nTo checkout ${prod.name} on EZRM, please click on the below link:\n${currentUrl}`;
+    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
 
-    const handleWhatsAppShare = (product:any) => {
-      const message = `To checkout ${product.name} on EZRM, please click on the below link:\n${currentUrl}`;
-      const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
-      window.open(url, "_blank");
-    };
-
-    // share on mail
-
-
-    const handleEmailShare = (product:any) => {
-      const subject = "Check out product on EZRM!";
-      const body = `Hi,\n\nTo checkout ${product.name} on EZRM, please click on the below link:\n${currentUrl}`;
-      const url = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      window.location.href = url;
-    };
-  
+  const tabLabels = ["Sample Product", "Product Description", "FAQs"];
 
   return (
-    <Container maxWidth="xl" sx={{ py: 2 }}>
-      <Box>
-        {/* Header */}
-        <Typography
-          variant="h6"
-          sx={{
-            mb: 3,
-            fontWeight: 500,
-            color: "#333",
-          }}
+    <div className="max-w-7xl mx-auto py-2 px-4">
+      {/* Header breadcrumb */}
+      <p className="mb-6 font-medium text-[#333] text-lg">
+        {product?.name}{" "}
+        /{" "}
+        <span
+          onClick={() => router.push(`/product?category=${product?.category?.slug}`)}
+          className="text-[#F9A922] cursor-pointer hover:text-[#E8981F] hover:underline transition-colors"
         >
-          {product?.name} /{" "}
-          <Box
-            component="span"
-            onClick={() =>
-              router.push(`/product?category=${product?.category?.slug}`)
-            }
-            sx={{
-              color: "#ff6b35",
-              cursor: "pointer",
-              textDecoration: "none",
-              transition: "all 0.3s ease",
-              "&:hover": {
-                color: "#e55a2b",
-                textDecoration: "underline",
-                transform: "translateY(-1px)",
-              },
-            }}
+          {product?.category?.name}
+        </span>
+      </p>
+
+      {/* Main Content */}
+      <div className="flex gap-6">
+        {/* Left Side - 65% */}
+        <div className="w-[65%]">
+          {/* Product Image */}
+          <div
+            className="relative w-full h-[400px] rounded-[20px] overflow-hidden bg-[#f5f5f5] mb-6"
           >
-            {product?.category?.name}
-          </Box>
-        </Typography>
-
-        {/* Main Content - 70% Left, 30% Right */}
-        <Box sx={{ display: "flex", gap: 3 }}>
-          {/* Left Side - 70% */}
-          <Box sx={{ width: "65%" }}>
-            {/* Product Image Container */}
-            <Box
-              sx={{
-                position: "relative",
-                width: "100%",
-                height: 400,
-                borderRadius: "20px",
-                overflow: "hidden",
-                backgroundColor: "#f5f5f5",
-                mb: 3,
-              }}
+            <div
+              className="relative w-full h-full"
+              style={{ cursor: isMagnified ? "zoom-out" : "zoom-in" }}
+              onMouseEnter={() => setIsMagnified(true)}
+              onMouseLeave={() => setIsMagnified(false)}
+              onMouseMove={handleMouseMove}
             >
-              {/* Main Image with Magnification */}
-              <Box
-                sx={{
-                  position: "relative",
-                  width: "100%",
-                  height: "100%",
-                  cursor: isMagnified ? "zoom-out" : "zoom-in",
-                }}
-                onMouseEnter={() => setIsMagnified(true)}
-                onMouseLeave={() => setIsMagnified(false)}
-                onMouseMove={handleMouseMove}
-              >
-                <Image
-                  src={getCurrentImage().src}
-                  alt={getCurrentImage().alt}
-                  fill
-                  style={{ objectFit: "cover" }}
+              <Image src={getCurrentImage().src} alt={getCurrentImage().alt} fill style={{ objectFit: "cover" }} />
+              {isMagnified && (
+                <div
+                  className="absolute inset-0 pointer-events-none z-[2]"
+                  style={{
+                    background: `url(${getCurrentImage().src})`,
+                    backgroundSize: "300%",
+                    backgroundPosition: `${magnifierPosition.x}% ${magnifierPosition.y}%`,
+                  }}
                 />
+              )}
+            </div>
+          </div>
 
-                {/* Magnification Overlay */}
-                {isMagnified && (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: "100%",
-                      height: "100%",
-                      background: `url(${getCurrentImage().src})`,
-                      backgroundSize: "300%",
-                      backgroundPosition: `${magnifierPosition.x}% ${magnifierPosition.y}%`,
-                      pointerEvents: "none",
-                      zIndex: 2,
-                    }}
-                  />
-                )}
-              </Box>
-            </Box>
-
-            {/* Thumbnail Gallery */}
-            <Box sx={{ mb: 3 }}>
-              <Typography
-                variant="subtitle2"
-                sx={{
-                  fontWeight: 600,
-                  color: "#333",
-                  mb: 2,
-                  fontSize: "14px",
-                }}
-              >
-                Product Images ({getProductImages().length})
-              </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: 1.5,
-                  overflowX: "auto",
-                  pb: 1,
-                  "&::-webkit-scrollbar": {
-                    height: "8px",
-                  },
-                  "&::-webkit-scrollbar-track": {
-                    background: "#f5f5f5",
-                    borderRadius: "4px",
-                  },
-                  "&::-webkit-scrollbar-thumb": {
-                    background: "#c1c1c1",
-                    borderRadius: "4px",
-                    "&:hover": {
-                      background: "#a8a8a8",
-                    },
-                  },
-                }}
-              >
-                {getProductImages().map((image, index) => (
-                  <Box
-                    key={index}
-                    onClick={() => handleImageSelect(index)}
-                    sx={{
-                      position: "relative",
-                      minWidth: 90,
-                      height: 90,
-                      borderRadius: "12px",
-                      overflow: "hidden",
-                      cursor: "pointer",
-                      border:
-                        selectedImageIndex === index
-                          ? "3px solid #ff6b35"
-                          : "2px solid #e0e0e0",
-                      transition: "all 0.3s ease",
-                      boxShadow:
-                        selectedImageIndex === index
-                          ? "0 4px 20px rgba(255, 107, 53, 0.3)"
-                          : "0 2px 8px rgba(0, 0, 0, 0.1)",
-                      "&:hover": {
-                        borderColor: "#ff6b35",
-                        transform: "scale(1.08)",
-                        boxShadow: "0 6px 25px rgba(255, 107, 53, 0.2)",
-                      },
-                    }}
-                  >
-                    <Image
-                      src={image.src}
-                      alt={image.alt}
-                      fill
-                      style={{ objectFit: "cover" }}
-                    />
-
-                    {/* Image Type Badge */}
-                    {image.type === "banner" && (
-                      <Box
-                        sx={{
-                          position: "absolute",
-                          top: 6,
-                          left: 6,
-                          backgroundColor: "rgba(255, 107, 53, 0.95)",
-                          color: "white",
-                          fontSize: "11px",
-                          fontWeight: 600,
-                          px: 1.5,
-                          py: 0.5,
-                          borderRadius: "6px",
-                          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
-                        }}
-                      >
-                        Main
-                      </Box>
-                    )}
-                  </Box>
-                ))}
-              </Box>
-            </Box>
-
-            {/* Three Tabs Container */}
-            <Box sx={{ mt: 2 }}>
-              <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-                <Tabs
-                  value={tabValue}
-                  onChange={handleTabChange}
-                  aria-label="product tabs"
-                  sx={{
-                    "& .MuiTab-root": {
-                      textTransform: "none",
-                      fontWeight: 500,
-                      fontSize: "14px",
-                      color: "#666",
-                      minHeight: 40,
-                      "&.Mui-selected": {
-                        color: "white",
-                        backgroundColor: "#ff6b35",
-                        borderRadius: "4px 4px 0 0",
-                      },
-                    },
-                    "& .MuiTabs-indicator": {
-                      display: "none", // Hide the default indicator since we're using full background
-                    },
+          {/* Thumbnail Gallery */}
+          <div className="mb-6">
+            <p className="font-semibold text-[#333] text-sm mb-3">
+              Product Images ({getProductImages().length})
+            </p>
+            <div className="flex gap-3 overflow-x-auto pb-2">
+              {getProductImages().map((image, index) => (
+                <div
+                  key={index}
+                  onClick={() => setSelectedImageIndex(index)}
+                  className="relative flex-shrink-0 w-[90px] h-[90px] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105"
+                  style={{
+                    border: selectedImageIndex === index ? "3px solid #F9A922" : "2px solid #e0e0e0",
+                    boxShadow: selectedImageIndex === index ? "0 4px 20px rgba(255,107,53,0.3)" : "0 2px 8px rgba(0,0,0,0.1)",
                   }}
                 >
-                  <Tab label="Sample Product" />
-                  <Tab label="Product Description" />
-                  <Tab label="FAQs" />
-                </Tabs>
-              </Box>
+                  <Image src={image.src} alt={image.alt} fill style={{ objectFit: "cover" }} />
+                  {image.type === "banner" && (
+                    <span className="absolute top-1.5 left-1.5 bg-[#F9A922]/95 text-white text-[11px] font-semibold px-2 py-0.5 rounded-md">
+                      Main
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
 
-              <TabPanel value={tabValue} index={0}>
-                <Typography
-                  variant="body2"
-                  sx={{ lineHeight: 1.6, color: "#666" }}
+          {/* Three Tabs */}
+          <div className="mt-4">
+            <div className="flex border-b border-gray-200">
+              {tabLabels.map((label, i) => (
+                <button
+                  key={i}
+                  onClick={() => setTabValue(i)}
+                  className={`px-4 py-2.5 text-sm font-medium transition-all ${
+                    tabValue === i
+                      ? "bg-[#F9A922] text-white rounded-t-md"
+                      : "text-[#666] hover:text-[#333]"
+                  }`}
                 >
-                  Sample Product information and details will be displayed here.
-                </Typography>
-              </TabPanel>
+                  {label}
+                </button>
+              ))}
+            </div>
 
-              <TabPanel value={tabValue} index={1}>
-                <Box>
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
-                    Product Description
-                  </Typography>
+            <TabPanel value={tabValue} index={0}>
+              <p className="text-[#666] leading-relaxed text-sm">
+                Sample Product information and details will be displayed here.
+              </p>
+            </TabPanel>
 
-                  {/* Product Overview */}
-                  <Box sx={{ mb: 4 }}>
-                    <Typography
-                      variant="body1"
-                      sx={{
-                        lineHeight: 1.8,
-                        color: "#333",
-                        mb: 3,
-                        fontSize: "15px",
-                        textAlign: "justify",
-                      }}
-                    >
-                      {product?.description}
-                      {/* {product.description
-                        ?.split("\n")
-                        .map((paragraph: string, index: number) => (
-                          <span key={index}>
-                            {paragraph}
-                            {index <
-                              product.description.split("\n").length - 1 && (
-                              <>
-                                <br />
-                                <br />
-                              </>
+            <TabPanel value={tabValue} index={1}>
+              <div>
+                <h2 className="font-semibold text-lg mb-6">Product Description</h2>
+
+                {/* Product Overview */}
+                <div className="mb-8">
+                  <p className="leading-[1.8] text-[#333] mb-6 text-[15px] text-justify">
+                    {product?.description}
+                  </p>
+                </div>
+
+                {/* Product Details Table */}
+                <div className="mb-8">
+                  <h3 className="font-semibold text-[#333] mb-5">Product Details</h3>
+                  <div className="rounded-xl border border-[#e8e8e8] overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+                    <table className="w-full min-w-[400px]">
+                      <tbody>
+                        {[
+                          { label: "Appearance", value: product.appearance || "Not specified" },
+                          { label: "Category", value: product.category?.name || "Not specified" },
+                          { label: "Product ID", value: product.uniqueId, mono: true },
+                        ].map((row, i) => (
+                          <tr key={i} className={i % 2 === 0 ? "bg-[#fafafa]" : "bg-white"}>
+                            <td className="w-[30%] px-4 py-3 font-semibold text-[#F9A922] text-sm border-r border-[#e8e8e8] bg-[rgba(255,107,53,0.03)]">
+                              {row.label}
+                            </td>
+                            <td className={`px-4 py-3 text-[#333] text-sm border-b border-[#e8e8e8] ${row.mono ? "font-mono font-medium" : ""}`}>
+                              {row.value}
+                            </td>
+                          </tr>
+                        ))}
+
+                        {/* Stock Status */}
+                        <tr className="bg-[#fafafa]">
+                          <td className="w-[30%] px-4 py-3 font-semibold text-[#F9A922] text-sm border-r border-[#e8e8e8] bg-[rgba(255,107,53,0.03)]">
+                            Stock Status
+                          </td>
+                          <td className="px-4 py-3 border-b border-[#e8e8e8]">
+                            <span
+                              className={`inline-block px-3 py-1 rounded-md text-xs font-semibold border ${
+                                product.inStock
+                                  ? "bg-[#e8f5e8] text-[#2e7d32] border-[#c8e6c9]"
+                                  : "bg-[#ffeaea] text-[#d32f2f] border-[#ffcdd2]"
+                              }`}
+                            >
+                              {product.inStock ? "In Stock" : "Out of Stock"}
+                            </span>
+                          </td>
+                        </tr>
+
+                        {/* Applications */}
+                        <tr className="bg-white">
+                          <td className="w-[30%] px-4 py-3 font-semibold text-[#F9A922] text-sm border-r border-[#e8e8e8] bg-[rgba(255,107,53,0.03)]">
+                            Applications
+                          </td>
+                          <td className="px-4 py-3 border-b border-[#e8e8e8]">
+                            {product.applications?.length > 0 ? (
+                              <div className="flex flex-wrap gap-2">
+                                {product.applications.map((app: string, i: number) => (
+                                  <span key={i} className="px-2 py-1 rounded-md text-xs font-medium bg-[rgba(255,107,53,0.1)] text-[#F9A922] border border-[rgba(255,107,53,0.2)]">
+                                    {app.replace(/-/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-[#999] italic text-sm">Not specified</p>
                             )}
-                          </span>
-                        ))} */}
-                    </Typography>
-                  </Box>
+                          </td>
+                        </tr>
 
-                  {/* Product Details Table */}
-                  <Box sx={{ mb: 4 }}>
-                    <Typography
-                      variant="h6"
-                      sx={{ fontWeight: 600, mb: 3, color: "#333" }}
-                    >
-                      Product Details
-                    </Typography>
+                        {/* Functions */}
+                        <tr className="bg-[#fafafa]">
+                          <td className="w-[30%] px-4 py-3 font-semibold text-[#F9A922] text-sm border-r border-[#e8e8e8] bg-[rgba(255,107,53,0.03)]">
+                            Functions
+                          </td>
+                          <td className="px-4 py-3 border-b border-[#e8e8e8]">
+                            {product.functions?.length > 0 ? (
+                              <div className="flex flex-wrap gap-2">
+                                {product.functions.map((func: string, i: number) => (
+                                  <span key={i} className="px-2 py-1 rounded-md text-xs font-medium bg-[rgba(255,107,53,0.1)] text-[#F9A922] border border-[rgba(255,107,53,0.2)]">
+                                    {func.replace(/-/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-[#999] italic text-sm">Not specified</p>
+                            )}
+                          </td>
+                        </tr>
 
-                    <TableContainer
-                      component={Paper}
-                      sx={{
-                        borderRadius: "12px",
-                        border: "1px solid #e8e8e8",
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                        overflow: "hidden",
-                      }}
-                    >
-                      <Table sx={{ minWidth: 650 }}>
-                        <TableBody>
-                          {/* Appearance */}
-                          <TableRow
-                            sx={{
-                              "&:nth-of-type(odd)": {
-                                backgroundColor: "#fafafa",
-                              },
-                              "&:hover": {
-                                backgroundColor: "rgba(255, 107, 53, 0.02)",
-                              },
-                            }}
-                          >
-                            <TableCell
-                              sx={{
-                                fontWeight: 600,
-                                color: "#ff6b35",
-                                fontSize: "0.9rem",
-                                borderRight: "1px solid #e8e8e8",
-                                width: "30%",
-                                backgroundColor: "rgba(255, 107, 53, 0.03)",
-                              }}
-                            >
-                              Appearance
-                            </TableCell>
-                            <TableCell
-                              sx={{
-                                color: "#333",
-                                fontSize: "0.9rem",
-                                borderBottom: "1px solid #e8e8e8",
-                              }}
-                            >
-                              {product.appearance || "Not specified"}
-                            </TableCell>
-                          </TableRow>
+                        {/* Tags */}
+                        <tr className="bg-white">
+                          <td className="w-[30%] px-4 py-3 font-semibold text-[#F9A922] text-sm border-r border-[#e8e8e8] bg-[rgba(255,107,53,0.03)]">
+                            Tags
+                          </td>
+                          <td className="px-4 py-3 border-b border-[#e8e8e8]">
+                            {product.tags?.length > 0 ? (
+                              <div className="flex flex-wrap gap-2">
+                                {product.tags.map((tag: string, i: number) => (
+                                  <span key={i} className="px-2 py-1 rounded-md text-xs font-medium bg-[rgba(255,107,53,0.1)] text-[#F9A922] border border-[rgba(255,107,53,0.2)]">
+                                    {tag.replace(/-/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-[#999] italic text-sm">Not specified</p>
+                            )}
+                          </td>
+                        </tr>
 
-                          {/* Category */}
-                          <TableRow
-                            sx={{
-                              "&:nth-of-type(odd)": {
-                                backgroundColor: "#fafafa",
-                              },
-                              "&:hover": {
-                                backgroundColor: "rgba(255, 107, 53, 0.02)",
-                              },
-                            }}
-                          >
-                            <TableCell
-                              sx={{
-                                fontWeight: 600,
-                                color: "#ff6b35",
-                                fontSize: "0.9rem",
-                                borderRight: "1px solid #e8e8e8",
-                                backgroundColor: "rgba(255, 107, 53, 0.03)",
-                              }}
-                            >
-                              Category
-                            </TableCell>
-                            <TableCell
-                              sx={{
-                                color: "#333",
-                                fontSize: "0.9rem",
-                                borderBottom: "1px solid #e8e8e8",
-                              }}
-                            >
-                              {product.category?.name || "Not specified"}
-                            </TableCell>
-                          </TableRow>
+                        {/* Countries of Origin */}
+                        <tr className="bg-[#fafafa]">
+                          <td className="w-[30%] px-4 py-3 font-semibold text-[#F9A922] text-sm border-r border-[#e8e8e8] bg-[rgba(255,107,53,0.03)]">
+                            Countries of Origin
+                          </td>
+                          <td className="px-4 py-3">
+                            {product.countryOfOrigin?.length > 0 ? (
+                              <div className="flex flex-wrap gap-2">
+                                {product.countryOfOrigin.map((country: string, i: number) => (
+                                  <span key={i} className="px-2 py-1 rounded-md text-xs font-medium bg-[rgba(255,107,53,0.1)] text-[#F9A922] border border-[rgba(255,107,53,0.2)]">
+                                    {country}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-[#999] italic text-sm">Not specified</p>
+                            )}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
 
-                          {/* Product ID */}
-                          <TableRow
-                            sx={{
-                              "&:nth-of-type(odd)": {
-                                backgroundColor: "#fafafa",
-                              },
-                              "&:hover": {
-                                backgroundColor: "rgba(255, 107, 53, 0.02)",
-                              },
-                            }}
-                          >
-                            <TableCell
-                              sx={{
-                                fontWeight: 600,
-                                color: "#ff6b35",
-                                fontSize: "0.9rem",
-                                borderRight: "1px solid #e8e8e8",
-                                backgroundColor: "rgba(255, 107, 53, 0.03)",
-                              }}
-                            >
-                              Product ID
-                            </TableCell>
-                            <TableCell
-                              sx={{
-                                color: "#333",
-                                fontSize: "0.9rem",
-                                borderBottom: "1px solid #e8e8e8",
-                                fontFamily: "monospace",
-                                fontWeight: 500,
-                              }}
-                            >
-                              {product.uniqueId}
-                            </TableCell>
-                          </TableRow>
-
-                          {/* Stock Status */}
-                          <TableRow
-                            sx={{
-                              "&:nth-of-type(odd)": {
-                                backgroundColor: "#fafafa",
-                              },
-                              "&:hover": {
-                                backgroundColor: "rgba(255, 107, 53, 0.02)",
-                              },
-                            }}
-                          >
-                            <TableCell
-                              sx={{
-                                fontWeight: 600,
-                                color: "#ff6b35",
-                                fontSize: "0.9rem",
-                                borderRight: "1px solid #e8e8e8",
-                                backgroundColor: "rgba(255, 107, 53, 0.03)",
-                              }}
-                            >
-                              Stock Status
-                            </TableCell>
-                            <TableCell
-                              sx={{
-                                borderBottom: "1px solid #e8e8e8",
-                              }}
-                            >
-                              <Chip
-                                label={
-                                  product.inStock ? "In Stock" : "Out of Stock"
-                                }
-                                sx={{
-                                  backgroundColor: product.inStock
-                                    ? "#e8f5e8"
-                                    : "#ffeaea",
-                                  color: product.inStock
-                                    ? "#2e7d32"
-                                    : "#d32f2f",
-                                  fontWeight: 600,
-                                  fontSize: "0.8rem",
-                                  borderRadius: "6px",
-                                  border: product.inStock
-                                    ? "1px solid #c8e6c9"
-                                    : "1px solid #ffcdd2",
-                                }}
-                              />
-                            </TableCell>
-                          </TableRow>
-
-                          {/* Applications */}
-                          <TableRow
-                            sx={{
-                              "&:nth-of-type(odd)": {
-                                backgroundColor: "#fafafa",
-                              },
-                              "&:hover": {
-                                backgroundColor: "rgba(255, 107, 53, 0.02)",
-                              },
-                            }}
-                          >
-                            <TableCell
-                              sx={{
-                                fontWeight: 600,
-                                color: "#ff6b35",
-                                fontSize: "0.9rem",
-                                borderRight: "1px solid #e8e8e8",
-                                backgroundColor: "rgba(255, 107, 53, 0.03)",
-                              }}
-                            >
-                              Applications
-                            </TableCell>
-                            <TableCell
-                              sx={{
-                                borderBottom: "1px solid #e8e8e8",
-                              }}
-                            >
-                              {product.applications &&
-                              product.applications.length > 0 ? (
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    flexWrap: "wrap",
-                                    gap: 1,
-                                  }}
-                                >
-                                  {product.applications.map(
-                                    (app: string, index: number) => (
-                                      <Chip
-                                        key={index}
-                                        label={app
-                                          .replace(/-/g, " ")
-                                          .replace(/\b\w/g, (l: string) =>
-                                            l.toUpperCase()
-                                          )}
-                                        sx={{
-                                          backgroundColor:
-                                            "rgba(255, 107, 53, 0.1)",
-                                          color: "#ff6b35",
-                                          fontSize: "0.75rem",
-                                          fontWeight: 500,
-                                          borderRadius: "6px",
-                                          border:
-                                            "1px solid rgba(255, 107, 53, 0.2)",
-                                        }}
-                                      />
-                                    )
-                                  )}
-                                </Box>
-                              ) : (
-                                <Typography
-                                  variant="body2"
-                                  sx={{ color: "#999", fontStyle: "italic" }}
-                                >
-                                  Not specified
-                                </Typography>
-                              )}
-                            </TableCell>
-                          </TableRow>
-
-                          {/* Functions */}
-                          <TableRow
-                            sx={{
-                              "&:nth-of-type(odd)": {
-                                backgroundColor: "#fafafa",
-                              },
-                              "&:hover": {
-                                backgroundColor: "rgba(255, 107, 53, 0.02)",
-                              },
-                            }}
-                          >
-                            <TableCell
-                              sx={{
-                                fontWeight: 600,
-                                color: "#ff6b35",
-                                fontSize: "0.9rem",
-                                borderRight: "1px solid #e8e8e8",
-                                backgroundColor: "rgba(255, 107, 53, 0.03)",
-                              }}
-                            >
-                              Functions
-                            </TableCell>
-                            <TableCell
-                              sx={{
-                                borderBottom: "1px solid #e8e8e8",
-                              }}
-                            >
-                              {product.functions &&
-                              product.functions.length > 0 ? (
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    flexWrap: "wrap",
-                                    gap: 1,
-                                  }}
-                                >
-                                  {product.functions.map(
-                                    (func: string, index: number) => (
-                                      <Chip
-                                        key={index}
-                                        label={func
-                                          .replace(/-/g, " ")
-                                          .replace(/\b\w/g, (l: string) =>
-                                            l.toUpperCase()
-                                          )}
-                                        sx={{
-                                          backgroundColor:
-                                            "rgba(255, 107, 53, 0.1)",
-                                          color: "#ff6b35",
-                                          fontSize: "0.75rem",
-                                          fontWeight: 500,
-                                          borderRadius: "6px",
-                                          border:
-                                            "1px solid rgba(255, 107, 53, 0.2)",
-                                        }}
-                                      />
-                                    )
-                                  )}
-                                </Box>
-                              ) : (
-                                <Typography
-                                  variant="body2"
-                                  sx={{ color: "#999", fontStyle: "italic" }}
-                                >
-                                  Not specified
-                                </Typography>
-                              )}
-                            </TableCell>
-                          </TableRow>
-
-                          {/* Tags */}
-                          <TableRow
-                            sx={{
-                              "&:nth-of-type(odd)": {
-                                backgroundColor: "#fafafa",
-                              },
-                              "&:hover": {
-                                backgroundColor: "rgba(255, 107, 53, 0.02)",
-                              },
-                            }}
-                          >
-                            <TableCell
-                              sx={{
-                                fontWeight: 600,
-                                color: "#ff6b35",
-                                fontSize: "0.9rem",
-                                borderRight: "1px solid #e8e8e8",
-                                backgroundColor: "rgba(255, 107, 53, 0.03)",
-                              }}
-                            >
-                              Tags
-                            </TableCell>
-                            <TableCell
-                              sx={{
-                                borderBottom: "1px solid #e8e8e8",
-                              }}
-                            >
-                              {product.tags && product.tags.length > 0 ? (
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    flexWrap: "wrap",
-                                    gap: 1,
-                                  }}
-                                >
-                                  {product.tags.map(
-                                    (tag: string, index: number) => (
-                                      <Chip
-                                        key={index}
-                                        label={tag
-                                          .replace(/-/g, " ")
-                                          .replace(/\b\w/g, (l: string) =>
-                                            l.toUpperCase()
-                                          )}
-                                        sx={{
-                                          backgroundColor:
-                                            "rgba(255, 107, 53, 0.1)",
-                                          color: "#ff6b35",
-                                          fontSize: "0.75rem",
-                                          fontWeight: 500,
-                                          borderRadius: "6px",
-                                          border:
-                                            "1px solid rgba(255, 107, 53, 0.2)",
-                                        }}
-                                      />
-                                    )
-                                  )}
-                                </Box>
-                              ) : (
-                                <Typography
-                                  variant="body2"
-                                  sx={{ color: "#999", fontStyle: "italic" }}
-                                >
-                                  Not specified
-                                </Typography>
-                              )}
-                            </TableCell>
-                          </TableRow>
-
-                          {/* Countries of Origin */}
-                          <TableRow
-                            sx={{
-                              "&:nth-of-type(odd)": {
-                                backgroundColor: "#fafafa",
-                              },
-                              "&:hover": {
-                                backgroundColor: "rgba(255, 107, 53, 0.02)",
-                              },
-                            }}
-                          >
-                            <TableCell
-                              sx={{
-                                fontWeight: 600,
-                                color: "#ff6b35",
-                                fontSize: "0.9rem",
-                                borderRight: "1px solid #e8e8e8",
-                                backgroundColor: "rgba(255, 107, 53, 0.03)",
-                              }}
-                            >
-                              Countries of Origin
-                            </TableCell>
-                            <TableCell
-                              sx={{
-                                borderBottom: "none",
-                              }}
-                            >
-                              {product.countryOfOrigin &&
-                              product.countryOfOrigin.length > 0 ? (
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    flexWrap: "wrap",
-                                    gap: 1,
-                                  }}
-                                >
-                                  {product.countryOfOrigin.map(
-                                    (country: string, index: number) => (
-                                      <Chip
-                                        key={index}
-                                        label={country}
-                                        sx={{
-                                          backgroundColor:
-                                            "rgba(255, 107, 53, 0.1)",
-                                          color: "#ff6b35",
-                                          fontSize: "0.75rem",
-                                          fontWeight: 500,
-                                          borderRadius: "6px",
-                                          border:
-                                            "1px solid rgba(255, 107, 53, 0.2)",
-                                        }}
-                                      />
-                                    )
-                                  )}
-                                </Box>
-                              ) : (
-                                <Typography
-                                  variant="body2"
-                                  sx={{ color: "#999", fontStyle: "italic" }}
-                                >
-                                  Not specified
-                                </Typography>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  </Box>
-
-                  {/* Dietary Attributes Section */}
-                  {product.dietaryAttributes &&
-                    product.dietaryAttributes.length > 0 && (
-                      <Box sx={{ mb: 4 }}>
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: 600, mb: 3, color: "#333" }}
-                        >
-                          Certifications & Attributes
-                        </Typography>
-                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-                          {product.dietaryAttributes.map(
-                            (attr: any, index: number) => (
-                              <Box
-                                key={index}
-                                sx={{
-                                  flex: {
-                                    xs: "1 1 100%",
-                                    sm: "1 1 calc(50% - 8px)",
-                                    md: "1 1 calc(33.333% - 12px)",
-                                  },
-                                  minWidth: "280px",
-                                }}
-                              >
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    p: 2,
-                                    backgroundColor: "rgba(255, 107, 53, 0.05)",
-                                    borderRadius: "8px",
-                                    border: "1px solid rgba(255, 107, 53, 0.1)",
-                                    transition: "all 0.3s ease",
-                                    cursor: attr.certificateLink
-                                      ? "pointer"
-                                      : "default",
-                                    "&:hover": attr.certificateLink
-                                      ? {
-                                          backgroundColor:
-                                            "rgba(255, 107, 53, 0.1)",
-                                          transform: "translateY(-2px)",
-                                          boxShadow:
-                                            "0 4px 12px rgba(255, 107, 53, 0.2)",
-                                        }
-                                      : {},
-                                  }}
-                                  onClick={() => {
-                                    if (attr.certificateLink) {
-                                      window.open(
-                                        attr.certificateLink,
-                                        "_blank"
-                                      );
-                                    }
-                                  }}
-                                >
-                                  {attr.logo && (
-                                    <Image
-                                      src={attr.logo}
-                                      alt={attr.title}
-                                      width={32}
-                                      height={32}
-                                      style={{
-                                        objectFit: "contain",
-                                        marginRight: "12px",
-                                        borderRadius: "4px",
-                                      }}
-                                    />
-                                  )}
-                                  <Box>
-                                    <Typography
-                                      variant="subtitle2"
-                                      sx={{ fontWeight: 600, color: "#333" }}
-                                    >
-                                      {attr.title}
-                                    </Typography>
-                                    {attr.certificateLink && (
-                                      <Typography
-                                        variant="caption"
-                                        sx={{
-                                          color: "#ff6b35",
-                                          fontSize: "10px",
-                                        }}
-                                      >
-                                        Click to view certificate
-                                      </Typography>
-                                    )}
-                                  </Box>
-                                </Box>
-                              </Box>
-                            )
-                          )}
-                        </Box>
-                      </Box>
-                    )}
-                </Box>
-              </TabPanel>
-
-              <TabPanel value={tabValue} index={2}>
-                <FAQSection
-                  faqs={faqs}
-                  isLoading={faqLoading}
-                  error={faqError}
-                />
-              </TabPanel>
-            </Box>
-          </Box>
-
-          {/* Right Side - 30% */}
-          <Box sx={{ width: "35%" }}>
-            {/* Top Section - Height equal to image */}
-            <Box sx={{ height: 400, display: "flex", flexDirection: "column" }}>
-              {/* Product Title */}
-              <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
-                {product.name} /{" "}
-                <Box
-                  component="span"
-                  onClick={() =>
-                    router.push(`/product?category=${product?.category?.slug}`)
-                  }
-                  sx={{
-                    fontWeight: 400,
-                    color: "#ff6b35",
-                    cursor: "pointer",
-                    textDecoration: "none",
-                    transition: "all 0.3s ease",
-                    "&:hover": {
-                      color: "#e55a2b",
-                      textDecoration: "underline",
-                      transform: "translateY(-1px)",
-                    },
-                  }}
-                >
-                  {product?.category?.name}
-                </Box>
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                {product.uniqueId}
-              </Typography>
-
-              {/* Product Icons */}
-              <Grid container spacing={4} sx={{ mb: 3 }}>
-                {features.map((feature: any, index: number) => (
-                  <Grid key={index}>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        textAlign: "center",
-                        cursor: feature.certificateLink ? "pointer" : "default",
-                        transition: "all 0.3s ease",
-                        "&:hover": feature.certificateLink
-                          ? {
-                              transform: "translateY(-2px)",
-                            }
-                          : {},
-                      }}
-                      onClick={() => {
-                        if (feature.certificateLink) {
-                          window.open(feature.certificateLink, "_blank");
-                        }
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          width: 80,
-                          height: 80,
-                          borderRadius: "12px",
-                          // border: `2px solid ${feature.color}`,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          mb: 1,
-                          backgroundColor: "white",
-                          overflow: "hidden",
-                          // boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                          transition: "all 0.3s ease",
-                          "&:hover": feature.certificateLink
-                            ? {
-                                boxShadow: "0 4px 16px rgba(255, 107, 53, 0.3)",
-                                borderColor: "#ff6b35",
-                              }
-                            : {},
-                        }}
-                      >
-                        {feature.logo ? (
-                          <Image
-                            src={feature.logo}
-                            alt={feature.label}
-                            width={80}
-                            height={80}
-                            style={{
-                              objectFit: "contain",
-                              borderRadius: "4px",
-                            }}
-                          />
-                        ) : (
-                          <Box
-                            sx={{
-                              width: 24,
-                              height: 24,
-                              backgroundColor: feature.color,
-                              borderRadius: "50%",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <Typography
-                              sx={{
-                                color: "white",
-                                fontSize: "12px",
-                                fontWeight: "bold",
-                              }}
-                            >
-                              ✓
-                            </Typography>
-                          </Box>
-                        )}
-                      </Box>
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          fontSize: "12px",
-                          fontWeight: 500,
-                          color: "#666",
-                          textAlign: "center",
-                          maxWidth: "80px",
-                          lineHeight: 1.2,
-                        }}
-                      >
-                        {feature.label}
-                      </Typography>
-                      {/* {feature.certificateLink && (
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            fontSize: "10px",
-                            color: "#ff6b35",
-                            fontStyle: "italic",
-                            mt: 0.5,
+                {/* Dietary Attributes / Certifications */}
+                {product.dietaryAttributes?.length > 0 && (
+                  <div className="mb-8">
+                    <h3 className="font-semibold text-[#333] mb-5">Certifications & Attributes</h3>
+                    <div className="flex flex-wrap gap-4">
+                      {product.dietaryAttributes.map((attr: any, i: number) => (
+                        <div
+                          key={i}
+                          className="flex items-center gap-3 p-3 rounded-lg border border-[rgba(255,107,53,0.1)] bg-[rgba(255,107,53,0.05)] transition-all duration-300 min-w-[280px] flex-1"
+                          style={{
+                            cursor: attr.certificateLink ? "pointer" : "default",
                           }}
+                          onClick={() => attr.certificateLink && window.open(attr.certificateLink, "_blank")}
                         >
-                          Click to view certificate
-                        </Typography>
-                      )} */}
-                    </Box>
-                  </Grid>
-                ))}
-              </Grid>
+                          {attr.logo && (
+                            <Image
+                              src={attr.logo}
+                              alt={attr.title}
+                              width={32}
+                              height={32}
+                              style={{ objectFit: "contain", borderRadius: "4px", marginRight: "4px" }}
+                            />
+                          )}
+                          <div>
+                            <p className="font-semibold text-[#333] text-sm">{attr.title}</p>
+                            {attr.certificateLink && (
+                              <p className="text-[#F9A922] text-[10px]">Click to view certificate</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </TabPanel>
 
-              {/* Product Variants Table */}
-              <ProductVariants productId={productId} />
+            <TabPanel value={tabValue} index={2}>
+              <FAQSection faqs={faqs} isLoading={faqLoading} error={faqError} />
+            </TabPanel>
+          </div>
+        </div>
 
-              {/* Quantity Selector and Add to Cart */}
-              {/* {(variantsResponse?.data?.length ?? 0) > 0 && ( */}
-              <Box sx={{ mb: 3 }}>
-                {/* Quantity Selector */}
-                <Box sx={{ mb: 2 }}>
-                  <Typography
-                    variant="body2"
-                    sx={{ fontWeight: 600, mb: 1, fontSize: "14px" }}
-                  >
-                    Quantity
-                  </Typography>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <IconButton
-                      size="small"
-                      onClick={() =>
-                        setCartQuantity(
-                          Math.max(
-                            minCartQuantity,
-                            cartQuantity - minCartQuantity
-                          )
-                        )
-                      }
-                      disabled={cartQuantity <= minCartQuantity}
-                      sx={{
-                        border: "1px solid #e0e0e0",
-                        borderRadius: "4px",
-                        width: "32px",
-                        height: "32px",
-                      }}
-                    >
-                      <Remove fontSize="small" />
-                    </IconButton>
-                    <TextField
-                      value={cartQuantity}
-                      onChange={(e) => {
-                        let value = parseInt(e.target.value) || minCartQuantity;
-                        if (value < minCartQuantity) {
-                          value = minCartQuantity;
-                        } else {
-                          value =
-                            Math.ceil(value / minCartQuantity) *
-                            minCartQuantity;
-                        }
+        {/* Right Side - 35% */}
+        <div className="w-[35%]">
+          {/* Product Title - same height as image */}
+          <div className="h-[400px] flex flex-col">
+            <h2 className="font-semibold text-xl mb-1">
+              {product.name}{" "}
+              /{" "}
+              <span
+                onClick={() => router.push(`/product?category=${product?.category?.slug}`)}
+                className="font-normal text-[#F9A922] cursor-pointer hover:text-[#E8981F] hover:underline transition-all"
+              >
+                {product?.category?.name}
+              </span>
+            </h2>
+            <p className="text-[#666] text-sm mb-6">{product.uniqueId}</p>
+          </div>
 
-                        setCartQuantity(value);
-                      }}
-                      size="small"
-                      sx={{
-                        width: "60px",
-                        "& .MuiOutlinedInput-root": {
-                          textAlign: "center",
-                          fontSize: "14px",
-                        },
-                      }}
-                      inputProps={{
-                        min: minCartQuantity,
-                        step: minCartQuantity,
-                        style: { textAlign: "center" },
-                      }}
-                    />
+          {/* Product Icons / Dietary Attributes */}
+          {features.length > 0 && (
+            <div className="flex flex-wrap gap-4 mb-6">
+              {features.map((feature: any, i: number) => (
+                <div
+                  key={i}
+                  className="flex flex-col items-center text-center transition-all duration-300"
+                  style={{ cursor: feature.certificateLink ? "pointer" : "default" }}
+                  onClick={() => feature.certificateLink && window.open(feature.certificateLink, "_blank")}
+                >
+                  <div className="w-20 h-20 rounded-xl bg-white overflow-hidden flex items-center justify-center mb-1 transition-all duration-300">
+                    {feature.logo ? (
+                      <Image src={feature.logo} alt={feature.label} width={80} height={80} style={{ objectFit: "contain", borderRadius: "4px" }} />
+                    ) : (
+                      <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: feature.color }}>
+                        <span className="text-white text-xs font-bold">✓</span>
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-xs font-medium text-[#666] max-w-[80px] leading-tight">{feature.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
-                    <IconButton
-                      size="small"
-                      onClick={() =>
-                        setCartQuantity(cartQuantity + minCartQuantity)
-                      }
-                      sx={{
-                        border: "1px solid #e0e0e0",
-                        borderRadius: "4px",
-                        width: "32px",
-                        height: "32px",
-                      }}
-                    >
-                      <Add fontSize="small" />
-                    </IconButton>
-                  </Box>
-                </Box>
+          {/* Product Variants Table */}
+          <ProductVariants productId={productId} />
 
-                {/* Add to Cart Button */}
-                <Button
-                  variant="contained"
-                  fullWidth
-                  onClick={handleAddToCart}
-                  disabled={
-                    !product.inStock ||
-                    addToCartMutation.isPending ||
-                    minCartQuantity <= 1
-                  }
-                  sx={{
-                    backgroundColor: product.inStock ? "#4caf50" : "#ccc",
-                    color: "white",
-                    py: 1.5,
-                    fontSize: "14px",
-                    fontWeight: 500,
-                    textTransform: "none",
-                    borderRadius: 1,
-                    mb: 2,
-                    "&:hover": {
-                      backgroundColor: product.inStock ? "#45a049" : "#ccc",
-                    },
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
+          {/* Quantity Selector and Add to Cart */}
+          <div className="mb-6">
+            <div className="mb-4">
+              <p className="font-semibold text-sm mb-2">Quantity</p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCartQuantity(Math.max(minCartQuantity, cartQuantity - minCartQuantity))}
+                  disabled={cartQuantity <= minCartQuantity}
+                  className="w-8 h-8 flex items-center justify-center border border-[#e0e0e0] rounded disabled:opacity-50 hover:border-[#F9A922] transition-colors"
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+                <input
+                  type="number"
+                  value={cartQuantity}
+                  min={minCartQuantity}
+                  step={minCartQuantity}
+                  onChange={(e) => {
+                    let value = parseInt(e.target.value) || minCartQuantity;
+                    if (value < minCartQuantity) value = minCartQuantity;
+                    else value = Math.ceil(value / minCartQuantity) * minCartQuantity;
+                    setCartQuantity(value);
                   }}
-                >
-                  <ShoppingCart fontSize="small" />
-                  {addToCartMutation.isPending
-                    ? "Adding..."
-                    : product.inStock
-                    ? "Add to Cart"
-                    : "Out of Stock"}
-                </Button>
-              </Box>
-              {/* )} */}
-
-              {/* Place Enquiry Button */}
-              <Button
-                variant="contained"
-                fullWidth
-                onClick={handlePlaceEnquiry}
-                disabled={!product.inStock}
-                sx={{
-                  backgroundColor: product.inStock ? "#ff6b35" : "#ccc",
-                  color: "white",
-                  py: 1.5,
-                  fontSize: "14px",
-                  fontWeight: 500,
-                  textTransform: "none",
-                  borderRadius: 1,
-                  mb: 3,
-                  "&:hover": {
-                    backgroundColor: product.inStock ? "#e55a2b" : "#ccc",
-                  },
-                }}
-              >
-                {product.inStock ? "Place an Enquiry" : "Out of Stock"}
-              </Button>
-
-              {/* Social Icons */}
-              <Box
-                sx={{ display: "flex", gap: 1, alignItems: "center", mt: 2, height:100}}
-              >
-                <Typography variant="body2" sx={{ mr: 1, fontSize: "12px" }}>
-                  Add to Wishlist
-                </Typography>
-                <IconButton
-                  size="small"
-                  sx={{ color: "#ff6b35" }}
-                  onClick={handleWishlistClick}
-                  disabled={
-                    addToWishlistMutation.isPending || minCartQuantity <= 1
-                  }
-                >
-                  <FavoriteBorder fontSize="small" />
-                </IconButton>
-                <IconButton size="small" sx={{ color: "#25d366" }} onClick={() => handleWhatsAppShare(product)}>
-                  <WhatsApp fontSize="small" />
-                </IconButton>
-                <IconButton size="small" sx={{ color: "#ea4335" }} onClick={()=> handleEmailShare(product)}>
-                  <Email fontSize="small" />
-                </IconButton>
-                <IconButton size="small" sx={{ color: "#ff6b35" }}>
-                  <Share fontSize="small" />
-                </IconButton>
-              </Box>
-            </Box>
-
-            <Box sx={{ height: 200, mt:3}}></Box>
-            {/* Company Specific Documents Section */}
-            <CompanyDocumentsSection
-              companySpecific={companySpecific}
-              facilitySpecific={facilitySpecific}
-              productSpecific={productSpecific}
-              batchSpecific={batchSpecific}
-              onCompanySpecificChange={setCompanySpecific}
-              onFacilitySpecificChange={setFacilitySpecific}
-              onProductSpecificChange={setProductSpecific}
-              onBatchSpecificChange={setBatchSpecific}
-            />
-
-            {/* Request For Sample Section - No Card */}
-            <Box sx={{ mt: 3 }}>
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: 600, mb: 2, fontSize: "16px" }}
-              >
-                Request For Sample
-              </Typography>
-              <Button
-                variant="contained"
-                fullWidth
-                sx={{
-                  backgroundColor: "#ff6b35",
-                  color: "white",
-                  py: 1.5,
-                  fontSize: "14px",
-                  fontWeight: 500,
-                  textTransform: "none",
-                  borderRadius: 1,
-                  mb: 3,
-                  "&:hover": {
-                    backgroundColor: "#e55a2b",
-                  },
-                }}
-              >
-                Request Now
-              </Button>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                <Typography
-                  variant="body2"
-                  sx={{ fontWeight: 500, fontSize: "13px" }}
-                >
-                  Minimum Order Quantity:
-                </Typography>
-                <TextField
-                  value={
-                    product?.moq !== undefined && product?.moq !== null
-                      ? `${product.moq} Kg`
-                      : ""
-                  }
-                  disabled
-                  // onChange={(e) => setMinOrderQty(e.target.value)}
-                  size="small"
-                  sx={{
-                    width: "80px",
-                    "& .MuiOutlinedInput-root": {
-                      backgroundColor: "white",
-                      fontSize: "13px",
-                    },
-                  }}
+                  className="w-16 h-8 text-center text-sm border border-[#e0e0e0] rounded outline-none focus:border-[#F9A922]"
                 />
-              </Box>
-            </Box>
-          </Box>
-        </Box>
-      </Box>
+                <button
+                  onClick={() => setCartQuantity(cartQuantity + minCartQuantity)}
+                  className="w-8 h-8 flex items-center justify-center border border-[#e0e0e0] rounded hover:border-[#F9A922] transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Add to Cart Button */}
+            <button
+              onClick={handleAddToCart}
+              disabled={!product.inStock || addToCartMutation.isPending || minCartQuantity <= 1}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded text-white text-sm font-medium transition-colors disabled:opacity-60 mb-4"
+              style={{ backgroundColor: product.inStock ? "#4caf50" : "#ccc" }}
+            >
+              <ShoppingCart className="w-4 h-4" />
+              {addToCartMutation.isPending ? "Adding..." : product.inStock ? "Add to Cart" : "Out of Stock"}
+            </button>
+          </div>
+
+          {/* Place Enquiry Button */}
+          <button
+            onClick={handlePlaceEnquiry}
+            disabled={!product.inStock}
+            className="w-full py-3 rounded text-white text-sm font-medium transition-colors mb-6 disabled:opacity-60"
+            style={{ backgroundColor: product.inStock ? "#F9A922" : "#ccc" }}
+          >
+            {product.inStock ? "Place an Enquiry" : "Out of Stock"}
+          </button>
+
+          {/* Social Icons */}
+          <div className="flex items-center gap-2 mt-4 h-24">
+            <p className="text-xs text-[#666] mr-1">Add to Wishlist</p>
+            <button
+              onClick={handleWishlistClick}
+              disabled={addToWishlistMutation.isPending || minCartQuantity <= 1}
+              className="p-1.5 text-[#F9A922] hover:opacity-80 transition-opacity disabled:opacity-50"
+            >
+              <Heart className="w-4 h-4" />
+            </button>
+            <button onClick={() => handleWhatsAppShare(product)} className="p-1.5 text-[#25d366] hover:opacity-80 transition-opacity">
+              <MessageCircle className="w-4 h-4" />
+            </button>
+            <button onClick={() => handleEmailShare(product)} className="p-1.5 text-[#ea4335] hover:opacity-80 transition-opacity">
+              <Mail className="w-4 h-4" />
+            </button>
+            <button className="p-1.5 text-[#F9A922] hover:opacity-80 transition-opacity">
+              <Share2 className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="h-[200px] mt-6" />
+
+          {/* Company Specific Documents Section */}
+          <CompanyDocumentsSection
+            companySpecific={companySpecific}
+            facilitySpecific={facilitySpecific}
+            productSpecific={productSpecific}
+            batchSpecific={batchSpecific}
+            onCompanySpecificChange={setCompanySpecific}
+            onFacilitySpecificChange={setFacilitySpecific}
+            onProductSpecificChange={setProductSpecific}
+            onBatchSpecificChange={setBatchSpecific}
+          />
+
+          {/* Request For Sample Section */}
+          <div className="mt-6">
+            <p className="font-semibold mb-4 text-base">Request For Sample</p>
+            <button
+              className="w-full py-3 rounded text-white text-sm font-medium mb-6 transition-colors hover:opacity-90"
+              style={{ backgroundColor: "#F9A922" }}
+            >
+              Request Now
+            </button>
+            <div className="flex items-center gap-4">
+              <p className="font-medium text-[13px]">Minimum Order Quantity:</p>
+              <input
+                value={product?.moq !== undefined && product?.moq !== null ? `${product.moq} Kg` : ""}
+                disabled
+                className="w-20 h-8 text-center text-xs border border-[#e0e0e0] rounded bg-white px-2"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Quote Form Modal */}
       <QuoteFormModal
@@ -1557,14 +629,12 @@ export default function ProductDetailPage() {
         productId={product._id}
       />
 
-      {/* Snackbar for feedback */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={4000}
-        onClose={() => setSnackbarOpen(false)}
-        message={snackbarMessage}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      />
-    </Container>
+      {/* Snackbar Toast */}
+      {snackbarOpen && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-[#323232] text-white px-6 py-3 rounded-lg shadow-lg text-sm font-medium">
+          {snackbarMessage}
+        </div>
+      )}
+    </div>
   );
 }

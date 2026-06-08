@@ -1,681 +1,281 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import {
-  Dialog,
-  DialogContent,
-  IconButton,
-  Box,
-  TextField,
-  Button,
-  Typography,
-  FormControl,
-  Select,
-  MenuItem,
-  Grid,
-  Alert,
-  CircularProgress,
-} from "@mui/material"
-import { Close } from "@mui/icons-material"
-import { useSubmitRFQ } from "@/api/handlers"
+import type React from "react";
+import { useState } from "react";
+import { X } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
+import { useSubmitRFQ } from "@/api/handlers";
 
 interface RFQModalProps {
-  open: boolean
-  onClose: () => void
-  productId?: string
-  productName?: string
-  onSuccess?: () => void
-  onError?: (error: string) => void
+  open: boolean;
+  onClose: () => void;
+  productId?: string;
+  productName?: string;
+  onSuccess?: () => void;
+  onError?: (error: string) => void;
 }
 
-const RFQModal: React.FC<RFQModalProps> = ({
-  open, onClose, productId, productName = "", onSuccess, onError
-}) => {
-  const [successModalOpen, setSuccessModalOpen] = useState(false)
-  const [responseData, setResponseData] = useState<any>(null)
-  const [formData, setFormData] = useState({
-    customerName: "",
-    customerEmail: "",
-    customerPhone: "",
-    customerPhoneCountryCode: "+1",
-    productName: productName,
-    quantity: 1,
-    description: "",
-    urgency: "medium" as "low" | "medium" | "high",
-    department: "",
-    companyType: "",
-    monthlyVolume: "",
-    timeline: "",
-    availabilityDay: "",
-    availabilityTime: "",
-    companyWebsiteLink: "",
-    additionalRequirements: "",
-    expectedDeliveryDate: "",
-    budget: "",
-  })
+const inputClass = "flex h-8 w-full border-0 border-b border-[#e0e0e0] bg-transparent px-0 py-1.5 text-sm text-[#333] placeholder:text-[#999] focus:outline-none focus:border-[#333] transition-colors";
+const selectClass = "flex h-8 w-full border-0 border-b border-[#e0e0e0] bg-transparent px-0 py-1.5 text-sm text-[#333] focus:outline-none focus:border-[#333] appearance-none transition-colors";
 
-  const [errors, setErrors] = useState<Record<string, string>>({})
-  const submitRFQMutation = useSubmitRFQ()
+const countryCodeOptions = [
+  { value: "+1", label: "🇺🇸 +1" }, { value: "+44", label: "🇬🇧 +44" }, { value: "+91", label: "🇮🇳 +91" },
+  { value: "+86", label: "🇨🇳 +86" }, { value: "+81", label: "🇯🇵 +81" }, { value: "+49", label: "🇩🇪 +49" },
+  { value: "+33", label: "🇫🇷 +33" }, { value: "+39", label: "🇮🇹 +39" }, { value: "+34", label: "🇪🇸 +34" },
+  { value: "+31", label: "🇳🇱 +31" },
+];
 
-  // Dropdown options
-  const urgencyOptions = [
-    { value: "low", label: "Low" },
-    { value: "medium", label: "Medium" },
-    { value: "high", label: "High" },
-  ]
-  const departmentOptions = [
-    { value: "R&D", label: "R&D" },
-    { value: "Production", label: "Production" },
-    { value: "Quality Control", label: "Quality Control" },
-    { value: "Procurement", label: "Procurement" },
-    { value: "Sales", label: "Sales" },
-    { value: "Marketing", label: "Marketing" },
-    { value: "Other", label: "Other" },
-  ]
-  const companyTypeOptions = [
-    { value: "Manufacturer", label: "Manufacturer" },
-    { value: "Distributor", label: "Distributor" },
-    { value: "Retailer", label: "Retailer" },
-    { value: "Research Institute", label: "Research Institute" },
-    { value: "University", label: "University" },
-    { value: "Other", label: "Other" },
-  ]
-  const monthlyVolumeOptions = [
-    { value: "1-10kg", label: "1-10kg" },
-    { value: "10-50kg", label: "10-50kg" },
-    { value: "50-100kg", label: "50-100kg" },
-    { value: "100-500kg", label: "100-500kg" },
-    { value: "500kg+", label: "500kg+" },
-  ]
-  const timelineOptions = [
-    { value: "1-2 weeks", label: "1-2 weeks" },
-    { value: "2-4 weeks", label: "2-4 weeks" },
-    { value: "1-2 months", label: "1-2 months" },
-    { value: "2-3 months", label: "2-3 months" },
-    { value: "3+ months", label: "3+ months" },
-  ]
-  const dayOptions = [
-    { value: "Monday", label: "Monday" },
-    { value: "Tuesday", label: "Tuesday" },
-    { value: "Wednesday", label: "Wednesday" },
-    { value: "Thursday", label: "Thursday" },
-    { value: "Friday", label: "Friday" },
-    { value: "Saturday", label: "Saturday" },
-    { value: "Sunday", label: "Sunday" },
-  ]
-  const timeOptions = [
-    { value: "9:00 AM", label: "9:00 AM" },
-    { value: "10:00 AM", label: "10:00 AM" },
-    { value: "11:00 AM", label: "11:00 AM" },
-    { value: "12:00 PM", label: "12:00 PM" },
-    { value: "1:00 PM", label: "1:00 PM" },
-    { value: "2:00 PM", label: "2:00 PM" },
-    { value: "3:00 PM", label: "3:00 PM" },
-    { value: "4:00 PM", label: "4:00 PM" },
-    { value: "5:00 PM", label: "5:00 PM" },
-  ]
-  const countryCodeOptions = [
-    { value: "+1", label: "🇺🇸 +1" },
-    { value: "+44", label: "🇬🇧 +44" },
-    { value: "+91", label: "🇮🇳 +91" },
-    { value: "+86", label: "🇨🇳 +86" },
-    { value: "+81", label: "🇯🇵 +81" },
-    { value: "+49", label: "🇩🇪 +49" },
-    { value: "+33", label: "🇫🇷 +33" },
-    { value: "+39", label: "🇮🇹 +39" },
-    { value: "+34", label: "🇪🇸 +34" },
-    { value: "+31", label: "🇳🇱 +31" },
-  ]
-
-  // consistent style for all selects & input (except text area)
-  const inputStyle = {
-    "& .MuiInput-underline:before": { borderBottomColor: "#e0e0e0" },
-    "& .MuiInput-underline:hover:before": { borderBottomColor: "#333" },
-    "& .MuiInput-underline:after": { borderBottomColor: "#333" },
-    "& .MuiInputBase-input, & .MuiSelect-select": {
-      height: "24px",
-      display: "flex",
-      alignItems: "center",
-      boxSizing: "border-box",
-      padding: "6px 0",
-    },
-  }
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {}
-    if (!formData.customerName.trim()) newErrors.customerName = "Customer name is required"
-    if (!formData.customerEmail.trim()) {
-      newErrors.customerEmail = "Email is required"
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.customerEmail)) {
-      newErrors.customerEmail = "Please enter a valid email address"
-    }
-    if (!formData.customerPhone.trim()) {
-      newErrors.customerPhone = "Phone number is required"
-    } else if (!/^[0-9]{10}$/.test(formData.customerPhone.replace(/\D/g, ""))) {
-      newErrors.customerPhone = "Please enter a valid 10-digit phone number"
-    }
-    if (!formData.productName.trim()) newErrors.productName = "Product name is required"
-    if (!formData.quantity || formData.quantity <= 0) newErrors.quantity = "Quantity must be greater than 0"
-    if (!formData.description.trim()) newErrors.description = "Description is required"
-    if (!formData.department) newErrors.department = "Department is required"
-    if (!formData.monthlyVolume) newErrors.monthlyVolume = "Monthly volume is required"
-    if (!formData.timeline) newErrors.timeline = "Timeline is required"
-    if (!formData.expectedDeliveryDate) newErrors.expectedDeliveryDate = "Expected delivery date is required"
-    if (!formData.budget) newErrors.budget = "Budget range is required"
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!validateForm()) return
-    try {
-      const rfqData = {
-        ...formData,
-        productId,
-        status: "pending",
-      }
-      const response = await submitRFQMutation.mutateAsync(rfqData)
-      if (response.success) {
-        setResponseData(response.data)
-        setSuccessModalOpen(true)
-        onSuccess?.()
-      } else {
-        onError?.(response.message || "Failed to submit RFQ")
-      }
-    } catch {
-      onError?.("Failed to submit RFQ. Please try again.")
-    }
-  }
-
-  const handleSuccessModalClose = () => {
-    setSuccessModalOpen(false)
-    setFormData({
-      customerName: "",
-      customerEmail: "",
-      customerPhone: "",
-      customerPhoneCountryCode: "+1",
-      productName: productName,
-      quantity: 1,
-      description: "",
-      urgency: "medium",
-      department: "",
-      companyType: "",
-      monthlyVolume: "",
-      timeline: "",
-      availabilityDay: "",
-      availabilityTime: "",
-      companyWebsiteLink: "",
-      additionalRequirements: "",
-      expectedDeliveryDate: "",
-      budget: "",
-    })
-    setErrors({})
-    onClose()
-  }
+const RFQModal: React.FC<RFQModalProps> = ({ open, onClose, productId, productName = "", onSuccess, onError }) => {
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [responseData, setResponseData] = useState<any>(null);
+  const defaultForm = {
+    customerName: "", customerEmail: "", customerPhone: "", customerPhoneCountryCode: "+1",
+    productName: productName, quantity: 1, description: "", urgency: "medium" as "low" | "medium" | "high",
+    department: "", companyType: "", monthlyVolume: "", timeline: "", availabilityDay: "",
+    availabilityTime: "", companyWebsiteLink: "", additionalRequirements: "", expectedDeliveryDate: "", budget: "",
+  };
+  const [formData, setFormData] = useState(defaultForm);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const submitRFQMutation = useSubmitRFQ();
 
   const handleInputChange = (field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: "" }))
-  }
-  const formatPhoneNumber = (value: string) => {
-    const digits = value.replace(/\D/g, "")
-    return digits.slice(0, 10)
-  }
+    setFormData((p) => ({ ...p, [field]: value }));
+    if (errors[field]) setErrors((p) => ({ ...p, [field]: "" }));
+  };
+
+  const formatPhoneNumber = (v: string) => v.replace(/\D/g, "").slice(0, 10);
+
+  const validateForm = () => {
+    const e: Record<string, string> = {};
+    if (!formData.customerName.trim()) e.customerName = "Customer name is required";
+    if (!formData.customerEmail.trim()) e.customerEmail = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.customerEmail)) e.customerEmail = "Please enter a valid email address";
+    if (!formData.customerPhone.trim()) e.customerPhone = "Phone number is required";
+    else if (!/^[0-9]{10}$/.test(formData.customerPhone.replace(/\D/g, ""))) e.customerPhone = "Please enter a valid 10-digit phone number";
+    if (!formData.productName.trim()) e.productName = "Product name is required";
+    if (!formData.quantity || formData.quantity <= 0) e.quantity = "Quantity must be greater than 0";
+    if (!formData.description.trim()) e.description = "Description is required";
+    if (!formData.department) e.department = "Department is required";
+    if (!formData.monthlyVolume) e.monthlyVolume = "Monthly volume is required";
+    if (!formData.timeline) e.timeline = "Timeline is required";
+    if (!formData.expectedDeliveryDate) e.expectedDeliveryDate = "Expected delivery date is required";
+    if (!formData.budget) e.budget = "Budget range is required";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const handleSubmit = async (ev: React.FormEvent) => {
+    ev.preventDefault();
+    if (!validateForm()) return;
+    try {
+      const response = await submitRFQMutation.mutateAsync({ ...formData, productId, status: "pending" });
+      if (response.success) {
+        setResponseData(response.data);
+        setSuccessModalOpen(true);
+        onSuccess?.();
+      } else {
+        onError?.(response.message || "Failed to submit RFQ");
+      }
+    } catch {
+      onError?.("Failed to submit RFQ. Please try again.");
+    }
+  };
+
+  const handleSuccessModalClose = () => {
+    setSuccessModalOpen(false);
+    setFormData({ ...defaultForm, productName });
+    setErrors({});
+    onClose();
+  };
+
+  const FieldLabel = ({ req, children }: { req?: boolean; children: React.ReactNode }) => (
+    <p className="text-sm font-medium text-[#333] mb-2">{req && <span className="text-red-600">*</span>} {children}</p>
+  );
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="md"
-      fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 0,
-          boxShadow: "none",
-          border: "1px solid #e0e0e0",
-        },
-      }}
-    >
-      <Box
-        sx={{
-          background: "linear-gradient(135deg, rgba(245, 138, 78, 1) 0%, rgba(241, 106, 60, 1) 100%)",
-          color: "white",
-          p: 3,
-          borderBottom: "1px solid #e0e0e0",
-        }}
-      >
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="h5" sx={{ fontWeight: 600, fontSize: "24px" }}>
-            Request for Quotation
-          </Typography>
-          <IconButton
-            onClick={onClose}
-            sx={{
-              color: "white",
-              "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
-            }}
-          >
-            <Close />
-          </IconButton>
-        </Box>
-        <Typography variant="body2" sx={{ opacity: 0.9, mt: 1 }}>
-          Get a customized quote for your requirements
-        </Typography>
-      </Box>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-3xl p-0 rounded-none border border-[#e0e0e0] shadow-none">
+        {/* Header */}
+        <div
+          className="flex justify-between items-center p-6 border-b border-[#e0e0e0]"
+          style={{ background: "linear-gradient(135deg, rgba(245,138,78,1) 0%, rgba(241,106,60,1) 100%)" }}
+        >
+          <div>
+            <h2 className="text-2xl font-semibold text-white">Request for Quotation</h2>
+            <p className="text-white/90 text-sm mt-1">Get a customized quote for your requirements</p>
+          </div>
+          <button onClick={onClose} className="text-white hover:bg-white/10 rounded-full p-1.5 transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-      <DialogContent sx={{ p: 4, backgroundColor: "#fafafa" }}>
-        {submitRFQMutation.isError && (
-          <Alert severity="error" sx={{ mb: 3, borderRadius: 0 }}>
-            Failed to submit RFQ. Please try again.
-          </Alert>
-        )}
+        <div className="p-8 bg-[#fafafa] overflow-y-auto max-h-[80vh]">
+          {submitRFQMutation.isError && (
+            <div className="bg-red-50 text-red-700 p-3 rounded mb-6 text-sm border border-red-200">Failed to submit RFQ. Please try again.</div>
+          )}
+          {submitRFQMutation.isSuccess && (
+            <div className="bg-green-50 text-green-700 p-3 rounded mb-6 text-sm border border-green-200">RFQ submitted successfully! We'll get back to you soon.</div>
+          )}
 
-        {submitRFQMutation.isSuccess && (
-          <Alert severity="success" sx={{ mb: 3, borderRadius: 0 }}>
-            RFQ submitted successfully! We'll get back to you soon.
-          </Alert>
-        )}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+            {/* Row 1 */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div>
+                <FieldLabel req>Customer Name</FieldLabel>
+                <input className={inputClass} placeholder="Enter your full name" value={formData.customerName} onChange={(e) => handleInputChange("customerName", e.target.value)} />
+                {errors.customerName && <p className="text-red-600 text-xs mt-1">{errors.customerName}</p>}
+              </div>
+              <div>
+                <FieldLabel req>Email</FieldLabel>
+                <input type="email" className={inputClass} placeholder="Enter your email" value={formData.customerEmail} onChange={(e) => handleInputChange("customerEmail", e.target.value)} />
+                {errors.customerEmail && <p className="text-red-600 text-xs mt-1">{errors.customerEmail}</p>}
+              </div>
+              <div>
+                <FieldLabel req>Enter Product</FieldLabel>
+                <input className={inputClass} placeholder="Enter product name" value={formData.productName} onChange={(e) => handleInputChange("productName", e.target.value)} />
+                {errors.productName && <p className="text-red-600 text-xs mt-1">{errors.productName}</p>}
+              </div>
+            </div>
 
-        <form onSubmit={handleSubmit}>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            {/* Row 1: Customer Name, Email, Enter Product */}
-            <Grid container spacing={3} alignItems="flex-end">
-              <Grid item xs={12} sm={4}>
-                <Typography sx={{ fontSize: "14px", fontWeight: 500, color: "#333", mb: 1 }}>
-                  <span style={{ color: "#d32f2f" }}>*</span> Customer Name
-                </Typography>
-                <TextField
-                  fullWidth
-                  variant="standard"
-                  value={formData.customerName}
-                  onChange={e => handleInputChange("customerName", e.target.value)}
-                  error={!!errors.customerName}
-                  helperText={errors.customerName}
-                  placeholder="Enter your full name"
-                  sx={inputStyle}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography sx={{ fontSize: "14px", fontWeight: 500, color: "#333", mb: 1 }}>
-                  <span style={{ color: "#d32f2f" }}>*</span> Email
-                </Typography>
-                <TextField
-                  fullWidth
-                  variant="standard"
-                  type="email"
-                  value={formData.customerEmail}
-                  onChange={e => handleInputChange("customerEmail", e.target.value)}
-                  error={!!errors.customerEmail}
-                  helperText={errors.customerEmail}
-                  placeholder="Enter your email"
-                  sx={inputStyle}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography sx={{ fontSize: "14px", fontWeight: 500, color: "#333", mb: 1 }}>
-                  <span style={{ color: "#d32f2f" }}>*</span> Enter Product
-                </Typography>
-                <TextField
-                  fullWidth
-                  variant="standard"
-                  value={formData.productName}
-                  onChange={e => handleInputChange("productName", e.target.value)}
-                  error={!!errors.productName}
-                  helperText={errors.productName}
-                  placeholder="Enter product name"
-                  sx={inputStyle}
-                />
-              </Grid>
-            </Grid>
+            {/* Row 2 */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div>
+                <FieldLabel req>Mobile Country Code</FieldLabel>
+                <select className={selectClass} value={formData.customerPhoneCountryCode} onChange={(e) => handleInputChange("customerPhoneCountryCode", e.target.value)}>
+                  {countryCodeOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+              </div>
+              <div>
+                <FieldLabel req>Mobile Number</FieldLabel>
+                <input className={inputClass} placeholder="345446645" value={formData.customerPhone} onChange={(e) => handleInputChange("customerPhone", formatPhoneNumber(e.target.value))} />
+                {errors.customerPhone && <p className="text-red-600 text-xs mt-1">{errors.customerPhone}</p>}
+              </div>
+              <div>
+                <FieldLabel req>Pack Quantity</FieldLabel>
+                <input type="number" min={1} className={inputClass} value={formData.quantity} onChange={(e) => handleInputChange("quantity", parseInt(e.target.value) || 1)} />
+                {errors.quantity && <p className="text-red-600 text-xs mt-1">{errors.quantity}</p>}
+              </div>
+            </div>
 
-            {/* Row 2: Mobile Country Code, Mobile Number, Pack Quantity */}
-            <Grid container spacing={3} alignItems="flex-end">
-              <Grid item xs={12} sm={4}>
-                <Typography sx={{ fontSize: "14px", fontWeight: 500, color: "#333", mb: 1 }}>
-                  <span style={{ color: "#d32f2f" }}>*</span> Mobile Country Code
-                </Typography>
-                <FormControl fullWidth>
-                  <Select
-                    variant="standard"
-                    value={formData.customerPhoneCountryCode}
-                    onChange={e => handleInputChange("customerPhoneCountryCode", e.target.value)}
-                    sx={inputStyle}
-                  >
-                    {countryCodeOptions.map(option => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography sx={{ fontSize: "14px", fontWeight: 500, color: "#333", mb: 1 }}>
-                  <span style={{ color: "#d32f2f" }}>*</span> Mobile Number
-                </Typography>
-                <TextField
-                  fullWidth
-                  variant="standard"
-                  value={formData.customerPhone}
-                  onChange={e => handleInputChange("customerPhone", formatPhoneNumber(e.target.value))}
-                  error={!!errors.customerPhone}
-                  helperText={errors.customerPhone}
-                  placeholder="345446645"
-                  sx={inputStyle}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography sx={{ fontSize: "14px", fontWeight: 500, color: "#333", mb: 1 }}>
-                  <span style={{ color: "#d32f2f" }}>*</span> Pack Quantity
-                </Typography>
-                <TextField
-                  fullWidth
-                  variant="standard"
-                  type="number"
-                  value={formData.quantity}
-                  onChange={e => handleInputChange("quantity", Number.parseInt(e.target.value) || 1)}
-                  error={!!errors.quantity}
-                  helperText={errors.quantity}
-                  InputProps={{ inputProps: { min: 1 } }}
-                  sx={inputStyle}
-                />
-              </Grid>
-            </Grid>
+            {/* Row 3 */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div>
+                <FieldLabel req>Budget Range</FieldLabel>
+                <input className={inputClass} placeholder="Ex: $1000 - $5000" value={formData.budget} onChange={(e) => handleInputChange("budget", e.target.value)} />
+                {errors.budget && <p className="text-red-600 text-xs mt-1">{errors.budget}</p>}
+              </div>
+              <div>
+                <FieldLabel>Company Website Link</FieldLabel>
+                <input className={inputClass} placeholder="Ex: www.example.com" value={formData.companyWebsiteLink} onChange={(e) => handleInputChange("companyWebsiteLink", e.target.value)} />
+              </div>
+              <div>
+                <FieldLabel req>Expected Delivery Date</FieldLabel>
+                <input type="date" className={inputClass} value={formData.expectedDeliveryDate} onChange={(e) => handleInputChange("expectedDeliveryDate", e.target.value)} />
+                {errors.expectedDeliveryDate && <p className="text-red-600 text-xs mt-1">{errors.expectedDeliveryDate}</p>}
+              </div>
+            </div>
 
-            {/* Row 3: Budget Range, Company Website Link, Expected Delivery Date */}
-            <Grid container spacing={3} alignItems="flex-end">
-              <Grid item xs={12} sm={4}>
-                <Typography sx={{ fontSize: "14px", fontWeight: 500, color: "#333", mb: 1 }}>
-                  <span style={{ color: "#d32f2f" }}>*</span> Budget Range
-                </Typography>
-                <TextField
-                  fullWidth
-                  variant="standard"
-                  value={formData.budget}
-                  onChange={e => handleInputChange("budget", e.target.value)}
-                  error={!!errors.budget}
-                  helperText={errors.budget}
-                  placeholder="Ex: $1000 - $5000"
-                  sx={inputStyle}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography sx={{ fontSize: "14px", fontWeight: 500, color: "#333", mb: 1 }}>
-                  Company Website Link
-                </Typography>
-                <TextField
-                  fullWidth
-                  variant="standard"
-                  value={formData.companyWebsiteLink}
-                  onChange={e => handleInputChange("companyWebsiteLink", e.target.value)}
-                  placeholder="Ex: www.example.com"
-                  sx={inputStyle}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography sx={{ fontSize: "14px", fontWeight: 500, color: "#333", mb: 1 }}>
-                  <span style={{ color: "#d32f2f" }}>*</span> Expected Delivery Date
-                </Typography>
-                <TextField
-                  fullWidth
-                  variant="standard"
-                  type="date"
-                  value={formData.expectedDeliveryDate}
-                  onChange={e => handleInputChange("expectedDeliveryDate", e.target.value)}
-                  error={!!errors.expectedDeliveryDate}
-                  helperText={errors.expectedDeliveryDate}
-                  InputLabelProps={{ shrink: true }}
-                  sx={inputStyle}
-                />
-              </Grid>
-            </Grid>
+            {/* Row 4 */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div>
+                <FieldLabel req>Department</FieldLabel>
+                <select className={selectClass} value={formData.department} onChange={(e) => handleInputChange("department", e.target.value)}>
+                  <option value="">Select</option>
+                  {["R&D","Production","Quality Control","Procurement","Sales","Marketing","Other"].map((o) => <option key={o} value={o}>{o}</option>)}
+                </select>
+                {errors.department && <p className="text-red-600 text-xs mt-1">{errors.department}</p>}
+              </div>
+              <div>
+                <FieldLabel>Company Type</FieldLabel>
+                <select className={selectClass} value={formData.companyType} onChange={(e) => handleInputChange("companyType", e.target.value)}>
+                  <option value="">Select</option>
+                  {["Manufacturer","Distributor","Retailer","Research Institute","University","Other"].map((o) => <option key={o} value={o}>{o}</option>)}
+                </select>
+              </div>
+              <div>
+                <FieldLabel req>Monthly Volume</FieldLabel>
+                <select className={selectClass} value={formData.monthlyVolume} onChange={(e) => handleInputChange("monthlyVolume", e.target.value)}>
+                  <option value="">Please Select a Volume</option>
+                  {["1-10kg","10-50kg","50-100kg","100-500kg","500kg+"].map((o) => <option key={o} value={o}>{o}</option>)}
+                </select>
+                {errors.monthlyVolume && <p className="text-red-600 text-xs mt-1">{errors.monthlyVolume}</p>}
+              </div>
+            </div>
 
-            {/* Row 4: Department, Company Type, Monthly Volume */}
-            <Grid container spacing={3} alignItems="flex-end">
-              <Grid item xs={12} sm={4}>
-                <Typography sx={{ fontSize: "14px", fontWeight: 500, color: "#333", mb: 1 }}>
-                  <span style={{ color: "#d32f2f" }}>*</span> Department
-                </Typography>
-                <FormControl fullWidth error={!!errors.department}>
-                  <Select
-                    variant="standard"
-                    value={formData.department}
-                    onChange={e => handleInputChange("department", e.target.value)}
-                    sx={inputStyle}
-                  >
-                    {departmentOptions.map(option => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography sx={{ fontSize: "14px", fontWeight: 500, color: "#333", mb: 1 }}>
-                  Company Type
-                </Typography>
-                <FormControl fullWidth error={!!errors.companyType}>
-                  <Select
-                    variant="standard"
-                    value={formData.companyType}
-                    onChange={e => handleInputChange("companyType", e.target.value)}
-                    sx={inputStyle}
-                  >
-                    {companyTypeOptions.map(option => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography sx={{ fontSize: "14px", fontWeight: 500, color: "#333", mb: 1 }}>
-                  <span style={{ color: "#d32f2f" }}>*</span> Monthly Volume
-                </Typography>
-                <FormControl fullWidth error={!!errors.monthlyVolume}>
-                  <Select
-                    variant="standard"
-                    value={formData.monthlyVolume}
-                    onChange={e => handleInputChange("monthlyVolume", e.target.value)}
-                    sx={inputStyle}
-                  >
-                    <MenuItem value="" disabled>
-                      Please Select a Volume
-                    </MenuItem>
-                    {monthlyVolumeOptions.map(option => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
+            {/* Row 5 */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div>
+                <FieldLabel req>Timeline</FieldLabel>
+                <select className={selectClass} value={formData.timeline} onChange={(e) => handleInputChange("timeline", e.target.value)}>
+                  <option value="">Please Select a Timeline</option>
+                  {["1-2 weeks","2-4 weeks","1-2 months","2-3 months","3+ months"].map((o) => <option key={o} value={o}>{o}</option>)}
+                </select>
+                {errors.timeline && <p className="text-red-600 text-xs mt-1">{errors.timeline}</p>}
+              </div>
+              <div>
+                <FieldLabel>Urgency</FieldLabel>
+                <select className={selectClass} value={formData.urgency} onChange={(e) => handleInputChange("urgency", e.target.value)}>
+                  {["low","medium","high"].map((o) => <option key={o} value={o}>{o.charAt(0).toUpperCase() + o.slice(1)}</option>)}
+                </select>
+              </div>
+              <div>
+                <FieldLabel>Availability Day</FieldLabel>
+                <select className={selectClass} value={formData.availabilityDay} onChange={(e) => handleInputChange("availabilityDay", e.target.value)}>
+                  <option value="">Please Select a Day</option>
+                  {["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map((o) => <option key={o} value={o}>{o}</option>)}
+                </select>
+              </div>
+            </div>
 
-            {/* Row 5: Timeline, Urgency, Availability Day */}
-            <Grid container spacing={3} alignItems="flex-end">
-              <Grid item xs={12} sm={4}>
-                <Typography sx={{ fontSize: "14px", fontWeight: 500, color: "#333", mb: 1 }}>
-                  <span style={{ color: "#d32f2f" }}>*</span> Timeline
-                </Typography>
-                <FormControl fullWidth error={!!errors.timeline}>
-                  <Select
-                    variant="standard"
-                    value={formData.timeline}
-                    onChange={e => handleInputChange("timeline", e.target.value)}
-                    sx={inputStyle}
-                  >
-                    <MenuItem value="" disabled>
-                      Please Select a Timeline
-                    </MenuItem>
-                    {timelineOptions.map(option => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography sx={{ fontSize: "14px", fontWeight: 500, color: "#333", mb: 1 }}>
-                  Urgency
-                </Typography>
-                <FormControl fullWidth>
-                  <Select
-                    variant="standard"
-                    value={formData.urgency}
-                    onChange={e => handleInputChange("urgency", e.target.value)}
-                    sx={inputStyle}
-                  >
-                    {urgencyOptions.map(option => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Typography sx={{ fontSize: "14px", fontWeight: 500, color: "#333", mb: 1 }}>
-                  Availability Day
-                </Typography>
-                <FormControl fullWidth>
-                  <Select
-                    variant="standard"
-                    value={formData.availabilityDay}
-                    onChange={e => handleInputChange("availabilityDay", e.target.value)}
-                    sx={inputStyle}
-                  >
-                    <MenuItem value="">Please Select a Day</MenuItem>
-                    {dayOptions.map(option => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
+            {/* Call Header */}
+            <p className="text-base font-semibold text-[#333] text-center">Would you be available for a call at your earliest convenience?</p>
 
-            {/* Call Scheduling Section Header */}
-            <Box sx={{ mt: 2 }}>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: 600,
-                  // background: "linear-gradient(135deg, rgba(245, 138, 78, 1) 0%, rgba(241, 106, 60, 1) 100%)",
-                  color: "black",
-                  p: 2,
-                  borderRadius: 0,
-                  textAlign: "center",
-                }}
-              >
-                Would you be available for a call at your earliest convenience?
-              </Typography>
-            </Box>
-
-            {/* Description Text Area */}
-            <Box>
-              <Typography sx={{ fontSize: "14px", fontWeight: 500, color: "#333", mb: 1 }}>
-                <span style={{ color: "#d32f2f" }}>*</span> Description
-              </Typography>
-              <TextField
-                fullWidth
-                variant="standard"
-                multiline
+            {/* Description */}
+            <div>
+              <FieldLabel req>Description</FieldLabel>
+              <textarea
                 rows={4}
-                value={formData.description}
-                onChange={e => handleInputChange("description", e.target.value)}
-                error={!!errors.description}
-                helperText={errors.description}
+                className="w-full border-b border-[#e0e0e0] bg-transparent text-sm text-[#333] placeholder:text-[#999] focus:outline-none focus:border-[#333] py-2 resize-none"
                 placeholder="Please describe your requirements in detail..."
-                sx={{
-                  "& .MuiInput-underline:before": { borderBottomColor: "#e0e0e0" },
-                  "& .MuiInput-underline:hover:before": { borderBottomColor: "#333" },
-                  "& .MuiInput-underline:after": { borderBottomColor: "#333" },
-                }}
+                value={formData.description}
+                onChange={(e) => handleInputChange("description", e.target.value)}
               />
-            </Box>
+              {errors.description && <p className="text-red-600 text-xs mt-1">{errors.description}</p>}
+            </div>
 
-            {/* Additional Requirements Text Area */}
-            <Box>
-              <Typography sx={{ fontSize: "14px", fontWeight: 500, color: "#333", mb: 1 }}>
-                Additional Requirements
-              </Typography>
-              <TextField
-                fullWidth
-                variant="standard"
-                multiline
+            {/* Additional Requirements */}
+            <div>
+              <FieldLabel>Additional Requirements</FieldLabel>
+              <textarea
                 rows={4}
-                value={formData.additionalRequirements}
-                onChange={e => handleInputChange("additionalRequirements", e.target.value)}
+                className="w-full border-b border-[#e0e0e0] bg-transparent text-sm text-[#333] placeholder:text-[#999] focus:outline-none focus:border-[#333] py-2 resize-none"
                 placeholder="Any specific requirements or details..."
-                sx={{
-                  "& .MuiInput-underline:before": { borderBottomColor: "#e0e0e0" },
-                  "& .MuiInput-underline:hover:before": { borderBottomColor: "#333" },
-                  "& .MuiInput-underline:after": { borderBottomColor: "#333" },
-                }}
+                value={formData.additionalRequirements}
+                onChange={(e) => handleInputChange("additionalRequirements", e.target.value)}
               />
-            </Box>
+            </div>
 
-            {/* Submit Button */}
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-              <Button
+            {/* Submit */}
+            <div className="flex justify-center mt-4">
+              <button
                 type="submit"
-                variant="contained"
                 disabled={submitRFQMutation.isPending}
-                sx={{
-                  background: "linear-gradient(135deg, rgba(245, 138, 78, 1) 0%, rgba(241, 106, 60, 1) 100%)",
-                  color: "white",
-                  fontWeight: 600,
-                  fontSize: "16px",
-                  padding: "12px 32px",
-                  textTransform: "none",
-                  minWidth: "200px",
-                  border: "none",
-                  borderRadius: "4px",
-                  "&:hover": {
-                    background: "linear-gradient(135deg, rgba(245, 138, 78, 0.9) 0%, rgba(241, 106, 60, 0.9) 100%)",
-                  },
-                  "&:disabled": {
-                    backgroundColor: "#ccc",
-                    color: "#666",
-                    background: "#ccc",
-                  },
-                }}
+                className="min-w-[200px] flex items-center justify-center gap-2 text-white font-semibold text-base px-8 py-3 rounded disabled:bg-[#ccc] transition-all"
+                style={{ background: submitRFQMutation.isPending ? undefined : "linear-gradient(135deg, rgba(245,138,78,1) 0%, rgba(241,106,60,1) 100%)" }}
               >
-                {submitRFQMutation.isPending ? (
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <CircularProgress size={20} sx={{ color: "white" }} />
-                    <Typography>Submitting...</Typography>
-                  </Box>
-                ) : (
-                  "Submit RFQ"
-                )}
-              </Button>
-            </Box>
-          </Box>
-        </form>
+                {submitRFQMutation.isPending ? <><Spinner size="sm" className="border-white border-t-transparent" /> Submitting...</> : "Submit RFQ"}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div className="bg-[#f8f9fa] border-t border-[#e0e0e0] p-4 text-center">
+          <p className="text-xs text-[#666]">Your information is secure and confidential</p>
+        </div>
       </DialogContent>
-
-      <Box
-        sx={{
-          backgroundColor: "#f8f9fa",
-          borderTop: "1px solid #e0e0e0",
-          p: 2,
-          textAlign: "center",
-        }}
-      >
-        <Typography sx={{ fontSize: "12px", color: "#666" }}>
-          Your information is secure and confidential
-        </Typography>
-      </Box>
     </Dialog>
-  )
-}
+  );
+};
 
-export default RFQModal
+export default RFQModal;

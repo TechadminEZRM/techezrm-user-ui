@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { Box, Container } from "@mui/material";
 import SearchBox from "@/components/SearchBox";
 import SearchResults from "@/components/SearchResults";
 import { searchHandler } from "@/api/handlers/searchHandler";
@@ -13,60 +12,34 @@ const SearchPage: React.FC = () => {
   const query = searchParams.get("q") || "";
 
   const [searchResults, setSearchResults] = useState<SearchResultsType>({
-    products: [],
-    categories: [],
-    totalProducts: 0,
-    totalCategories: 0,
-    total: 0,
-    page: 1,
-    limit: 20,
-    totalPages: 1,
+    products: [], categories: [], totalProducts: 0, totalCategories: 0, total: 0, page: 1, limit: 20, totalPages: 1,
   });
   const [loading, setLoading] = useState(false);
   const [currentQuery, setCurrentQuery] = useState(query);
 
   useEffect(() => {
-    if (query) {
-      setCurrentQuery(query);
-      performSearch(query);
-    }
+    if (query) { setCurrentQuery(query); performSearch(query); }
   }, [query]);
 
   const performSearch = async (searchQuery: string) => {
     if (!searchQuery.trim()) return;
-
     setLoading(true);
     try {
       const results = await searchHandler.search(searchQuery.trim());
       setSearchResults(results);
     } catch (error) {
       console.error("Search failed:", error);
-      setSearchResults({
-        products: [],
-        categories: [],
-        totalProducts: 0,
-        totalCategories: 0,
-        total: 0,
-        page: 1,
-        limit: 20,
-        totalPages: 1,
-      });
-    } finally {
-      setLoading(false);
-    }
+      setSearchResults({ products: [], categories: [], totalProducts: 0, totalCategories: 0, total: 0, page: 1, limit: 20, totalPages: 1 });
+    } finally { setLoading(false); }
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "#f8f9fa" }}>
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+    <div className="min-h-screen bg-[#f8f9fa]">
+      <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Search Header */}
-        <Box sx={{ mb: 4 }}>
-          <SearchBox
-            fullWidth
-            showDropdown={false}
-            placeholder="Search products, categories..."
-          />
-        </Box>
+        <div className="mb-8">
+          <SearchBox fullWidth showDropdown={false} placeholder="Search products, categories..." />
+        </div>
 
         {/* Search Results */}
         <SearchResults
@@ -77,8 +50,8 @@ const SearchPage: React.FC = () => {
           searchQuery={currentQuery}
           loading={loading}
         />
-      </Container>
-    </Box>
+      </div>
+    </div>
   );
 };
 

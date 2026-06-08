@@ -1,430 +1,150 @@
-"use client"
+"use client";
 
-import React from "react"
-import { Box, Typography, Link, Container, Alert, Skeleton } from "@mui/material"
-import Image from "next/image"
-import { useCertificateListing } from "@/api/handlers"
-import type { Certificate } from "@/api/services"
+import React from "react";
+import Image from "next/image";
+import { useCertificateListing } from "@/api/handlers";
+import type { Certificate } from "@/api/services";
 
-interface CertificationCardProps {
-  certificate: Certificate
-}
+const getImageUrl = (imageUrl: string) => {
+  if (imageUrl.startsWith("http")) return imageUrl;
+  return `${process.env.NEXT_PUBLIC_API_URL}/${imageUrl}`;
+};
 
-const CertificationCard: React.FC<CertificationCardProps> = ({ certificate }) => {
-  const getImageUrl = (imageUrl: string) => {
-    if (imageUrl.startsWith("http")) {
-      return imageUrl
-    }
-    return `${process.env.NEXT_PUBLIC_API_URL}/${imageUrl}`
-  }
+const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
-  }
+const isExpired = (expiryDate: string) => new Date(expiryDate) < new Date();
 
+const CertificationCard: React.FC<{ certificate: Certificate }> = ({ certificate }) => {
   const getCertificateLink = () => {
-    // Find the first PDF asset link
-    const pdfAsset = certificate.assetsLinks.find((asset) => asset.fileType === "pdf")
-    return pdfAsset?.url || "#"
-  }
+    const pdfAsset = certificate.assetsLinks.find((a) => a.fileType === "pdf");
+    return pdfAsset?.url || "#";
+  };
 
-  const isExpired = () => {
-    const expiryDate = new Date(certificate.expiryDate)
-    const today = new Date()
-    return expiryDate < today
-  }
+  const expired = isExpired(certificate.expiryDate);
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        alignItems: { xs: "flex-start", md: "center" },
-        flexDirection: { xs: "column", md: "row" },
-        justifyContent: "flex-start",
-        gap: { xs: 3, md: 6 },
-        width: "100%",
-        backgroundColor: "white",
-        p: { xs: 3, md: 3 },
-        borderRadius: "46px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-        transition: "all 0.3s ease",
-        "&:hover": {
-          boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
-          transform: "translateY(-2px)",
-        },
-      }}
-    >
-      {/* Certification Logo */}
-      <Box
-        sx={{
-          flexShrink: 0,
-          display: "flex",
-          justifyContent: { xs: "center", md: "flex-start" },
-          width: { xs: "100%", md: "auto" },
-        }}
-      >
-        <Box
-          sx={{
-            width: {
-              xs: "min(80vw, 300px)",
-              sm: "min(50vw, 350px)",
-              md: "min(30vw, 450px)",
-              lg: "min(25vw, 450px)",
-            },
-            height: {
-              xs: "min(80vw, 300px)",
-              sm: "min(50vw, 350px)",
-              md: "min(30vw, 450px)",
-              lg: "min(25vw, 450px)",
-            },
-            position: "relative",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+    <div className="flex flex-col md:flex-row items-start md:items-center justify-start gap-6 md:gap-12 w-full bg-white p-6 rounded-[46px] shadow-[0_2px_8px_rgba(0,0,0,0.08)] transition-all hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] hover:-translate-y-0.5">
+      {/* Logo */}
+      <div className="flex-shrink-0 flex justify-center md:justify-start w-full md:w-auto">
+        <div className="relative w-[min(80vw,300px)] h-[min(80vw,300px)] sm:w-[min(50vw,350px)] sm:h-[min(50vw,350px)] md:w-[min(30vw,450px)] md:h-[min(30vw,450px)] lg:w-[min(25vw,450px)] lg:h-[min(25vw,450px)] flex items-center justify-center">
           <Image
             src={getImageUrl(certificate.bannerImage) || "/placeholder.svg"}
             alt={certificate.certificationName}
             fill
-            style={{
-              objectFit: "contain",
-            }}
-            onError={(e) => {
-              // Fallback to default ISO image if certificate image fails to load
-              const target = e.target as HTMLImageElement
-              target.src = "/iso.png"
-            }}
+            style={{ objectFit: "contain" }}
+            onError={(e) => { (e.target as HTMLImageElement).src = "/iso.png"; }}
             priority={false}
             sizes="(max-width: 768px) 80vw, (max-width: 1024px) 50vw, (max-width: 1200px) 30vw, 25vw"
           />
-        </Box>
-      </Box>
+        </div>
+      </div>
 
-      {/* Content Section */}
-      <Box
-        sx={{
-          flex: 1,
-          textAlign: { xs: "center", md: "left" },
-          minWidth: 0,
-        }}
-      >
-        {/* Certification Title */}
-        <Typography
-          variant="h5"
-          sx={{
-            fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-            fontWeight: 600,
-            fontSize: { xs: "1.5rem", md: "1.75rem" },
-            color: "#ff6b35",
-            mb: 1,
-            letterSpacing: "-0.01em",
-          }}
-        >
-          {certificate.title}
-        </Typography>
+      {/* Content */}
+      <div className="flex-1 text-center md:text-left min-w-0">
+        <h3 className="font-semibold text-[#F9A922] text-[1.5rem] md:text-[1.75rem] mb-2 tracking-tight">{certificate.title}</h3>
+        <p className="font-medium text-[#666] text-sm md:text-[1.5rem] mb-4 md:mb-5">{certificate.certificationName}</p>
+        <p className="text-[#555] text-sm md:text-base leading-relaxed mb-4 md:mb-5 max-w-full md:max-w-[650px] mx-auto md:mx-0">{certificate.descr}</p>
 
-        {/* Certification Name (Subtitle) */}
-        <Typography
-          sx={{
-            fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-            fontWeight: 500,
-            fontSize: { xs: "0.95rem", md: "1.5rem" },
-            color: "#666666",
-            mb: { xs: 2, md: 2.5 },
-            letterSpacing: "0.01em",
-          }}
-        >
-          {certificate.certificationName}
-        </Typography>
+        <div className="mb-4 md:mb-5 space-y-1">
+          <p className="text-xs md:text-sm text-[#777]"><strong>Issued by:</strong> {certificate.issuedBy}</p>
+          <p className="text-xs md:text-sm text-[#777]"><strong>Issue Date:</strong> {formatDate(certificate.issueDate)}</p>
+          <p className={`text-xs md:text-sm font-medium ${expired ? "text-red-600" : "text-[#777]"}`}>
+            <strong>Expiry Date:</strong> {formatDate(certificate.expiryDate)}{expired && " (Expired)"}
+          </p>
+          <p className="text-xs md:text-sm text-[#777]"><strong>Certificate ID:</strong> {certificate.certificateId}</p>
+        </div>
 
-        {/* Description */}
-        <Typography
-          sx={{
-            fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-            fontWeight: 400,
-            fontSize: { xs: "0.875rem", md: "1rem" },
-            color: "#555555",
-            lineHeight: 1.6,
-            mb: { xs: 2, md: 2.5 },
-            maxWidth: { xs: "100%", md: "650px" },
-            mx: { xs: "auto", md: 0 },
-          }}
-        >
-          {certificate.descr}
-        </Typography>
-
-        {/* Certificate Details */}
-        <Box sx={{ mb: { xs: 2, md: 2.5 } }}>
-          <Typography
-            sx={{
-              fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-              fontWeight: 400,
-              fontSize: { xs: "0.8rem", md: "0.9rem" },
-              color: "#777",
-              mb: 0.5,
-            }}
-          >
-            <strong>Issued by:</strong> {certificate.issuedBy}
-          </Typography>
-          <Typography
-            sx={{
-              fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-              fontWeight: 400,
-              fontSize: { xs: "0.8rem", md: "0.9rem" },
-              color: "#777",
-              mb: 0.5,
-            }}
-          >
-            <strong>Issue Date:</strong> {formatDate(certificate.issueDate)}
-          </Typography>
-          <Typography
-            sx={{
-              fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-              fontWeight: 400,
-              fontSize: { xs: "0.8rem", md: "0.9rem" },
-              color: isExpired() ? "#d32f2f" : "#777",
-              mb: 0.5,
-            }}
-          >
-            <strong>Expiry Date:</strong> {formatDate(certificate.expiryDate)}
-            {isExpired() && " (Expired)"}
-          </Typography>
-          <Typography
-            sx={{
-              fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-              fontWeight: 400,
-              fontSize: { xs: "0.8rem", md: "0.9rem" },
-              color: "#777",
-            }}
-          >
-            <strong>Certificate ID:</strong> {certificate.certificateId}
-          </Typography>
-        </Box>
-
-        {/* View Certificate Link */}
-        <Link
+        <a
           href={getCertificateLink()}
           target="_blank"
           rel="noopener noreferrer"
-          sx={{
-            fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-            fontWeight: 500,
-            fontSize: { xs: "0.875rem", md: "0.9rem" },
-            color: "#0066cc",
-            textDecoration: "none",
-            cursor: "pointer",
-            "&:hover": {
-              textDecoration: "underline",
-              color: "#0052a3",
-            },
-            "&:focus": {
-              outline: "2px solid #0066cc",
-              outlineOffset: "2px",
-              borderRadius: "2px",
-            },
-          }}
+          className="text-sm text-[#0066cc] hover:text-[#0052a3] hover:underline focus:outline focus:outline-[#0066cc] focus:outline-2 focus:outline-offset-2 focus:rounded-sm font-medium"
         >
           View Certificate ({certificate.assetsLinks.length} file{certificate.assetsLinks.length !== 1 ? "s" : ""})
-        </Link>
-      </Box>
-    </Box>
-  )
-}
+        </a>
+      </div>
+    </div>
+  );
+};
 
 const CertificationCardSkeleton: React.FC = () => (
-  <Box
-    sx={{
-      display: "flex",
-      alignItems: { xs: "flex-start", md: "center" },
-      flexDirection: { xs: "column", md: "row" },
-      justifyContent: "flex-start",
-      gap: { xs: 3, md: 6 },
-      width: "100%",
-      backgroundColor: "white",
-      p: { xs: 3, md: 3 },
-      borderRadius: "46px",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-    }}
-  >
-    {/* Logo Skeleton */}
-    <Box
-      sx={{
-        flexShrink: 0,
-        display: "flex",
-        justifyContent: { xs: "center", md: "flex-start" },
-        width: { xs: "100%", md: "auto" },
-      }}
-    >
-      <Skeleton
-        variant="rectangular"
-        sx={{
-          width: {
-            xs: "min(80vw, 300px)",
-            sm: "min(50vw, 350px)",
-            md: "min(30vw, 450px)",
-            lg: "min(25vw, 450px)",
-          },
-          height: {
-            xs: "min(80vw, 300px)",
-            sm: "min(50vw, 350px)",
-            md: "min(30vw, 450px)",
-            lg: "min(25vw, 450px)",
-          },
-          borderRadius: 2,
-        }}
-      />
-    </Box>
-
-    {/* Content Skeleton */}
-    <Box sx={{ flex: 1, textAlign: { xs: "center", md: "left" } }}>
-      <Skeleton variant="text" width="60%" height={40} sx={{ mb: 1 }} />
-      <Skeleton variant="text" width="80%" height={30} sx={{ mb: 2 }} />
-      <Skeleton variant="text" width="100%" height={20} sx={{ mb: 1 }} />
-      <Skeleton variant="text" width="90%" height={20} sx={{ mb: 1 }} />
-      <Skeleton variant="text" width="70%" height={20} sx={{ mb: 2 }} />
-      <Skeleton variant="text" width="40%" height={20} sx={{ mb: 1 }} />
-      <Skeleton variant="text" width="50%" height={20} sx={{ mb: 1 }} />
-      <Skeleton variant="text" width="45%" height={20} sx={{ mb: 2 }} />
-      <Skeleton variant="text" width="30%" height={20} />
-    </Box>
-  </Box>
-)
+  <div className="flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-12 w-full bg-white p-6 rounded-[46px] shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
+    <div className="flex-shrink-0 flex justify-center md:justify-start w-full md:w-auto">
+      <div className="w-[min(80vw,300px)] h-[min(80vw,300px)] md:w-[250px] md:h-[250px] bg-[#f0f0f0] rounded-lg animate-pulse" />
+    </div>
+    <div className="flex-1 text-center md:text-left">
+      <div className="h-7 bg-[#f0f0f0] rounded w-3/5 mb-3 animate-pulse" />
+      <div className="h-5 bg-[#f0f0f0] rounded w-4/5 mb-5 animate-pulse" />
+      <div className="h-4 bg-[#f0f0f0] rounded w-full mb-2 animate-pulse" />
+      <div className="h-4 bg-[#f0f0f0] rounded w-[90%] mb-2 animate-pulse" />
+      <div className="h-4 bg-[#f0f0f0] rounded w-[70%] mb-5 animate-pulse" />
+      <div className="h-3.5 bg-[#f0f0f0] rounded w-2/5 mb-1 animate-pulse" />
+      <div className="h-3.5 bg-[#f0f0f0] rounded w-1/2 mb-1 animate-pulse" />
+      <div className="h-3.5 bg-[#f0f0f0] rounded w-[45%] mb-5 animate-pulse" />
+      <div className="h-3.5 bg-[#f0f0f0] rounded w-[30%] animate-pulse" />
+    </div>
+  </div>
+);
 
 const Certifications: React.FC = () => {
-  const { data: response, isLoading, error, isError } = useCertificateListing({ limit: 3 })
+  const { data: response, isLoading, error, isError } = useCertificateListing({ limit: 3 });
 
-  // Debug logging
   React.useEffect(() => {
-    console.log("Certificates Loading:", isLoading)
-    console.log("Certificates Error:", error)
-    console.log("Certificates Response:", response)
-  }, [isLoading, error, response])
+    console.log("Certificates Loading:", isLoading);
+    console.log("Certificates Error:", error);
+    console.log("Certificates Response:", response);
+  }, [isLoading, error, response]);
 
-  const renderLoadingState = () => (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        gap: { xs: 3, md: 4 },
-        mx: "2rem",
-      }}
-    >
-      {Array.from({ length: 3 }).map((_, index) => (
-        <CertificationCardSkeleton key={index} />
-      ))}
-    </Box>
-  )
-
-  const renderErrorState = () => (
-    <Box sx={{ mx: "2rem" }}>
-      <Alert severity="error" sx={{ mb: 2 }}>
-        <Typography variant="h6">Error loading certifications</Typography>
-        <Typography variant="body2">{error instanceof Error ? error.message : "Something went wrong"}</Typography>
-      </Alert>
-    </Box>
-  )
-
-  const renderEmptyState = () => (
-    <Box sx={{ textAlign: "center", py: 4, mx: "2rem" }}>
-      <Typography variant="h6" sx={{ color: "#666", mb: 1 }}>
-        No certifications found
-      </Typography>
-      <Typography variant="body2" sx={{ color: "#999" }}>
-        Certifications will appear here once they are available.
-      </Typography>
-    </Box>
-  )
-
-  const certificates = response?.data?.certifications || []
-  const displayedCertifications = certificates.slice(0, 3) // Limit to maximum 3 cards
+  const certificates = response?.data?.certifications || [];
+  const displayedCertifications = certificates.slice(0, 3);
 
   return (
-    <Box sx={{ width: "100%", backgroundColor: "#fafafa", py: { xs: 3, md: 0 } }}>
-      <Container maxWidth={false} sx={{ width: "100%", px: 0 }}>
-        <Box
-          sx={{
-            backgroundColor: "#fafafa",
-            borderRadius: 2,
-            p: { xs: 3, md: 4 },
-            minHeight: "300px",
-          }}
-        >
-          {/* Certifications Heading */}
-          <Typography
-            variant="h4"
-            sx={{
-              fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-              fontWeight: 600,
-              fontSize: { xs: "1.75rem", md: "2rem" },
-              color: "#1a1a1a",
-              mb: { xs: 3, md: 4 },
-              letterSpacing: "-0.02em",
-              ml: "2rem",
-            }}
-          >
+    <div className="w-full bg-[#fafafa] py-6 md:py-0">
+      <div className="w-full px-0">
+        <div className="bg-[#fafafa] rounded-lg p-6 md:p-8 min-h-[300px]">
+          {/* Heading */}
+          <h2 className="font-semibold text-[#1a1a1a] text-[1.75rem] md:text-[2rem] mb-6 md:mb-8 ml-8 tracking-tight">
             Certifications
             {!isLoading && certificates.length > 0 && (
-              <Typography
-                component="span"
-                sx={{
-                  ml: 2,
-                  color: "#666",
-                  fontSize: "1rem",
-                  fontWeight: 400,
-                }}
-              >
-                ({certificates.length} total)
-              </Typography>
+              <span className="ml-4 text-[#666] text-base font-normal">({certificates.length} total)</span>
             )}
-          </Typography>
+          </h2>
 
-          {/* Certifications Cards Container */}
-          {isLoading && renderLoadingState()}
-          {isError && renderErrorState()}
-          {!isLoading && !isError && certificates.length === 0 && renderEmptyState()}
+          {/* Loading */}
+          {isLoading && (
+            <div className="flex flex-col gap-6 md:gap-8 mx-8">
+              {Array.from({ length: 3 }).map((_, i) => <CertificationCardSkeleton key={i} />)}
+            </div>
+          )}
+
+          {/* Error */}
+          {isError && (
+            <div className="mx-8 bg-red-50 border border-red-200 rounded-xl p-4">
+              <p className="font-semibold text-red-700">Error loading certifications</p>
+              <p className="text-sm text-red-600">{error instanceof Error ? error.message : "Something went wrong"}</p>
+            </div>
+          )}
+
+          {/* Empty */}
+          {!isLoading && !isError && certificates.length === 0 && (
+            <div className="text-center py-8 mx-8">
+              <p className="text-lg font-medium text-[#666] mb-1">No certifications found</p>
+              <p className="text-sm text-[#999]">Certifications will appear here once they are available.</p>
+            </div>
+          )}
+
+          {/* Cards */}
           {!isLoading && !isError && certificates.length > 0 && (
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: { xs: 3, md: 4 },
-                mx: "2rem",
-              }}
-            >
+            <div className="flex flex-col gap-6 md:gap-8 mx-8">
               {displayedCertifications.map((certificate) => (
                 <CertificationCard key={certificate._id} certificate={certificate} />
               ))}
-            </Box>
+            </div>
           )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
-          {/* Debug Info (remove in production) */}
-          {/* {process.env.NODE_ENV === "development" && (
-            <Box sx={{ mt: 4, p: 2, bgcolor: "#f0f0f0", borderRadius: 1, fontSize: "0.8rem", mx: "2rem" }}>
-              <Typography variant="caption" sx={{ fontWeight: 600 }}>
-                Debug Info:
-              </Typography>
-              <br />
-              <Typography variant="caption">
-                API URL: {process.env.NEXT_PUBLIC_API_URL}
-                <br />
-                Loading: {isLoading.toString()}
-                <br />
-                Error: {error?.message || "None"}
-                <br />
-                Certificates Count: {certificates.length}
-              </Typography>
-            </Box>
-          )} */}
-        </Box>
-      </Container>
-    </Box>
-  )
-}
-
-export default Certifications
+export default Certifications;

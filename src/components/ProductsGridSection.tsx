@@ -2,18 +2,7 @@
 
 import type React from "react";
 import { useState, useEffect } from "react";
-import {
-  Box,
-  Typography,
-  Container,
-  Card,
-  CardContent,
-  Button,
-  IconButton,
-  Skeleton,
-  Alert,
-} from "@mui/material";
-import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/store/use-app-store";
 import QuoteFormModal from "./quote-form-modal";
@@ -27,206 +16,82 @@ interface ProductGridCardProps {
   isAuthenticated: boolean;
 }
 
-const ProductGridCard: React.FC<ProductGridCardProps> = ({
-  product,
-  onClick,
-  onButtonClick,
-  isAuthenticated,
-}) => {
+const getProductImage = (product: Product) => {
+  if (product.bannerImage) {
+    return product.bannerImage.startsWith("http")
+      ? product.bannerImage
+      : `${process.env.NEXT_PUBLIC_API_URL}/${product.bannerImage}`;
+  }
+  if (product.images && product.images.length > 0) {
+    const img = product.images[0];
+    return img.startsWith("http") ? img : `${process.env.NEXT_PUBLIC_API_URL}/${img}`;
+  }
+  return "/productGrid.png";
+};
+
+const ProductGridCard: React.FC<ProductGridCardProps> = ({ product, onClick, onButtonClick, isAuthenticated }) => {
   const { isAuthenticated: authState } = useAppStore();
-  const handleCardClick = () => {
-    onClick(product._id, product.name);
-  };
-
-  const handleButtonClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent card click when clicking the button
-    onButtonClick(product._id, product.name);
-  };
-
-  const getProductImage = (product: Product) => {
-    if (product.bannerImage) {
-      return product.bannerImage.startsWith("http")
-        ? product.bannerImage
-        : `${process.env.NEXT_PUBLIC_API_URL}/${product.bannerImage}`;
-    }
-    if (product.images && product.images.length > 0) {
-      const firstImage = product.images[0];
-      return firstImage.startsWith("http")
-        ? firstImage
-        : `${process.env.NEXT_PUBLIC_API_URL}/${firstImage}`;
-    }
-    return "/productGrid.png"; // Default fallback image
-  };
-
   return (
-    <Card
-      onClick={handleCardClick}
-      sx={{
-        borderRadius: "18px",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
-        bgcolor: "white",
-        width: "280px", // Exact same width
-        height: "320px", // Exact same height
-        transition: "all 0.3s ease",
-        overflow: "hidden",
-        cursor: "pointer",
-        "&:hover": {
-          boxShadow: "0 4px 16px rgba(0, 0, 0, 0.12)",
-          transform: "translateY(-2px)",
-        },
-      }}
+    <div
+      onClick={() => onClick(product._id, product.name)}
+      className="bg-white rounded-[18px] shadow-[0_2px_8px_rgba(0,0,0,0.08)] w-[280px] h-[320px] flex flex-col overflow-hidden cursor-pointer transition-all hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] hover:-translate-y-0.5"
     >
-      <CardContent
-        sx={{ p: 0, height: "100%", display: "flex", flexDirection: "column" }}
-      >
-        {/* Product Image Container */}
-        <Box
-          sx={{
-            bgcolor: "#f8f8f8",
-            height: "200px", // Exact same height
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          <Image
-            src={getProductImage(product)}
-            alt={product.name}
-            fill
-            style={{ objectFit: "cover" }} // Changed from "contain" to "cover" to fill entire container
-            onError={(e) => {
-              // Fallback to default image
-              const target = e.target as HTMLImageElement;
-              target.src = "/productGrid.png";
-            }}
-          />
-        </Box>
-        {/* Button */}
-        <Button
-          fullWidth
-          variant="contained"
-          onClick={handleButtonClick}
-          sx={{
-            bgcolor: "#ff6b35",
-            color: "white",
-            fontWeight: 500,
-            py: 0.5,
-            borderRadius: 0,
-            textTransform: "none",
-            fontSize: "1rem",
-            "&:hover": {
-              bgcolor: "#e55a2b",
-            },
-          }}
-        >
-          {isAuthenticated ? "Buy" : "Get Quote"}
-        </Button>
-        {/* Content Section */}
-        <Box sx={{ p: 2.5,pb:0, flex: 1, display: "flex", flexDirection: "column" }}>
-          {/* Product Name and Price Row */}
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              mb: 1,
-              gap: 1,
-            }}
-          >
-            <Typography
-              title={product.name} // Tooltip for long names
-              sx={{
-                fontWeight: 600,
-                color: "#2c3e50",
-                fontSize: "0.8rem",
-                lineHeight: 1.2,
-                overflow: "hidden",
-                display: "-webkit-box",
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical",
-                flex: 1,
-              }}
-            >
-              {product.name}
-            </Typography>
+      {/* Image */}
+      <div className="bg-[#f8f8f8] h-[200px] relative overflow-hidden flex-shrink-0">
+        <Image
+          src={getProductImage(product)}
+          alt={product.name}
+          fill
+          style={{ objectFit: "cover" }}
+          onError={(e) => { (e.target as HTMLImageElement).src = "/productGrid.png"; }}
+        />
+      </div>
 
-            {/* Price Section - Show only for authenticated users */}
-            {authState && (
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-end",
-                  flexShrink: 0,
-                  minWidth: "fit-content",
-                }}
-              >
-                <Typography
-                  sx={{
-                    color: "#ff6b35",
-                    fontWeight: 700,
-                    fontSize: "0.7rem",
-                    backgroundColor: "rgba(255, 107, 53, 0.1)",
-                    padding: "2px 5px",
-                    borderRadius: "3px",
-                    border: "1px solid rgba(255, 107, 53, 0.2)",
-                  }}
-                >
-                  ${product.price}/kg
-                </Typography>
-              </Box>
-            )}
-          </Box>
-          {/* Description Row - PRICE DESCRIPTION HIDDEN */}
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-start",
-              alignItems: "flex-start",
-            }}
+      {/* CTA Button */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onButtonClick(product._id, product.name); }}
+        className="w-full bg-[#F9A922] text-white font-medium py-2 text-base hover:bg-[#E8981F] transition-colors rounded-none flex-shrink-0"
+      >
+        {isAuthenticated ? "Buy" : "Get Quote"}
+      </button>
+
+      {/* Content */}
+      <div className="p-4 pb-0 flex-1 flex flex-col">
+        <div className="flex justify-between items-start gap-2 mb-1">
+          <p
+            className="font-semibold text-[#2c3e50] text-[0.8rem] leading-snug overflow-hidden flex-1"
+            style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}
+            title={product.name}
           >
-            <Typography
-              sx={{
-                color: "#7f8c8d",
-                fontSize: "0.65rem",
-                lineHeight: 1.3,
-                flex: 1,
-                display: "-webkit-box",
-                WebkitLineClamp: 3,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-              }}
-            >
-              {product.description}--
-            </Typography>
-          </Box>
-        </Box>
-      </CardContent>
-    </Card>
+            {product.name}
+          </p>
+          {authState && (
+            <span className="text-[#F9A922] text-[0.7rem] font-bold bg-[rgba(255,107,53,0.1)] px-1.5 py-0.5 rounded border border-[rgba(255,107,53,0.2)] flex-shrink-0">
+              ${product.price}/kg
+            </span>
+          )}
+        </div>
+        <p
+          className="text-[#7f8c8d] text-[0.65rem] leading-snug flex-1 overflow-hidden"
+          style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}
+        >
+          {product.description}--
+        </p>
+      </div>
+    </div>
   );
 };
 
 const ProductGridCardSkeleton: React.FC = () => (
-  <Card
-    sx={{
-      borderRadius: "18px",
-      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
-      bgcolor: "white",
-      width: "280px", // Exact same width
-      height: "320px", // Exact same height
-    }}
-  >
-    <CardContent
-      sx={{ p: 0, height: "100%", display: "flex", flexDirection: "column" }}
-    >
-      <Skeleton variant="rectangular" height={200} />
-      <Skeleton variant="rectangular" height={40} />
-      <Box sx={{ p: 2.5, flex: 1 }}>
-        <Skeleton variant="text" height={20} sx={{ mb: 1 }} />
-        <Skeleton variant="text" height={16} sx={{ mb: 1 }} />
-        <Skeleton variant="text" height={16} />
-      </Box>
-    </CardContent>
-  </Card>
+  <div className="bg-white rounded-[18px] shadow-[0_2px_8px_rgba(0,0,0,0.08)] w-[280px] h-[320px] flex flex-col overflow-hidden">
+    <div className="h-[200px] bg-gray-200 animate-pulse flex-shrink-0" />
+    <div className="h-10 bg-gray-200 animate-pulse flex-shrink-0" />
+    <div className="p-4 flex-1 flex flex-col gap-2">
+      <div className="h-4 bg-gray-200 rounded animate-pulse" />
+      <div className="h-3 bg-gray-200 rounded animate-pulse" />
+      <div className="h-3 bg-gray-200 rounded animate-pulse w-3/4" />
+    </div>
+  </div>
 );
 
 const ProductsGridSection: React.FC = () => {
@@ -235,13 +100,10 @@ const ProductsGridSection: React.FC = () => {
   const { isAuthenticated } = useAppStore();
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<string>("");
-
-  // API integration state
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch products from API
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -249,273 +111,101 @@ const ProductsGridSection: React.FC = () => {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/public/products/listing?page=1&limit=20&sortBy=createdAt&sortOrder=desc`
         );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch products");
-        }
-
+        if (!response.ok) throw new Error("Failed to fetch products");
         const data = await response.json();
-        if (data.success && data.products) {
-          setAllProducts(data.products);
-          setError(null);
-        } else {
-          setAllProducts([]);
-          setError("No products found");
-        }
+        if (data.success && data.products) { setAllProducts(data.products); setError(null); }
+        else { setAllProducts([]); setError("No products found"); }
       } catch (err) {
         console.error("Error fetching products:", err);
-        setError(
-          err instanceof Error ? err.message : "Failed to load products"
-        );
+        setError(err instanceof Error ? err.message : "Failed to load products");
         setAllProducts([]);
       } finally {
         setLoading(false);
       }
     };
-
     fetchProducts();
   }, []);
 
-  const handleCardClick = (productId: string) => {
-    // Always redirect to detail page when clicking on card
-    router.push(`/product/detail/${productId}`);
-  };
-
+  const handleCardClick = (productId: string) => router.push(`/product/detail/${productId}`);
   const handleButtonClick = (productId: string, productName: string) => {
-    if (isAuthenticated) {
-      // If authenticated, redirect to detail page
-      router.push(`/product/detail/${productId}`);
-    } else {
-      // If not authenticated, open quote form modal
-      setSelectedProduct(productName);
-      setIsQuoteModalOpen(true);
-    }
+    if (isAuthenticated) router.push(`/product/detail/${productId}`);
+    else { setSelectedProduct(productName); setIsQuoteModalOpen(true); }
   };
 
-  const handlePrevious = () => {
-    setCurrentIndex((prev) => Math.max(0, prev - 1));
-  };
-
-  const handleNext = () => {
-    const maxIndex = Math.max(0, allProducts.length - 4);
-    setCurrentIndex((prev) => Math.min(maxIndex, prev + 1));
-  };
-
-  // Get exactly 4 products to display
   const visibleProducts = allProducts.slice(currentIndex, currentIndex + 4);
+  const canPrev = currentIndex > 0;
+  const canNext = currentIndex < Math.max(0, allProducts.length - 4);
 
-  // Loading state
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          bgcolor: "#f1f5f9",
-          py: { xs: 4, md: 6 },
-        }}
-      >
-        <Container maxWidth="lg">
-          {/* Section Header */}
-          <Box sx={{ mb: 4 }}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                mb: 2,
-              }}
-            >
-              <Box
-                sx={{
-                  width: 4,
-                  height: 32,
-                  bgcolor: "#ff7849",
-                  mr: 2,
-                }}
-              />
-              <Typography
-                variant="h4"
-                sx={{
-                  fontWeight: 600,
-                  color: "#333",
-                  fontSize: { xs: "1.8rem", md: "2.2rem" },
-                }}
-              >
-                Products
-              </Typography>
-            </Box>
-          </Box>
-          {/* Loading Skeletons - Exactly 4, No Overflow */}
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: 3,
-              width: "100%",
-              maxWidth: "100%",
-            }}
+  const SectionHeader = () => (
+    <div className="mb-8">
+      <div className="flex items-center mb-3">
+        <div className="w-1 h-8 bg-[#F9A922] mr-4 rounded-sm" />
+        <h2 className="text-[1.8rem] md:text-[2.2rem] font-semibold text-[#333]">Products</h2>
+      </div>
+      {!loading && (
+        <div className="flex gap-2 ml-6">
+          <button
+            onClick={() => setCurrentIndex((p) => Math.max(0, p - 1))}
+            disabled={!canPrev}
+            className="w-6 h-6 flex items-center justify-center text-[#666] hover:bg-[#f5f5f5] rounded disabled:opacity-50 transition-colors p-0"
           >
-            {Array.from({ length: 4 }).map((_, index) => (
-              <ProductGridCardSkeleton key={index} />
-            ))}
-          </Box>
-        </Container>
-      </Box>
-    );
-  }
-
-  // Error state
-  if (error && !loading) {
-    return (
-      <Box
-        sx={{
-          bgcolor: "#f1f5f9",
-          py: { xs: 4, md: 6 },
-        }}
-      >
-        <Container maxWidth="lg">
-          <Alert severity="warning" sx={{ borderRadius: 2 }}>
-            <Typography variant="h6">Unable to load products</Typography>
-            <Typography variant="body2">{error}</Typography>
-          </Alert>
-        </Container>
-      </Box>
-    );
-  }
-
-  // Empty state
-  if (allProducts.length === 0 && !loading) {
-    return (
-      <Box
-        sx={{
-          bgcolor: "#f1f5f9",
-          py: { xs: 4, md: 6 },
-        }}
-      >
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: "center", py: 4 }}>
-            <Typography variant="h6" sx={{ color: "#666", mb: 1 }}>
-              No products available
-            </Typography>
-            <Typography variant="body2" sx={{ color: "#999" }}>
-              Check back later for our latest products.
-            </Typography>
-          </Box>
-        </Container>
-      </Box>
-    );
-  }
+            <ChevronLeft className="w-4 h-4" /><ChevronLeft className="w-4 h-4 -ml-2" />
+          </button>
+          <button
+            onClick={() => setCurrentIndex((p) => Math.min(Math.max(0, allProducts.length - 4), p + 1))}
+            disabled={!canNext}
+            className="w-6 h-6 flex items-center justify-center text-[#666] hover:bg-[#f5f5f5] rounded disabled:opacity-50 transition-colors p-0"
+          >
+            <ChevronRight className="w-4 h-4" /><ChevronRight className="w-4 h-4 -ml-2" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <>
-      <Box
-        sx={{
-          bgcolor: "#f1f5f9",
-          py: { xs: 4, md: 6 },
-        }}
-      >
-        <Container maxWidth="lg">
-          {/* Section Header */}
-          <Box sx={{ mb: 4 }}>
-            {/* Title with Orange Bar */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                mb: 2,
-              }}
-            >
-              <Box
-                sx={{
-                  width: 4,
-                  height: 32,
-                  bgcolor: "#ff7849",
-                  mr: 2,
-                }}
-              />
-              <Typography
-                variant="h4"
-                sx={{
-                  fontWeight: 600,
-                  color: "#333",
-                  fontSize: { xs: "1.8rem", md: "2.2rem" },
-                }}
-              >
-                Products
-              </Typography>
-            </Box>
-            {/* Navigation Arrows */}
-            <Box sx={{ display: "flex", gap: 1, ml: 6 }}>
-              <IconButton
-                onClick={handlePrevious}
-                disabled={currentIndex === 0}
-                sx={{
-                  width: 24,
-                  height: 24,
-                  p: 0,
-                  color: "#666",
-                  "&:hover": {
-                    bgcolor: "#f5f5f5",
-                  },
-                  "&:disabled": {
-                    opacity: 0.5,
-                  },
-                }}
-              >
-                <ChevronLeft sx={{ fontSize: 16, color: "#666", mr: -0.5 }} />
-                <ChevronLeft sx={{ fontSize: 16, color: "#666" }} />
-              </IconButton>
-              <IconButton
-                onClick={handleNext}
-                disabled={currentIndex >= Math.max(0, allProducts.length - 4)}
-                sx={{
-                  width: 24,
-                  height: 24,
-                  p: 0,
-                  color: "#666",
-                  "&:hover": {
-                    bgcolor: "#f5f5f5",
-                  },
-                  "&:disabled": {
-                    opacity: 0.5,
-                  },
-                }}
-              >
-                <ChevronRight sx={{ fontSize: 16, color: "#666", mr: -0.5 }} />
-                <ChevronRight sx={{ fontSize: 16, color: "#666" }} />
-              </IconButton>
-            </Box>
-          </Box>
-          {/* Products Grid - Exactly 4 Products, No Horizontal Scroll */}
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: 3,
-              width: "100%",
-              maxWidth: "100%",
-              overflow: "hidden", // Prevent any overflow
-            }}
-          >
-            {visibleProducts.map((product) => (
-              <Box
-                key={product._id}
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  minWidth: 0, // Allow shrinking if needed
-                }}
-              >
-                <ProductGridCard
-                  product={product}
-                  onClick={handleCardClick}
-                  onButtonClick={handleButtonClick}
-                  isAuthenticated={isAuthenticated}
-                />
-              </Box>
-            ))}
-          </Box>
-        </Container>
-      </Box>
-      {/* Quote Form Modal */}
+      <div className="bg-[#f1f5f9] py-8 md:py-12">
+        <div className="max-w-7xl mx-auto px-4">
+          <SectionHeader />
+
+          {loading && (
+            <div className="grid grid-cols-4 gap-6 w-full overflow-hidden">
+              {Array.from({ length: 4 }).map((_, i) => <ProductGridCardSkeleton key={i} />)}
+            </div>
+          )}
+
+          {!loading && error && (
+            <div className="bg-yellow-50 text-yellow-800 p-4 rounded-xl border border-yellow-200">
+              <p className="font-semibold">Unable to load products</p>
+              <p className="text-sm">{error}</p>
+            </div>
+          )}
+
+          {!loading && !error && allProducts.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-[#666] text-lg mb-1">No products available</p>
+              <p className="text-[#999] text-sm">Check back later for our latest products.</p>
+            </div>
+          )}
+
+          {!loading && !error && allProducts.length > 0 && (
+            <div className="grid grid-cols-4 gap-6 w-full overflow-hidden">
+              {visibleProducts.map((product) => (
+                <div key={product._id} className="flex justify-center min-w-0">
+                  <ProductGridCard
+                    product={product}
+                    onClick={handleCardClick}
+                    onButtonClick={handleButtonClick}
+                    isAuthenticated={isAuthenticated}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       <QuoteFormModal
         isOpen={isQuoteModalOpen}
         onClose={() => setIsQuoteModalOpen(false)}

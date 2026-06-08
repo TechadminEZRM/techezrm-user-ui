@@ -2,7 +2,6 @@
 
 import type React from "react";
 import { useState, useEffect } from "react";
-import { Box, Typography, Container, LinearProgress } from "@mui/material";
 
 interface FlashSaleProductProps {
   productName: string;
@@ -11,305 +10,91 @@ interface FlashSaleProductProps {
   totalStock: number;
 }
 
-const FlashSaleProduct: React.FC<FlashSaleProductProps> = ({
-  productName,
-  price,
-  stockLeft,
-  totalStock,
-}) => {
+const FlashSaleProduct: React.FC<FlashSaleProductProps> = ({ productName, price, stockLeft, totalStock }) => {
   const progressValue = ((totalStock - stockLeft) / totalStock) * 100;
-
   return (
-    <Box
-      sx={{
-        bgcolor: "white",
-        borderRadius: "12px",
-        p: 2.5,
-        width: "200px",
-        height: "140px",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-      }}
-    >
+    <div className="bg-white rounded-xl p-5 w-[200px] h-[140px] flex flex-col justify-between">
       {/* Product Icon and Name */}
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1 }}>
-        {/* Vitamin Bottle Icon */}
-        <Box
-          sx={{
-            position: "relative",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+      <div className="flex items-center gap-3 mb-2">
+        <div className="relative flex items-center justify-center">
           {/* Bottle */}
-          <Box
-            sx={{
-              width: "32px",
-              height: "42px",
-              bgcolor: "#ff7849",
-              borderRadius: "4px 4px 2px 2px",
-              position: "relative",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexDirection: "column",
-            }}
-          >
-            {/* Bottle Cap */}
-            <Box
-              sx={{
-                width: "22px",
-                height: "6px",
-                bgcolor: "#ff7849",
-                borderRadius: "2px",
-                position: "absolute",
-                top: "-3px",
-              }}
-            />
-            {/* VIT Text */}
-            <Typography
-              sx={{
-                color: "white",
-                fontSize: "8px",
-                fontWeight: "bold",
-                lineHeight: 1,
-                mb: 0.2,
-              }}
-            >
-              VIT
-            </Typography>
-          </Box>
+          <div className="w-8 h-[42px] bg-[#F9A922] rounded-[4px_4px_2px_2px] flex items-end justify-center pb-1 relative">
+            {/* Cap */}
+            <div className="w-[22px] h-1.5 bg-[#F9A922] rounded-sm absolute -top-0.5 left-1/2 -translate-x-1/2" />
+            <span className="text-white text-[8px] font-bold leading-none mb-0.5">VIT</span>
+          </div>
           {/* C Badge */}
-          <Box
-            sx={{
-              position: "absolute",
-              right: "-4px",
-              bottom: "4px",
-              width: "14px",
-              height: "14px",
-              bgcolor: "#ffd700",
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1.5px solid white",
-            }}
-          >
-            <Typography
-              sx={{
-                color: "white",
-                fontSize: "8px",
-                fontWeight: "bold",
-              }}
-            >
-              C
-            </Typography>
-          </Box>
-        </Box>
-
-        {/* Product Name */}
-        <Typography
-          sx={{
-            color: "#333",
-            fontSize: "0.9rem",
-            fontWeight: 500,
-          }}
-        >
-          {productName}
-        </Typography>
-      </Box>
+          <div className="absolute -right-1 bottom-1 w-3.5 h-3.5 bg-[#ffd700] rounded-full border-[1.5px] border-white flex items-center justify-center">
+            <span className="text-white text-[8px] font-bold">C</span>
+          </div>
+        </div>
+        <span className="text-[#333] text-[0.9rem] font-medium">{productName}</span>
+      </div>
 
       {/* Price */}
-      <Typography
-        sx={{
-          color: "#333",
-          fontSize: "1.1rem",
-          fontWeight: 600,
-          mb: 1,
-        }}
-      >
-        {price}
-      </Typography>
+      <p className="text-[#333] text-[1.1rem] font-semibold mb-2">{price}</p>
 
       {/* Progress Bar */}
-      <Box sx={{ mb: 1 }}>
-        <LinearProgress
-          variant="determinate"
-          value={progressValue}
-          sx={{
-            height: 6,
-            borderRadius: 3,
-            bgcolor: "#f0f0f0",
-            "& .MuiLinearProgress-bar": {
-              bgcolor: "#ff6b35",
-              borderRadius: 3,
-            },
-          }}
-        />
-      </Box>
+      <div className="mb-1">
+        <div className="w-full h-1.5 bg-[#f0f0f0] rounded-full overflow-hidden">
+          <div className="h-full bg-[#F9A922] rounded-full transition-all" style={{ width: `${progressValue}%` }} />
+        </div>
+      </div>
 
       {/* Stock Left */}
-      <Typography
-        sx={{
-          color: "#666",
-          fontSize: "0.8rem",
-          textAlign: "right",
-        }}
-      >
-        {stockLeft} left
-      </Typography>
-    </Box>
+      <p className="text-[#666] text-[0.8rem] text-right">{stockLeft} left</p>
+    </div>
   );
 };
 
 const FlashSaleSection: React.FC = () => {
-  const [timeLeft, setTimeLeft] = useState({
-    hours: 54,
-    minutes: 33,
-    seconds: 20,
-  });
+  const [timeLeft, setTimeLeft] = useState({ hours: 54, minutes: 33, seconds: 20 });
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         let { hours, minutes, seconds } = prev;
-
-        if (seconds > 0) {
-          seconds--;
-        } else if (minutes > 0) {
-          minutes--;
-          seconds = 59;
-        } else if (hours > 0) {
-          hours--;
-          minutes = 59;
-          seconds = 59;
-        }
-
+        if (seconds > 0) seconds--;
+        else if (minutes > 0) { minutes--; seconds = 59; }
+        else if (hours > 0) { hours--; minutes = 59; seconds = 59; }
         return { hours, minutes, seconds };
       });
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
-  const formatTime = (time: number) => time.toString().padStart(2, "0");
+  const fmt = (t: number) => t.toString().padStart(2, "0");
 
   return (
-    <Box
-      sx={{
-        bgcolor: "#fef7ed",
-        py: { xs: 4, md: 6 },
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      {/* Decorative Background Shapes */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: -50,
-          left: -100,
-          width: 200,
-          height: 300,
-          bgcolor: "#fde68a",
-          opacity: 0.3,
-          borderRadius: "50%",
-          transform: "rotate(-15deg)",
-        }}
-      />
-      <Box
-        sx={{
-          position: "absolute",
-          bottom: -80,
-          right: -120,
-          width: 250,
-          height: 200,
-          bgcolor: "#fed7aa",
-          opacity: 0.4,
-          borderRadius: "30%",
-          transform: "rotate(25deg)",
-        }}
-      />
+    <div className="bg-[#fef7ed] py-8 md:py-12 relative overflow-hidden">
+      {/* Decorative shapes */}
+      <div className="absolute -top-12 -left-24 w-48 h-72 bg-[#fde68a] opacity-30 rounded-full" style={{ transform: "rotate(-15deg)" }} />
+      <div className="absolute -bottom-20 -right-28 w-60 h-48 bg-[#fed7aa] opacity-40 rounded-[30%]" style={{ transform: "rotate(25deg)" }} />
 
-      <Container maxWidth="lg">
-        {/* Flash Sale Container */}
-        <Box
-          sx={{
-            bgcolor: "linear-gradient(135deg, #ff7849 0%, #ff6b35 100%)",
-            background: "linear-gradient(135deg, #ff7849 0%, #ff6b35 100%)",
-            borderRadius: "20px",
-            p: { xs: 3, md: 4 },
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexDirection: { xs: "column", md: "row" },
-            gap: 4,
-          }}
+      <div className="max-w-7xl mx-auto px-4 relative">
+        <div
+          className="rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-8"
+          style={{ background: "linear-gradient(135deg, #F9A922 0%, #F9A922 100%)" }}
         >
-          {/* Left Side - Flash Sale Info */}
-          <Box sx={{ color: "white", flex: 1 }}>
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 600,
-                fontSize: { xs: "2rem", md: "2.5rem" },
-                mb: 2,
-              }}
-            >
-              Flash Sale
-            </Typography>
+          {/* Left */}
+          <div className="text-white flex-1">
+            <h2 className="text-4xl md:text-5xl font-semibold mb-4">Flash Sale</h2>
+            <p className="text-base mb-6 opacity-90 max-w-[300px]">
+              Limited-time discounts on fast-moving ingredients. Grab exclusive prices before the timer runs out.
+            </p>
+            <p className="text-3xl md:text-4xl font-semibold font-mono">
+              {fmt(timeLeft.hours)}:{fmt(timeLeft.minutes)}:{fmt(timeLeft.seconds)}
+            </p>
+          </div>
 
-            <Typography
-              sx={{
-                fontSize: "1rem",
-                mb: 3,
-                opacity: 0.9,
-                maxWidth: "300px",
-              }}
-            >
-              Limited-time discounts on fast-moving ingredients. Grab exclusive
-              prices before the timer runs out.
-            </Typography>
-
-            {/* Countdown Timer */}
-            <Typography
-              sx={{
-                fontSize: { xs: "1.8rem", md: "2.2rem" },
-                fontWeight: 600,
-                fontFamily: "monospace",
-              }}
-            >
-              {formatTime(timeLeft.hours)}:{formatTime(timeLeft.minutes)}:
-              {formatTime(timeLeft.seconds)}
-            </Typography>
-          </Box>
-
-          {/* Right Side - Product Cards */}
-          <Box
-            sx={{
-              display: "flex",
-              gap: 2,
-              flexDirection: { xs: "column", sm: "row" },
-            }}
-          >
-            <FlashSaleProduct
-              productName="Product Name"
-              price="$123"
-              stockLeft={30}
-              totalStock={100}
-            />
-            <FlashSaleProduct
-              productName="Product Name"
-              price="$123"
-              stockLeft={30}
-              totalStock={100}
-            />
-          </Box>
-        </Box>
-      </Container>
-    </Box>
+          {/* Right */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <FlashSaleProduct productName="Product Name" price="$123" stockLeft={30} totalStock={100} />
+            <FlashSaleProduct productName="Product Name" price="$123" stockLeft={30} totalStock={100} />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

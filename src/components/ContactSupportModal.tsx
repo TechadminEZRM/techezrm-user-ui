@@ -1,236 +1,104 @@
 "use client";
 
 import React from "react";
-import { Box, Typography, Modal, IconButton, Button } from "@mui/material";
-import { Support, Close, WhatsApp, Email, Phone } from "@mui/icons-material";
+import { X, Headphones, MessageCircle, Mail, Phone } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface ContactSupportModalProps {
   open: boolean;
   onClose: () => void;
 }
 
-const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
-  open,
-  onClose,
-}) => {
+const ContactSupportModal: React.FC<ContactSupportModalProps> = ({ open, onClose }) => {
   const handleWhatsAppClick = () => {
     if (typeof window === "undefined") return;
-
-    const phoneNumber = "+1234567890"; // Replace with actual WhatsApp number
+    const phoneNumber = "+1234567890";
     const message = "Hello, I need support with my order.";
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
-      message
-    )}`;
-    window.open(whatsappUrl, "_blank");
+    window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, "_blank");
   };
 
   const handleEmailClick = () => {
     if (typeof window === "undefined") return;
-
-    const email = "support@ezrm.com"; // Replace with actual support email
+    const email = "support@ezrm.com";
     const subject = "Order Support Request";
     const body = "Hello, I need support with my order.";
-    const mailtoUrl = `mailto:${email}?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoUrl;
+    window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
   const handlePhoneClick = () => {
     if (typeof window === "undefined") return;
-
-    const phoneNumber = "+1234567890"; // Replace with actual support phone
-    window.location.href = `tel:${phoneNumber}`;
+    window.location.href = "tel:+1234567890";
   };
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      aria-labelledby="contact-support-modal-title"
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <Box
-        sx={{
-          backgroundColor: "white",
-          borderRadius: 3,
-          width: { xs: "95%", sm: "500px", md: "600px" },
-          maxWidth: 600,
-          maxHeight: "90vh",
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
-        }}
-      >
-        {/* Modal Header */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            p: 3,
-            borderBottom: "1px solid #e0e0e0",
-            backgroundColor: "#f8f9fa",
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Support sx={{ color: "#ff6b35", fontSize: 28 }} />
-            <Box>
-              <Typography variant="h5" fontWeight="600" color="#1a365d">
-                Contact Support
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                We're here to help you
-              </Typography>
-            </Box>
-          </Box>
-          <IconButton
-            onClick={onClose}
-            sx={{
-              color: "#666",
-              "&:hover": {
-                backgroundColor: "rgba(0,0,0,0.04)",
-              },
-            }}
-          >
-            <Close />
-          </IconButton>
-        </Box>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-[600px] p-0 overflow-hidden rounded-2xl">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-[#e0e0e0] bg-[#f8f9fa]">
+          <div className="flex items-center gap-3">
+            <Headphones className="w-7 h-7 text-[#F9A922]" />
+            <div>
+              <h2 className="text-xl font-semibold text-[#1a365d]">Contact Support</h2>
+              <p className="text-sm text-[#737791]">We're here to help you</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-[#666] hover:bg-black/5 rounded-full p-1.5 transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-        {/* Modal Content */}
-        <Box sx={{ p: 3, overflowY: "auto", flex: 1 }}>
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            sx={{ mb: 3, textAlign: "center" }}
-          >
-            Choose your preferred way to get in touch with our support team
-          </Typography>
+        {/* Content */}
+        <div className="p-6 overflow-y-auto">
+          <p className="text-[#737791] text-center mb-6">Choose your preferred way to get in touch with our support team</p>
 
-          {/* Contact Options */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-              mb: 4,
-            }}
-          >
+          <div className="flex flex-col gap-3 mb-6">
             {/* WhatsApp */}
-            <Button
-              variant="outlined"
-              fullWidth
-              startIcon={<WhatsApp sx={{ color: "#25D366" }} />}
+            <button
               onClick={handleWhatsAppClick}
-              sx={{
-                p: 2,
-                borderColor: "#25D366",
-                color: "#25D366",
-                "&:hover": {
-                  borderColor: "#128C7E",
-                  backgroundColor: "rgba(37, 211, 102, 0.04)",
-                },
-                justifyContent: "flex-start",
-                textTransform: "none",
-              }}
+              className="w-full flex items-center gap-4 p-4 border border-[#25D366] text-[#25D366] rounded-xl hover:bg-[rgba(37,211,102,0.04)] transition-colors text-left"
             >
-              <Box sx={{ textAlign: "left", flex: 1 }}>
-                <Typography variant="subtitle1" fontWeight="600">
-                  WhatsApp Support
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Get instant help via WhatsApp
-                </Typography>
-              </Box>
-            </Button>
+              <MessageCircle className="w-6 h-6 flex-shrink-0 text-[#25D366]" />
+              <div>
+                <p className="font-semibold text-base">WhatsApp Support</p>
+                <p className="text-sm text-[#737791]">Get instant help via WhatsApp</p>
+              </div>
+            </button>
 
             {/* Email */}
-            <Button
-              variant="outlined"
-              fullWidth
-              startIcon={<Email sx={{ color: "#ff6b35" }} />}
+            <button
               onClick={handleEmailClick}
-              sx={{
-                p: 2,
-                borderColor: "#ff6b35",
-                color: "#ff6b35",
-                "&:hover": {
-                  borderColor: "#e55a2b",
-                  backgroundColor: "rgba(255, 107, 53, 0.04)",
-                },
-                justifyContent: "flex-start",
-                textTransform: "none",
-              }}
+              className="w-full flex items-center gap-4 p-4 border border-[#F9A922] text-[#F9A922] rounded-xl hover:bg-[rgba(249,169,34,0.04)] transition-colors text-left"
             >
-              <Box sx={{ textAlign: "left", flex: 1 }}>
-                <Typography variant="subtitle1" fontWeight="600">
-                  Email Support
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Send us an email and we'll respond within 24 hours
-                </Typography>
-              </Box>
-            </Button>
+              <Mail className="w-6 h-6 flex-shrink-0 text-[#F9A922]" />
+              <div>
+                <p className="font-semibold text-base">Email Support</p>
+                <p className="text-sm text-[#737791]">Send us an email and we'll respond within 24 hours</p>
+              </div>
+            </button>
 
             {/* Phone */}
-            <Button
-              variant="outlined"
-              fullWidth
-              startIcon={<Phone sx={{ color: "#4CAF50" }} />}
+            <button
               onClick={handlePhoneClick}
-              sx={{
-                p: 2,
-                borderColor: "#4CAF50",
-                color: "#4CAF50",
-                "&:hover": {
-                  borderColor: "#388E3C",
-                  backgroundColor: "rgba(76, 175, 80, 0.04)",
-                },
-                justifyContent: "flex-start",
-                textTransform: "none",
-              }}
+              className="w-full flex items-center gap-4 p-4 border border-[#4CAF50] text-[#4CAF50] rounded-xl hover:bg-[rgba(76,175,80,0.04)] transition-colors text-left"
             >
-              <Box sx={{ textAlign: "left", flex: 1 }}>
-                <Typography variant="subtitle1" fontWeight="600">
-                  Phone Support
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Call us directly for immediate assistance
-                </Typography>
-              </Box>
-            </Button>
-          </Box>
+              <Phone className="w-6 h-6 flex-shrink-0 text-[#4CAF50]" />
+              <div>
+                <p className="font-semibold text-base">Phone Support</p>
+                <p className="text-sm text-[#737791]">Call us directly for immediate assistance</p>
+              </div>
+            </button>
+          </div>
 
           {/* Business Hours */}
-          <Box
-            sx={{
-              backgroundColor: "#f8f9fa",
-              borderRadius: 2,
-              p: 3,
-              textAlign: "center",
-            }}
-          >
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              Business Hours
-            </Typography>
-            <Typography variant="body1" fontWeight="600" color="#ff6b35">
-              Monday - Friday: 9:00 AM - 6:00 PM
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Saturday: 10:00 AM - 4:00 PM
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Sunday: Closed
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
-    </Modal>
+          <div className="bg-[#f8f9fa] rounded-xl p-6 text-center">
+            <p className="text-sm text-[#737791] mb-2">Business Hours</p>
+            <p className="font-semibold text-[#F9A922]">Monday - Friday: 9:00 AM - 6:00 PM</p>
+            <p className="text-sm text-[#737791]">Saturday: 10:00 AM - 4:00 PM</p>
+            <p className="text-sm text-[#737791]">Sunday: Closed</p>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

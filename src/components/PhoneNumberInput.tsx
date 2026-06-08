@@ -1,27 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  Box,
-  TextField,
-  InputAdornment,
-  Menu,
-  MenuItem,
-  Typography,
-  CircularProgress,
-  Chip,
-} from "@mui/material";
-import { KeyboardArrowDown } from "@mui/icons-material";
+import React, { useState, useEffect, useRef } from "react";
+import { ChevronDown } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { countriesHandler } from "@/api/handlers/countriesHandler";
 import type { Country } from "@/api/services/countries";
 
 interface PhoneNumberInputProps {
   value?: string;
-  onChange?: (
-    phoneNumber: string,
-    countryCode: string,
-    phoneCode: string
-  ) => void;
+  onChange?: (phoneNumber: string, countryCode: string, phoneCode: string) => void;
   label?: string;
   placeholder?: string;
   required?: boolean;
@@ -44,236 +31,150 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
   disabled = false,
   fullWidth = true,
   size = "medium",
-  defaultCountryCode = "IN", // Default to India
+  defaultCountryCode = "IN",
 }) => {
   const [countries, setCountries] = useState<Country[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
   const [phoneNumber, setPhoneNumber] = useState(value);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchCountries = async () => {
+    const fetch = async () => {
       setLoading(true);
       try {
-        const countriesData = await countriesHandler.getCountries();
-        setCountries(countriesData);
-
-        // Set default country
-        const defaultCountry = countriesData.find(
-          (c) => c.countryCode === defaultCountryCode
-        );
-        if (defaultCountry) {
-          setSelectedCountry(defaultCountry);
-        }
-      } catch (error) {
-        console.error("Failed to fetch countries:", error);
+        const data = await countriesHandler.getCountries();
+        setCountries(data);
+        const def = data.find((c) => c.countryCode === defaultCountryCode);
+        if (def) setSelectedCountry(def);
+      } catch (err) {
+        console.error("Failed to fetch countries:", err);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchCountries();
+    fetch();
   }, [defaultCountryCode]);
 
+  useEffect(() => { setPhoneNumber(value); }, [value]);
+
+  // Click outside handler
   useEffect(() => {
-    setPhoneNumber(value);
-  }, [value]);
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setOpen(false);
+        setSearchQuery("");
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const handleCountrySelect = (country: Country) => {
     setSelectedCountry(country);
-    setAnchorEl(null);
+    setOpen(false);
     setSearchQuery("");
-
-    if (onChange) {
-      onChange(phoneNumber, country.countryCode, country.phoneCode);
-    }
+    onChange?.(phoneNumber, country.countryCode, country.phoneCode);
   };
 
-  const handlePhoneNumberChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const newPhoneNumber = event.target.value;
-    setPhoneNumber(newPhoneNumber);
-
-    if (onChange && selectedCountry) {
-      onChange(
-        newPhoneNumber,
-        selectedCountry.countryCode,
-        selectedCountry.phoneCode
-      );
-    }
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setPhoneNumber(val);
+    if (onChange && selectedCountry) onChange(val, selectedCountry.countryCode, selectedCountry.phoneCode);
   };
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setSearchQuery("");
-  };
-
-  const filteredCountries = countries.filter(
-    (country) =>
-      country.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      country.phoneCode.includes(searchQuery) ||
-      country.countryCode.toLowerCase().includes(searchQuery.toLowerCase())
+  const filtered = countries.filter(
+    (c) =>
+      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.phoneCode.includes(searchQuery) ||
+      c.countryCode.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const open = Boolean(anchorEl);
+  const inputH = size === "small" ? "h-9" : "h-10";
 
   return (
-    <Box sx={{ position: "relative" }}>
-      <TextField
-        value={phoneNumber}
-        onChange={handlePhoneNumberChange}
-        label={label}
-        placeholder={placeholder}
-        required={required}
-        error={error}
-        helperText={helperText}
-        disabled={disabled}
-        fullWidth={fullWidth}
-        size={size}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Box
-                onClick={handleMenuOpen}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  cursor: "pointer",
-                  px: 1,
-                  py: 0.5,
-                  borderRadius: 1,
-                  border: "1px solid #e0e0e0",
-                  backgroundColor: "#f8f9fa",
-                  "&:hover": {
-                    backgroundColor: "#e9ecef",
-                  },
-                  minWidth: 80,
-                }}
-              >
-                {loading ? (
-                  <CircularProgress size={16} />
-                ) : selectedCountry ? (
-                  <>
-                    <Typography sx={{ fontSize: "1.2rem" }}>
-                      {selectedCountry.emoji}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        fontSize: "0.8rem",
-                        fontWeight: 500,
-                        color: "#666",
-                      }}
-                    >
-                      {selectedCountry.phoneCode}
-                    </Typography>
-                  </>
-                ) : (
-                  <Typography variant="body2" sx={{ color: "#999" }}>
-                    +1
-                  </Typography>
-                )}
-                <KeyboardArrowDown sx={{ fontSize: 16, color: "#666" }} />
-              </Box>
-            </InputAdornment>
-          ),
-        }}
-        sx={{
-          "& .MuiOutlinedInput-root": {
-            "& fieldset": {
-              borderColor: "#e0e0e0",
-            },
-            "&:hover fieldset": {
-              borderColor: "#c0c0c0",
-            },
-            "&.Mui-focused fieldset": {
-              borderColor: "#ff6b35",
-            },
-          },
-        }}
-      />
-
-      {/* Country Selection Menu */}
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleMenuClose}
-        PaperProps={{
-          sx: {
-            maxHeight: 400,
-            width: 300,
-          },
-        }}
-      >
-        {/* Search Input */}
-        <Box sx={{ p: 2, borderBottom: "1px solid #e0e0e0" }}>
-          <TextField
-            placeholder="Search countries..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            size="small"
-            fullWidth
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                fontSize: "0.9rem",
-              },
-            }}
-          />
-        </Box>
-
-        {/* Country List */}
-        {filteredCountries.map((country) => (
-          <MenuItem
-            key={country.countryCode}
-            onClick={() => handleCountrySelect(country)}
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 2,
-              py: 1.5,
-              px: 2,
-            }}
+    <div className={`relative ${fullWidth ? "w-full" : ""}`}>
+      {label && (
+        <label className="block text-sm font-medium text-[#1F2A44] mb-1">
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+      )}
+      <div className="flex">
+        {/* Country Selector Button */}
+        <div ref={dropdownRef} className="relative">
+          <button
+            type="button"
+            onClick={() => setOpen((p) => !p)}
+            disabled={disabled}
+            className={`flex items-center gap-1.5 px-3 ${inputH} border border-r-0 border-[#e0e0e0] rounded-l-lg bg-[#f8f9fa] hover:bg-[#e9ecef] transition-colors text-sm min-w-[80px] disabled:cursor-not-allowed`}
           >
-            <Typography sx={{ fontSize: "1.2rem" }}>{country.emoji}</Typography>
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                {country.name}
-              </Typography>
-              <Typography variant="caption" sx={{ color: "#666" }}>
-                {country.continent}
-              </Typography>
-            </Box>
-            <Chip
-              label={country.phoneCode}
-              size="small"
-              variant="outlined"
-              sx={{
-                fontSize: "0.7rem",
-                height: 20,
-                borderColor: "#ff6b35",
-                color: "#ff6b35",
-              }}
-            />
-          </MenuItem>
-        ))}
+            {loading ? (
+              <Spinner size="sm" />
+            ) : selectedCountry ? (
+              <>
+                <span className="text-xl leading-none">{selectedCountry.emoji}</span>
+                <span className="text-xs font-medium text-[#666]">{selectedCountry.phoneCode}</span>
+              </>
+            ) : (
+              <span className="text-sm text-[#999]">+1</span>
+            )}
+            <ChevronDown className="w-4 h-4 text-[#666]" />
+          </button>
 
-        {filteredCountries.length === 0 && (
-          <Box sx={{ p: 2, textAlign: "center" }}>
-            <Typography variant="body2" sx={{ color: "#666" }}>
-              No countries found
-            </Typography>
-          </Box>
-        )}
-      </Menu>
-    </Box>
+          {/* Dropdown */}
+          {open && (
+            <div className="absolute z-50 top-full left-0 mt-1 w-72 bg-white border border-[#e0e0e0] rounded-xl shadow-lg max-h-96 flex flex-col">
+              {/* Search */}
+              <div className="p-3 border-b border-[#e0e0e0]">
+                <input
+                  placeholder="Search countries..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full h-8 px-3 text-sm border border-[#e0e0e0] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#F9A922]"
+                  autoFocus
+                />
+              </div>
+              {/* List */}
+              <div className="overflow-y-auto flex-1">
+                {filtered.map((country) => (
+                  <button
+                    key={country.countryCode}
+                    type="button"
+                    onMouseDown={() => handleCountrySelect(country)}
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#FFFAF1] transition-colors text-left"
+                  >
+                    <span className="text-xl leading-none">{country.emoji}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-[#1F2A44] truncate">{country.name}</p>
+                      <p className="text-xs text-[#737791]">{country.continent}</p>
+                    </div>
+                    <span className="text-[11px] border border-[#F9A922] text-[#F9A922] rounded px-1.5 py-px flex-shrink-0">{country.phoneCode}</span>
+                  </button>
+                ))}
+                {filtered.length === 0 && (
+                  <div className="px-4 py-3 text-sm text-[#737791] text-center">No countries found</div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Phone Number Input */}
+        <input
+          type="tel"
+          value={phoneNumber}
+          onChange={handlePhoneChange}
+          placeholder={placeholder}
+          disabled={disabled}
+          className={`flex-1 ${inputH} px-4 border border-[#e0e0e0] rounded-r-lg text-sm text-[#1F2A44] placeholder:text-[#737791] focus:outline-none focus:ring-2 focus:ring-[#F9A922] focus:border-[#F9A922] disabled:bg-gray-100 disabled:cursor-not-allowed ${error ? "border-red-500" : ""}`}
+        />
+      </div>
+      {helperText && (
+        <p className={`text-xs mt-1 ${error ? "text-red-500" : "text-[#737791]"}`}>{helperText}</p>
+      )}
+    </div>
   );
 };
 

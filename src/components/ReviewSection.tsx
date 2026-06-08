@@ -1,491 +1,154 @@
-"use client"
+"use client";
 
-import React from "react"
+import React from "react";
+import { ThumbsUp, ThumbsDown, Star } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
+import { useReviewListing } from "@/api/handlers";
+import type { CustomerReview } from "@/api/services";
 
-import { Box, Typography, Container, Card, CardContent, Avatar, CircularProgress, Alert } from "@mui/material"
-import { ThumbUp, ThumbDown, Star } from "@mui/icons-material"
-import { useReviewListing } from "@/api/handlers"
-import type { CustomerReview } from "@/api/services"
+const getInitials = (name: string | undefined | null) => {
+  if (!name || typeof name !== "string") return "??";
+  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+};
 
-interface ReviewCardProps {
-  review: CustomerReview
-}
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
+};
 
-const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
-  // Format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    })
-  }
-
-  // Get customer initials for avatar - with null checks
-  const getInitials = (name: string | undefined | null) => {
-    if (!name || typeof name !== "string") {
-      return "??" // Return default initials if name is null/undefined
-    }
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2)
-  }
-
-  // Safe access to customer data with fallbacks
-  const customerName = review.customer?.name || "Anonymous User"
-  const productName = review.product?.name || "Unknown Product"
+const ReviewCard: React.FC<{ review: CustomerReview }> = ({ review }) => {
+  const customerName = review.customer?.name || "Anonymous User";
+  const productName = review.product?.name || "Unknown Product";
 
   return (
-    <Card
-      sx={{
-        borderRadius: "16px",
-        boxShadow: "none",
-        border: "none",
-        bgcolor: "white",
-        width: "380px",
-        minHeight: "320px",
-        transition: "all 0.3s ease",
-        position: "relative",
-        overflow: "visible", // Allow circles to extend outside
-        "&:hover": {
-          border: "1px solid #ccc",
-        },
-      }}
-    >
-      <CardContent sx={{ p: 3, height: "100%", display: "flex", flexDirection: "column", position: "relative" }}>
-        {/* Like/Dislike Thumbs in Circles - Half inside, half outside */}
-        <Box
-          sx={{
-            position: "absolute",
-            right: -20, // Position so circles are half outside
-            top: "50%",
-            transform: "translateY(-50%)",
-            display: "flex",
-            flexDirection: "column",
-            gap: 3,
-            alignItems: "center",
-          }}
-        >
-          {/* Like Thumb in Circle with Counter */}
-          <Box sx={{ position: "relative" }}>
-            <Box
-              sx={{
-                width: 40,
-                height: 40,
-                bgcolor: "white",
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-                border: "1px solid rgba(0, 0, 0, 0.04)",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-                },
-              }}
-            >
-              <ThumbUp
-                sx={{
-                  fontSize: 18,
-                  color: "#ff7849",
-                }}
-              />
-            </Box>
-            {/* Like Counter Circle */}
-            <Box
-              sx={{
-                position: "absolute",
-                right: -6,
-                top: -6,
-                width: 20,
-                height: 20,
-                bgcolor: "#ff7849",
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                border: "2px solid white",
-              }}
-            >
-              <Typography
-                sx={{
-                  color: "white",
-                  fontSize: "0.7rem",
-                  fontWeight: 600,
-                }}
-              >
-                {review.helpfulVotes || 0}
-              </Typography>
-            </Box>
-          </Box>
-          {/* Dislike Thumb in Circle */}
-          <Box
-            sx={{
-              width: 40,
-              height: 40,
-              bgcolor: "white",
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-              border: "1px solid #f0f0f0",
-              cursor: "pointer",
-              transition: "all 0.3s ease",
-              "&:hover": {
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-              },
-            }}
-          >
-            <ThumbDown
-              sx={{
-                fontSize: 18,
-                color: "#666",
-              }}
-            />
-          </Box>
-        </Box>
+    <div className="bg-white rounded-2xl border border-transparent hover:border-[#ccc] w-[380px] min-h-[320px] flex flex-col overflow-visible relative transition-all">
+      {/* Thumb buttons on right edge */}
+      <div className="absolute -right-5 top-1/2 -translate-y-1/2 flex flex-col gap-6 items-center z-10">
+        <div className="relative">
+          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.1)] border border-black/5 cursor-pointer hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all">
+            <ThumbsUp className="w-[18px] h-[18px] text-[#F9A922]" />
+          </div>
+          <div className="absolute -right-1.5 -top-1.5 w-5 h-5 bg-[#F9A922] rounded-full flex items-center justify-center border-2 border-white">
+            <span className="text-white text-[0.7rem] font-semibold">{review.helpfulVotes || 0}</span>
+          </div>
+        </div>
+        <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.1)] border border-[#f0f0f0] cursor-pointer hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all">
+          <ThumbsDown className="w-[18px] h-[18px] text-[#666]" />
+        </div>
+      </div>
 
-        {/* Top Section - Avatar, Product Name, and Rating in horizontal line */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-          {/* Avatar */}
-          <Avatar
-            sx={{
-              width: 48,
-              height: 48,
-              bgcolor: "#ff7849",
-              color: "white",
-              fontWeight: 600,
-              fontSize: "1rem",
-            }}
-          >
+      <div className="p-6 flex flex-col h-full">
+        {/* Top row: Avatar, Product Name, Rating */}
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-12 h-12 rounded-full bg-[#F9A922] text-white flex items-center justify-center font-semibold text-base flex-shrink-0">
             {getInitials(customerName)}
-          </Avatar>
-          {/* Product Name */}
-          <Typography
-            sx={{
-              fontWeight: 600,
-              color: "#333",
-              fontSize: "1.1rem",
-              mr: 2,
-              flex: 1,
-            }}
-          >
-            {productName}
-          </Typography>
-          {/* Star Rating */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.2 }}>
-            {[...Array(5)].map((_, index) => (
-              <Star
-                key={index}
-                sx={{
-                  fontSize: 18,
-                  color: index < (review.rating || 0) ? "#ff7849" : "#e0e0e0",
-                }}
-              />
+          </div>
+          <p className="font-semibold text-[#333] text-[1.1rem] flex-1 mr-3">{productName}</p>
+          <div className="flex items-center gap-0.5">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className="w-[18px] h-[18px]" style={{ fill: i < (review.rating || 0) ? "#F9A922" : "#e0e0e0", color: i < (review.rating || 0) ? "#F9A922" : "#e0e0e0" }} />
             ))}
-          </Box>
-        </Box>
+          </div>
+        </div>
 
         {/* Title */}
-        <Typography
-          sx={{
-            color: "#333",
-            fontSize: "1rem",
-            fontWeight: 600,
-            mb: 1,
-            lineHeight: 1.4,
-          }}
-        >
-          {review.title || "No title provided"}
-        </Typography>
+        <p className="text-[#333] font-semibold text-base mb-2 leading-snug">{review.title || "No title provided"}</p>
 
-        {/* Review Text */}
-        <Box sx={{ flex: 1, pr: 6 }}>
-          <Typography
-            sx={{
-              color: "#666",
-              fontSize: "0.875rem",
-              lineHeight: 1.6,
-              display: "-webkit-box",
-              WebkitLineClamp: 6,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-            }}
+        {/* Review text */}
+        <div className="flex-1 pr-6">
+          <p
+            className="text-[#666] text-sm leading-relaxed overflow-hidden"
+            style={{ display: "-webkit-box", WebkitLineClamp: 6, WebkitBoxOrient: "vertical" }}
           >
             {review.review || "No review text provided"}
-          </Typography>
-        </Box>
+          </p>
+        </div>
 
-        {/* Verified Purchase Badge */}
+        {/* Verified badge */}
         {review.isVerifiedPurchase && (
-          <Box sx={{ mb: 2 }}>
-            <Typography
-              sx={{
-                color: "#4caf50",
-                fontSize: "0.75rem",
-                fontWeight: 600,
-                bgcolor: "#e8f5e8",
-                px: 1,
-                py: 0.5,
-                borderRadius: 1,
-                display: "inline-block",
-              }}
-            >
+          <div className="mb-3">
+            <span className="text-[#4caf50] text-xs font-semibold bg-[#e8f5e8] px-2 py-1 rounded">
               ✓ Verified Purchase
-            </Typography>
-          </Box>
+            </span>
+          </div>
         )}
 
-        {/* Bottom Section - Date and Reviewer */}
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 3 }}>
-          <Typography
-            sx={{
-              color: "#ff7849",
-              fontSize: "0.9rem",
-              fontWeight: 500,
-            }}
-          >
-            {formatDate(review.createdAt)}
-          </Typography>
-          <Typography
-            sx={{
-              color: "#333",
-              fontSize: "0.9rem",
-              fontWeight: 500,
-            }}
-          >
-            - {customerName}
-          </Typography>
-        </Box>
-
-        {/* Order ID */}
-        <Typography
-          sx={{
-            color: "#999",
-            fontSize: "0.75rem",
-            mt: 1,
-            textAlign: "center",
-          }}
-        >
-          Order: {review.order || "N/A"}
-        </Typography>
-      </CardContent>
-    </Card>
-  )
-}
+        {/* Footer */}
+        <div className="flex justify-between items-center mt-4">
+          <span className="text-[#F9A922] text-[0.9rem] font-medium">{formatDate(review.createdAt)}</span>
+          <span className="text-[#333] text-[0.9rem] font-medium">- {customerName}</span>
+        </div>
+        <p className="text-[#999] text-xs mt-1 text-center">Order: {review.order || "N/A"}</p>
+      </div>
+    </div>
+  );
+};
 
 const ReviewsSection: React.FC = () => {
-  const {
-    data: response,
-    isLoading,
-    error,
-    isError,
-  } = useReviewListing({
-    page: 1,
-    pageSize: 3, // Get 3 reviews for display
-    status: "published",
-  })
+  const { data: response, isLoading, error, isError } = useReviewListing({ page: 1, pageSize: 3, status: "published" });
 
-  // Debug logging
   React.useEffect(() => {
-    console.log("Reviews Loading:", isLoading)
-    console.log("Reviews Error:", error)
-    console.log("Reviews Response:", response)
-  }, [isLoading, error, response])
+    console.log("Reviews Loading:", isLoading);
+    console.log("Reviews Error:", error);
+    console.log("Reviews Response:", response);
+  }, [isLoading, error, response]);
+
+  const SectionTitle = ({ total }: { total?: number }) => (
+    <div className="text-center mb-20">
+      <h2 className="text-[2rem] md:text-[2.5rem] font-semibold text-[#2c5530] relative inline-block after:content-[''] after:absolute after:-bottom-2 after:left-1/2 after:-translate-x-1/2 after:w-[60px] after:h-[3px] after:bg-[#F9A922] after:rounded-full">
+        Reviews{total !== undefined ? ` (${total})` : ""}
+      </h2>
+    </div>
+  );
 
   if (isLoading) {
     return (
-      <Box
-        sx={{
-          bgcolor: "#fafafa",
-          py: { xs: 6, md: 8 },
-        }}
-      >
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: "center", mb: 10 }}>
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 600,
-                color: "#2c5530",
-                fontSize: { xs: "2rem", md: "2.5rem" },
-                position: "relative",
-                display: "inline-block",
-                "&::after": {
-                  content: '""',
-                  position: "absolute",
-                  bottom: -8,
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  width: 60,
-                  height: 3,
-                  bgcolor: "#ff7849",
-                  borderRadius: 1.5,
-                },
-              }}
-            >
-              Reviews
-            </Typography>
-          </Box>
-          <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-            <CircularProgress />
-          </Box>
-        </Container>
-      </Box>
-    )
+      <div className="bg-[#fafafa] py-12 md:py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <SectionTitle />
+          <div className="flex justify-center py-8"><Spinner size="lg" /></div>
+        </div>
+      </div>
+    );
   }
 
   if (isError) {
     return (
-      <Box
-        sx={{
-          bgcolor: "#fafafa",
-          py: { xs: 6, md: 8 },
-        }}
-      >
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: "center", mb: 10 }}>
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 600,
-                color: "#2c5530",
-                fontSize: { xs: "2rem", md: "2.5rem" },
-                position: "relative",
-                display: "inline-block",
-                "&::after": {
-                  content: '""',
-                  position: "absolute",
-                  bottom: -8,
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  width: 60,
-                  height: 3,
-                  bgcolor: "#ff7849",
-                  borderRadius: 1.5,
-                },
-              }}
-            >
-              Reviews
-            </Typography>
-          </Box>
-          <Alert severity="error" sx={{ mb: 2 }}>
-            <Typography variant="h6">Error loading reviews</Typography>
-            <Typography variant="body2">{error instanceof Error ? error.message : "Something went wrong"}</Typography>
-          </Alert>
-        </Container>
-      </Box>
-    )
+      <div className="bg-[#fafafa] py-12 md:py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <SectionTitle />
+          <div className="bg-red-50 text-red-700 p-4 rounded-xl border border-red-200">
+            <p className="font-semibold">Error loading reviews</p>
+            <p className="text-sm">{error instanceof Error ? error.message : "Something went wrong"}</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  const reviews = response?.data?.reviews || []
+  const reviews = response?.data?.reviews || [];
 
   if (reviews.length === 0) {
     return (
-      <Box
-        sx={{
-          bgcolor: "#fafafa",
-          py: { xs: 6, md: 8 },
-        }}
-      >
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: "center", mb: 10 }}>
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 600,
-                color: "#2c5530",
-                fontSize: { xs: "2rem", md: "2.5rem" },
-                position: "relative",
-                display: "inline-block",
-                "&::after": {
-                  content: '""',
-                  position: "absolute",
-                  bottom: -8,
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  width: 60,
-                  height: 3,
-                  bgcolor: "#ff7849",
-                  borderRadius: 1.5,
-                },
-              }}
-            >
-              Reviews
-            </Typography>
-          </Box>
-          <Typography variant="h6" sx={{ textAlign: "center", color: "#666" }}>
-            No reviews available at the moment.
-          </Typography>
-        </Container>
-      </Box>
-    )
+      <div className="bg-[#fafafa] py-12 md:py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <SectionTitle />
+          <p className="text-[#666] text-center text-lg">No reviews available at the moment.</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <Box
-      sx={{
-        bgcolor: "#fafafa",
-        py: { xs: 6, md: 8 },
-      }}
-    >
-      <Container maxWidth="lg">
-        {/* Section Title */}
-        <Box
-          sx={{
-            textAlign: "center",
-            mb: 10,
-          }}
-        >
-          <Typography
-            variant="h3"
-            sx={{
-              fontWeight: 600,
-              color: "#2c5530",
-              fontSize: { xs: "2rem", md: "2.5rem" },
-              position: "relative",
-              display: "inline-block",
-              "&::after": {
-                content: '""',
-                position: "absolute",
-                bottom: -8,
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: 60,
-                height: 3,
-                bgcolor: "#ff7849",
-                borderRadius: 1.5,
-              },
-            }}
-          >
-            Reviews ({response?.data?.total || 0})
-          </Typography>
-        </Box>
+    <div className="bg-[#fafafa] py-12 md:py-16">
+      <div className="max-w-7xl mx-auto px-4">
+        <SectionTitle total={response?.data?.total} />
+        <div className="flex gap-10 justify-center mb-20 flex-wrap lg:flex-nowrap">
+          {reviews.map((review: CustomerReview) => <ReviewCard key={review._id} review={review} />)}
+        </div>
+      </div>
+    </div>
+  );
+};
 
-        {/* Reviews Grid */}
-        <Box
-          sx={{
-            display: "flex",
-            gap: 5,
-            justifyContent: "center",
-            mb: 10,
-            flexWrap: { xs: "wrap", lg: "nowrap" },
-          }}
-        >
-          {reviews.map((review) => (
-            <ReviewCard key={review._id} review={review} />
-          ))}
-        </Box>
-      </Container>
-    </Box>
-  )
-}
-
-export default ReviewsSection
+export default ReviewsSection;

@@ -1,24 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Container,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  TextField,
-  Button,
-  Chip,
-  Divider,
-  CircularProgress,
-  Alert,
-} from "@mui/material";
-import { Search, Public, Phone, LocationOn } from "@mui/icons-material";
+import { Search, Globe, Phone, MapPin } from "lucide-react";
 import { countriesHandler } from "@/api/handlers/countriesHandler";
 import CountrySelect from "@/components/CountrySelect";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
+import { Spinner } from "@/components/ui/spinner";
 import type { Country } from "@/api/services/countries";
 
 const CountriesDemoPage: React.FC = () => {
@@ -44,7 +31,6 @@ const CountriesDemoPage: React.FC = () => {
         setLoading(false);
       }
     };
-
     fetchCountries();
   }, []);
 
@@ -62,237 +48,136 @@ const CountriesDemoPage: React.FC = () => {
     }
   }, [searchQuery, countries]);
 
-  const handlePhoneChange = (
-    number: string,
-    countryCode: string,
-    code: string
-  ) => {
+  const handlePhoneChange = (number: string, countryCode: string, code: string) => {
     setPhoneNumber(number);
     setPhoneCountryCode(countryCode);
     setPhoneCode(code);
   };
 
-  const continents = Array.from(
-    new Set(countries.map((c) => c.continent))
-  ).sort();
+  const continents = Array.from(new Set(countries.map((c) => c.continent))).sort();
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h4" sx={{ fontWeight: 600, mb: 4, color: "#333" }}>
-        Countries API Demo
-      </Typography>
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <h1 className="text-2xl font-semibold text-[#333] mb-8">Countries API Demo</h1>
 
       {/* API Status */}
-      <Alert severity="info" sx={{ mb: 4 }}>
-        <Typography variant="body2">
-          <strong>API Endpoint:</strong> /public/constants/countries
-          <br />
-          <strong>Total Countries:</strong> {countries.length}
-          <br />
-          <strong>Continents:</strong> {continents.join(", ")}
-        </Typography>
-      </Alert>
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8 text-sm text-blue-800">
+        <strong>API Endpoint:</strong> /public/constants/countries<br />
+        <strong>Total Countries:</strong> {countries.length}<br />
+        <strong>Continents:</strong> {continents.join(", ")}
+      </div>
 
       {/* Component Demos */}
-      <Grid container spacing={4} sx={{ mb: 6 }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
         {/* Country Select Demo */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ height: "100%" }}>
-            <CardContent>
-              <Typography
-                variant="h6"
-                sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}
-              >
-                <Public sx={{ color: "#ff6b35" }} />
-                Country Select Component
-              </Typography>
-              <CountrySelect
-                value={selectedCountry}
-                onChange={setSelectedCountry}
-                label="Select Country"
-                placeholder="Choose a country"
-                showPhoneCode={true}
-                showCurrency={true}
-                showContinent={true}
-              />
-              {selectedCountry && (
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="body2" sx={{ color: "#666" }}>
-                    Selected: {selectedCountry}
-                  </Typography>
-                </Box>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
+        <div className="bg-white border border-[#e0e0e0] rounded-lg p-6 h-full">
+          <h2 className="text-base font-semibold text-[#333] mb-4 flex items-center gap-2">
+            <Globe className="w-5 h-5 text-[#F9A922]" />
+            Country Select Component
+          </h2>
+          <CountrySelect
+            value={selectedCountry}
+            onChange={setSelectedCountry}
+            label="Select Country"
+            placeholder="Choose a country"
+            showPhoneCode={true}
+            showCurrency={true}
+            showContinent={true}
+          />
+          {selectedCountry && (
+            <p className="mt-4 text-sm text-[#666]">Selected: {selectedCountry}</p>
+          )}
+        </div>
 
         {/* Phone Number Input Demo */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ height: "100%" }}>
-            <CardContent>
-              <Typography
-                variant="h6"
-                sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}
-              >
-                <Phone sx={{ color: "#ff6b35" }} />
-                Phone Number Input Component
-              </Typography>
-              <PhoneNumberInput
-                value={phoneNumber}
-                onChange={handlePhoneChange}
-                label="Phone Number"
-                placeholder="Enter phone number"
-                defaultCountryCode="IN"
-              />
-              {phoneNumber && (
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="body2" sx={{ color: "#666" }}>
-                    Number: {phoneCode} {phoneNumber}
-                    <br />
-                    Country Code: {phoneCountryCode}
-                  </Typography>
-                </Box>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+        <div className="bg-white border border-[#e0e0e0] rounded-lg p-6 h-full">
+          <h2 className="text-base font-semibold text-[#333] mb-4 flex items-center gap-2">
+            <Phone className="w-5 h-5 text-[#F9A922]" />
+            Phone Number Input Component
+          </h2>
+          <PhoneNumberInput
+            value={phoneNumber}
+            onChange={handlePhoneChange}
+            label="Phone Number"
+            placeholder="Enter phone number"
+            defaultCountryCode="IN"
+          />
+          {phoneNumber && (
+            <p className="mt-4 text-sm text-[#666]">
+              Number: {phoneCode} {phoneNumber}<br />
+              Country Code: {phoneCountryCode}
+            </p>
+          )}
+        </div>
+      </div>
 
       {/* Search and Filter */}
-      <Card sx={{ mb: 4 }}>
-        <CardContent>
-          <Typography
-            variant="h6"
-            sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}
-          >
-            <Search sx={{ color: "#ff6b35" }} />
-            Search & Filter Countries
-          </Typography>
-          <TextField
-            fullWidth
+      <div className="bg-white border border-[#e0e0e0] rounded-lg p-6 mb-8">
+        <h2 className="text-base font-semibold text-[#333] mb-4 flex items-center gap-2">
+          <Search className="w-5 h-5 text-[#F9A922]" />
+          Search & Filter Countries
+        </h2>
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#666]" />
+          <input
+            className="w-full border border-[#e0e0e0] rounded pl-9 pr-3 py-2 text-sm text-[#333] placeholder:text-[#999] focus:outline-none focus:border-[#F9A922] transition-colors"
             placeholder="Search countries by name, continent, or currency..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: <Search sx={{ mr: 1, color: "#666" }} />,
-            }}
-            sx={{ mb: 2 }}
           />
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-            {continents.map((continent) => (
-              <Chip
-                key={continent}
-                label={continent}
-                onClick={() => setSearchQuery(continent)}
-                variant={searchQuery === continent ? "filled" : "outlined"}
-                color={searchQuery === continent ? "primary" : "default"}
-                sx={{
-                  "&.MuiChip-filled": {
-                    backgroundColor: "#ff6b35",
-                    color: "white",
-                  },
-                }}
-              />
-            ))}
-          </Box>
-        </CardContent>
-      </Card>
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          {continents.map((continent) => (
+            <button
+              key={continent}
+              onClick={() => setSearchQuery(continent)}
+              className={`text-xs px-3 py-1 rounded-full border transition-colors ${searchQuery === continent ? "bg-[#F9A922] border-[#F9A922] text-white" : "border-[#e0e0e0] text-[#555] hover:border-[#F9A922] hover:text-[#F9A922]"}`}
+            >
+              {continent}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Countries List */}
-      <Card>
-        <CardContent>
-          <Typography
-            variant="h6"
-            sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}
-          >
-            <LocationOn sx={{ color: "#ff6b35" }} />
-            Countries List ({filteredCountries.length} results)
-          </Typography>
+      <div className="bg-white border border-[#e0e0e0] rounded-lg p-6">
+        <h2 className="text-base font-semibold text-[#333] mb-4 flex items-center gap-2">
+          <MapPin className="w-5 h-5 text-[#F9A922]" />
+          Countries List ({filteredCountries.length} results)
+        </h2>
 
-          {loading ? (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-              <CircularProgress />
-            </Box>
-          ) : (
-            <Grid container spacing={2}>
-              {filteredCountries.map((country) => (
-                <Grid
-                  item
-                  xs={12}
-                  sm={6}
-                  md={4}
-                  lg={3}
-                  key={country.countryCode}
-                >
-                  <Card
-                    variant="outlined"
-                    sx={{
-                      height: "100%",
-                      transition: "all 0.2s ease",
-                      "&:hover": {
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                        transform: "translateY(-2px)",
-                      },
-                    }}
-                  >
-                    <CardContent sx={{ p: 2 }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1,
-                          mb: 1,
-                        }}
-                      >
-                        <Typography sx={{ fontSize: "1.5rem" }}>
-                          {country.emoji}
-                        </Typography>
-                        <Typography
-                          variant="subtitle2"
-                          sx={{ fontWeight: 600 }}
-                        >
-                          {country.name}
-                        </Typography>
-                      </Box>
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <Spinner size="md" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {filteredCountries.map((country) => (
+              <div
+                key={country.countryCode}
+                className="border border-[#e0e0e0] rounded-lg p-3 h-full hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 transition-all"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-[1.5rem]">{country.emoji}</span>
+                  <span className="text-sm font-semibold text-[#333]">{country.name}</span>
+                </div>
+                <p className="text-xs text-[#666] mb-2">{country.continent}</p>
+                <div className="flex gap-1 flex-wrap">
+                  <span className="text-[0.7rem] border border-[#e0e0e0] rounded-full px-2 py-0.5 text-[#555]">{country.phoneCode}</span>
+                  <span className="text-[0.7rem] border border-[#e0e0e0] rounded-full px-2 py-0.5 text-[#555]">{country.currency}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
-                      <Typography
-                        variant="caption"
-                        sx={{ color: "#666", display: "block", mb: 1 }}
-                      >
-                        {country.continent}
-                      </Typography>
-
-                      <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
-                        <Chip
-                          label={country.phoneCode}
-                          size="small"
-                          variant="outlined"
-                          sx={{ fontSize: "0.7rem", height: 20 }}
-                        />
-                        <Chip
-                          label={country.currency}
-                          size="small"
-                          variant="outlined"
-                          sx={{ fontSize: "0.7rem", height: 20 }}
-                        />
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          )}
-
-          {filteredCountries.length === 0 && !loading && (
-            <Box sx={{ textAlign: "center", py: 4 }}>
-              <Typography variant="body2" sx={{ color: "#666" }}>
-                No countries found matching your search criteria.
-              </Typography>
-            </Box>
-          )}
-        </CardContent>
-      </Card>
-    </Container>
+        {filteredCountries.length === 0 && !loading && (
+          <div className="text-center py-8">
+            <p className="text-sm text-[#666]">No countries found matching your search criteria.</p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

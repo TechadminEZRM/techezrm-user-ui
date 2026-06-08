@@ -1,37 +1,34 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Avatar,
-  Chip,
-  Divider,
-  Paper,
-  Stack,
-} from "@mui/material";
-import {
-  Person,
-  Business,
-  Phone,
-  Email,
-  LocationOn,
-  BusinessCenter,
-  AttachMoney,
-  Group,
-  Language,
-  Description,
-  AccountCircle,
-  Work,
-  Public,
-} from "@mui/icons-material";
+import { UserCircle, Briefcase, Phone, Mail, Building2, DollarSign, Users, Globe, FileText, MapPin } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ProfileLayoutWrapper from "@/components/ProfileLayoutWrapper";
 import { useAppStore } from "@/store/use-app-store";
 import { customerProfileHandler } from "@/api/handlers/customerProfileHandler";
 import { CustomerProfile } from "@/api/services/customerProfile";
+
+const InfoRow = ({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value?: string | number | null }) => (
+  <div className="flex items-center gap-3">
+    <Icon className="w-5 h-5 text-[#7f8c8d] flex-shrink-0" />
+    <div>
+      <p className="text-[#95a5a6] text-[0.7rem] font-semibold uppercase tracking-[0.5px]">{label}</p>
+      <p className="text-[#2c3e50] text-[0.9rem] font-medium">{value || "Not provided"}</p>
+    </div>
+  </div>
+);
+
+const SectionCard = ({ icon: Icon, title, children }: { icon: React.ElementType; title: string; children: React.ReactNode }) => (
+  <div className="p-6 rounded-xl border border-[#f0f0f0] bg-[#fafbfc] h-full">
+    <div className="flex items-center gap-3 mb-6">
+      <div className="p-3 rounded-lg bg-gradient-to-br from-[#F9A922] to-[#ff8c42] text-white">
+        <Icon className="w-6 h-6" />
+      </div>
+      <h2 className="font-semibold text-[#2c3e50] text-[1.1rem]">{title}</h2>
+    </div>
+    <div className="flex flex-col gap-5">{children}</div>
+  </div>
+);
 
 const AccountOverviewPage: React.FC = () => {
   const { customer } = useAppStore();
@@ -41,7 +38,6 @@ const AccountOverviewPage: React.FC = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       if (!customer?.id) return;
-
       try {
         const data = await customerProfileHandler.getProfile(customer.id);
         setProfile(data);
@@ -51,7 +47,6 @@ const AccountOverviewPage: React.FC = () => {
         setLoading(false);
       }
     };
-
     fetchProfile();
   }, [customer?.id]);
 
@@ -59,9 +54,9 @@ const AccountOverviewPage: React.FC = () => {
     return (
       <ProtectedRoute>
         <ProfileLayoutWrapper title="Account Overview">
-          <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-            <Typography>Loading...</Typography>
-          </Box>
+          <div className="flex justify-center py-8">
+            <p className="text-[#2c3e50]">Loading...</p>
+          </div>
         </ProfileLayoutWrapper>
       </ProtectedRoute>
     );
@@ -70,563 +65,69 @@ const AccountOverviewPage: React.FC = () => {
   return (
     <ProtectedRoute>
       <ProfileLayoutWrapper title="Account Overview">
-        <Box sx={{ maxWidth: 1200, mx: "auto" }}>
-          {/* Premium Account Overview Card */}
-          <Card
-            sx={{
-              borderRadius: 4,
-              boxShadow:
-                "0 20px 40px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.06)",
-              border: "1px solid rgba(255, 107, 53, 0.1)",
-              background: "linear-gradient(135deg, #ffffff 0%, #fafbfc 100%)",
-              overflow: "hidden",
-              position: "relative",
-              "&::before": {
-                content: '""',
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 4,
-                background:
-                  "linear-gradient(90deg, #ff6b35 0%, #ff8c42 50%, #ff6b35 100%)",
-              },
-            }}
+        <div className="max-w-[1200px] mx-auto">
+          <div
+            className="rounded-2xl overflow-hidden relative"
+            style={{ boxShadow: "0 20px 40px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.06)", border: "1px solid rgba(249,169,34,0.1)", background: "linear-gradient(135deg,#ffffff 0%,#fafbfc 100%)" }}
           >
-            <CardContent sx={{ p: 0 }}>
-              {/* Header Section */}
-              <Box
-                sx={{
-                  background:
-                    "linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)",
-                  p: 4,
-                  color: "white",
-                  position: "relative",
-                  overflow: "hidden",
-                  "&::before": {
-                    content: '""',
-                    position: "absolute",
-                    top: -50,
-                    right: -50,
-                    width: 200,
-                    height: 200,
-                    borderRadius: "50%",
-                    background: "rgba(255, 255, 255, 0.1)",
-                  },
-                  "&::after": {
-                    content: '""',
-                    position: "absolute",
-                    bottom: -30,
-                    left: -30,
-                    width: 150,
-                    height: 150,
-                    borderRadius: "50%",
-                    background: "rgba(255, 255, 255, 0.05)",
-                  },
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 3,
-                    position: "relative",
-                    zIndex: 1,
-                  }}
-                >
-                  <Avatar
-                    sx={{
-                      width: 80,
-                      height: 80,
-                      backgroundColor: "rgba(255, 255, 255, 0.2)",
-                      border: "3px solid rgba(255, 255, 255, 0.3)",
-                      fontSize: "2rem",
-                      fontWeight: 700,
-                      backdropFilter: "blur(10px)",
-                    }}
-                  >
-                    {profile?.name?.charAt(0)?.toUpperCase() || "U"}
-                  </Avatar>
-                  <Box sx={{ flex: 1 }}>
-                    <Typography
-                      variant="h4"
-                      sx={{
-                        fontWeight: 700,
-                        fontSize: "1.8rem",
-                        mb: 1,
-                        textShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                      }}
-                    >
-                      {profile?.name || "User Name"}
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: "1rem",
-                        opacity: 0.9,
-                        mb: 2,
-                      }}
-                    >
-                      {customer?.email || "user@example.com"}
-                    </Typography>
-                    <Chip
-                      label="Active Account"
-                      sx={{
-                        backgroundColor: "rgba(255, 255, 255, 0.2)",
-                        color: "white",
-                        fontWeight: 500,
-                        backdropFilter: "blur(10px)",
-                        border: "1px solid rgba(255, 255, 255, 0.3)",
-                      }}
-                    />
-                  </Box>
-                </Box>
-              </Box>
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#F9A922] via-[#ff8c42] to-[#F9A922]" />
 
-              {/* Content Sections */}
-              <Box sx={{ p: 4 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: { xs: "column", md: "row" },
-                    gap: 4,
-                    mb: 4,
-                  }}
-                >
-                  {/* Personal Information Section */}
-                  <Box sx={{ flex: 1 }}>
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        p: 3,
-                        borderRadius: 3,
-                        border: "1px solid #f0f0f0",
-                        backgroundColor: "#fafbfc",
-                        height: "100%",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 2,
-                          mb: 3,
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            p: 1.5,
-                            borderRadius: 2,
-                            background:
-                              "linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)",
-                            color: "white",
-                          }}
-                        >
-                          <AccountCircle sx={{ fontSize: 24 }} />
-                        </Box>
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontWeight: 600,
-                            color: "#2c3e50",
-                            fontSize: "1.1rem",
-                          }}
-                        >
-                          Personal Information
-                        </Typography>
-                      </Box>
+            {/* Header */}
+            <div className="relative p-8 text-white overflow-hidden" style={{ background: "linear-gradient(135deg, #F9A922 0%, #ff8c42 100%)" }}>
+              <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-white/10" />
+              <div className="absolute -bottom-8 -left-8 w-36 h-36 rounded-full bg-white/5" />
+              <div className="relative z-[1] flex items-center gap-6">
+                <div className="w-20 h-20 rounded-full bg-white/20 border-[3px] border-white/30 backdrop-blur-[10px] flex items-center justify-center text-3xl font-bold">
+                  {profile?.name?.charAt(0)?.toUpperCase() || "U"}
+                </div>
+                <div className="flex-1">
+                  <h1 className="font-bold text-[1.8rem] mb-1" style={{ textShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
+                    {profile?.name || "User Name"}
+                  </h1>
+                  <p className="text-white/90 text-base mb-4">{customer?.email || "user@example.com"}</p>
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/20 border border-white/30 backdrop-blur-[10px]">
+                    Active Account
+                  </span>
+                </div>
+              </div>
+            </div>
 
-                      <Stack spacing={2.5}>
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
-                        >
-                          <Phone sx={{ color: "#7f8c8d", fontSize: 20 }} />
-                          <Box>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                color: "#95a5a6",
-                                fontSize: "0.75rem",
-                                fontWeight: 500,
-                                textTransform: "uppercase",
-                                letterSpacing: 0.5,
-                              }}
-                            >
-                              Phone Number
-                            </Typography>
-                            <Typography
-                              variant="body1"
-                              sx={{
-                                color: "#2c3e50",
-                                fontSize: "0.9rem",
-                                fontWeight: 500,
-                              }}
-                            >
-                              {profile?.phone || "Not provided"}
-                            </Typography>
-                          </Box>
-                        </Box>
+            {/* Content */}
+            <div className="p-8">
+              <div className="flex flex-col md:flex-row gap-6 mb-6">
+                <div className="flex-1">
+                  <SectionCard icon={UserCircle} title="Personal Information">
+                    <InfoRow icon={Phone} label="Phone Number" value={profile?.phone} />
+                    <InfoRow icon={Mail} label="Email Address" value={customer?.email} />
+                  </SectionCard>
+                </div>
+                <div className="flex-1">
+                  <SectionCard icon={Briefcase} title="Business Information">
+                    <InfoRow icon={Building2} label="Company Name" value={profile?.companyName} />
+                    <InfoRow icon={Briefcase} label="Business Type" value={profile?.businessType} />
+                    <InfoRow icon={DollarSign} label="Annual Revenue" value={profile?.annualRevenue} />
+                    <InfoRow icon={Users} label="Employee Count" value={profile?.employeeCount ? `${profile.employeeCount} employees` : null} />
+                    {profile?.website && <InfoRow icon={Globe} label="Website" value={profile.website} />}
+                  </SectionCard>
+                </div>
+              </div>
 
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
-                        >
-                          <Email sx={{ color: "#7f8c8d", fontSize: 20 }} />
-                          <Box>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                color: "#95a5a6",
-                                fontSize: "0.75rem",
-                                fontWeight: 500,
-                                textTransform: "uppercase",
-                                letterSpacing: 0.5,
-                              }}
-                            >
-                              Email Address
-                            </Typography>
-                            <Typography
-                              variant="body1"
-                              sx={{
-                                color: "#2c3e50",
-                                fontSize: "0.9rem",
-                                fontWeight: 500,
-                              }}
-                            >
-                              {customer?.email || "Not provided"}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </Stack>
-                    </Paper>
-                  </Box>
+              {profile?.companyAddress && (
+                <div className="mb-6">
+                  <SectionCard icon={MapPin} title="Company Address">
+                    <p className="text-[#2c3e50] text-[0.9rem] leading-relaxed font-medium">{profile.companyAddress}</p>
+                  </SectionCard>
+                </div>
+              )}
 
-                  {/* Business Information Section */}
-                  <Box sx={{ flex: 1 }}>
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        p: 3,
-                        borderRadius: 3,
-                        border: "1px solid #f0f0f0",
-                        backgroundColor: "#fafbfc",
-                        height: "100%",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 2,
-                          mb: 3,
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            p: 1.5,
-                            borderRadius: 2,
-                            background:
-                              "linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)",
-                            color: "white",
-                          }}
-                        >
-                          <Work sx={{ fontSize: 24 }} />
-                        </Box>
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontWeight: 600,
-                            color: "#2c3e50",
-                            fontSize: "1.1rem",
-                          }}
-                        >
-                          Business Information
-                        </Typography>
-                      </Box>
-
-                      <Stack spacing={2.5}>
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
-                        >
-                          <Business sx={{ color: "#7f8c8d", fontSize: 20 }} />
-                          <Box>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                color: "#95a5a6",
-                                fontSize: "0.75rem",
-                                fontWeight: 500,
-                                textTransform: "uppercase",
-                                letterSpacing: 0.5,
-                              }}
-                            >
-                              Company Name
-                            </Typography>
-                            <Typography
-                              variant="body1"
-                              sx={{
-                                color: "#2c3e50",
-                                fontSize: "0.9rem",
-                                fontWeight: 500,
-                              }}
-                            >
-                              {profile?.companyName || "Not provided"}
-                            </Typography>
-                          </Box>
-                        </Box>
-
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
-                        >
-                          <BusinessCenter
-                            sx={{ color: "#7f8c8d", fontSize: 20 }}
-                          />
-                          <Box>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                color: "#95a5a6",
-                                fontSize: "0.75rem",
-                                fontWeight: 500,
-                                textTransform: "uppercase",
-                                letterSpacing: 0.5,
-                              }}
-                            >
-                              Business Type
-                            </Typography>
-                            <Typography
-                              variant="body1"
-                              sx={{
-                                color: "#2c3e50",
-                                fontSize: "0.9rem",
-                                fontWeight: 500,
-                              }}
-                            >
-                              {profile?.businessType || "Not provided"}
-                            </Typography>
-                          </Box>
-                        </Box>
-
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
-                        >
-                          <AttachMoney
-                            sx={{ color: "#7f8c8d", fontSize: 20 }}
-                          />
-                          <Box>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                color: "#95a5a6",
-                                fontSize: "0.75rem",
-                                fontWeight: 500,
-                                textTransform: "uppercase",
-                                letterSpacing: 0.5,
-                              }}
-                            >
-                              Annual Revenue
-                            </Typography>
-                            <Typography
-                              variant="body1"
-                              sx={{
-                                color: "#2c3e50",
-                                fontSize: "0.9rem",
-                                fontWeight: 500,
-                              }}
-                            >
-                              {profile?.annualRevenue || "Not provided"}
-                            </Typography>
-                          </Box>
-                        </Box>
-
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
-                        >
-                          <Group sx={{ color: "#7f8c8d", fontSize: 20 }} />
-                          <Box>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                color: "#95a5a6",
-                                fontSize: "0.75rem",
-                                fontWeight: 500,
-                                textTransform: "uppercase",
-                                letterSpacing: 0.5,
-                              }}
-                            >
-                              Employee Count
-                            </Typography>
-                            <Typography
-                              variant="body1"
-                              sx={{
-                                color: "#2c3e50",
-                                fontSize: "0.9rem",
-                                fontWeight: 500,
-                              }}
-                            >
-                              {profile?.employeeCount || "Not provided"}{" "}
-                              employees
-                            </Typography>
-                          </Box>
-                        </Box>
-
-                        {profile?.website && (
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 2,
-                            }}
-                          >
-                            <Public sx={{ color: "#7f8c8d", fontSize: 20 }} />
-                            <Box>
-                              <Typography
-                                variant="body2"
-                                sx={{
-                                  color: "#95a5a6",
-                                  fontSize: "0.75rem",
-                                  fontWeight: 500,
-                                  textTransform: "uppercase",
-                                  letterSpacing: 0.5,
-                                }}
-                              >
-                                Website
-                              </Typography>
-                              <Typography
-                                variant="body1"
-                                sx={{
-                                  color: "#2c3e50",
-                                  fontSize: "0.9rem",
-                                  fontWeight: 500,
-                                }}
-                              >
-                                {profile.website}
-                              </Typography>
-                            </Box>
-                          </Box>
-                        )}
-                      </Stack>
-                    </Paper>
-                  </Box>
-                </Box>
-
-                {/* Company Address Section */}
-                {profile?.companyAddress && (
-                  <Box sx={{ mb: 4 }}>
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        p: 3,
-                        borderRadius: 3,
-                        border: "1px solid #f0f0f0",
-                        backgroundColor: "#fafbfc",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 2,
-                          mb: 3,
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            p: 1.5,
-                            borderRadius: 2,
-                            background:
-                              "linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)",
-                            color: "white",
-                          }}
-                        >
-                          <LocationOn sx={{ fontSize: 24 }} />
-                        </Box>
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontWeight: 600,
-                            color: "#2c3e50",
-                            fontSize: "1.1rem",
-                          }}
-                        >
-                          Company Address
-                        </Typography>
-                      </Box>
-                      <Typography
-                        variant="body1"
-                        sx={{
-                          color: "#2c3e50",
-                          fontSize: "0.9rem",
-                          lineHeight: 1.6,
-                          fontWeight: 500,
-                        }}
-                      >
-                        {profile.companyAddress}
-                      </Typography>
-                    </Paper>
-                  </Box>
-                )}
-
-                {/* Business Description Section */}
-                {profile?.description && (
-                  <Box>
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        p: 3,
-                        borderRadius: 3,
-                        border: "1px solid #f0f0f0",
-                        backgroundColor: "#fafbfc",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 2,
-                          mb: 3,
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            p: 1.5,
-                            borderRadius: 2,
-                            background:
-                              "linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)",
-                            color: "white",
-                          }}
-                        >
-                          <Description sx={{ fontSize: 24 }} />
-                        </Box>
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontWeight: 600,
-                            color: "#2c3e50",
-                            fontSize: "1.1rem",
-                          }}
-                        >
-                          Business Description
-                        </Typography>
-                      </Box>
-                      <Typography
-                        variant="body1"
-                        sx={{
-                          color: "#2c3e50",
-                          fontSize: "0.9rem",
-                          lineHeight: 1.6,
-                          fontWeight: 500,
-                        }}
-                      >
-                        {profile.description}
-                      </Typography>
-                    </Paper>
-                  </Box>
-                )}
-              </Box>
-            </CardContent>
-          </Card>
-        </Box>
+              {profile?.description && (
+                <SectionCard icon={FileText} title="Business Description">
+                  <p className="text-[#2c3e50] text-[0.9rem] leading-relaxed font-medium">{profile.description}</p>
+                </SectionCard>
+              )}
+            </div>
+          </div>
+        </div>
       </ProfileLayoutWrapper>
     </ProtectedRoute>
   );

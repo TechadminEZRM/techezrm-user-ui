@@ -1,8 +1,11 @@
 import type React from "react";
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Poppins, Inter } from "next/font/google";
 import ClientLayout from "@/components/client-layout";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+
+const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -42,7 +45,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={cn("font-sans", inter.variable)}>
       <body className={poppins.className} suppressHydrationWarning={true}>
         <ClientLayout>{children}</ClientLayout>
       </body>

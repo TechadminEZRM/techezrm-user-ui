@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, Typography, Card, CardContent } from "@mui/material";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { useCompanyDetails } from "@/hooks/use-company-details";
 
 interface CompanyContactInfoProps {
@@ -17,67 +17,30 @@ const CompanyContactInfo: React.FC<CompanyContactInfoProps> = ({
 
   return (
     <>
-      <Typography
-        variant="h5"
-        component="h3"
-        sx={{ mb: 3, fontWeight: "bold", color: "#333", mt: 4 }}
-      >
-        {title}
-      </Typography>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          gap: 3,
-          mb: 4,
-        }}
-      >
+      <h3 className="text-xl font-bold text-[#333] mb-6 mt-8">{title}</h3>
+      <div className="flex flex-col md:flex-row gap-6 mb-8">
         {showSalesTeam && (
-          <Card sx={{ flex: 1, boxShadow: 2 }}>
-            <CardContent>
-              <Typography
-                variant="h6"
-                sx={{ mb: 2, fontWeight: "bold", color: "#333" }}
-              >
-                Sales Team
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ color: "#666", lineHeight: 1.6 }}
-              >
-                Contact our sales team. Connect with one of the world&apos;s
-                leading nutraceutical companies and explore how we can provide
-                the right nutritional ingredients for your business.
-              </Typography>
+          <Card className="flex-1">
+            <CardContent className="p-6">
+              <h4 className="text-base font-bold text-[#333] mb-3">Sales Team</h4>
+              <p className="text-sm text-[#666] leading-relaxed">
+                Contact our sales team. Connect with one of the world&apos;s leading nutraceutical companies and explore how we can provide the right nutritional ingredients for your business.
+              </p>
             </CardContent>
           </Card>
         )}
-        <Card sx={{ flex: 1, boxShadow: 2 }}>
-          <CardContent>
-            <Typography
-              variant="h6"
-              sx={{ mb: 2, fontWeight: "bold", color: "#333" }}
-            >
-              Contact Information
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{ color: "#666", lineHeight: 1.6 }}
-            >
-              <strong>Address:</strong>{" "}
-              {loading ? "Loading..." : companyDetails?.address || "The Old Smithy, 7 High Street, Merstham, Surrey, RH1 3BA, UK"}
-              <br />
-              <strong>Phone:</strong>{" "}
-              {loading ? "Loading..." : companyDetails?.phone || "+44 (0) 203 696 2780"}
-              <br />
-              <strong>WhatsApp:</strong> 447418310099
-              <br />
-              <strong>Email:</strong>{" "}
-              {loading ? "Loading..." : companyDetails?.email || "web@nutraceuticalsgroup.com"}
-            </Typography>
+        <Card className="flex-1">
+          <CardContent className="p-6">
+            <h4 className="text-base font-bold text-[#333] mb-3">Contact Information</h4>
+            <p className="text-sm text-[#666] leading-relaxed">
+              <strong>Address:</strong> {loading ? "Loading..." : companyDetails?.address || "The Old Smithy, 7 High Street, Merstham, Surrey, RH1 3BA, UK"}<br />
+              <strong>Phone:</strong> {loading ? "Loading..." : companyDetails?.phone || "+44 (0) 203 696 2780"}<br />
+              <strong>WhatsApp:</strong> 447418310099<br />
+              <strong>Email:</strong> {loading ? "Loading..." : companyDetails?.email || "web@nutraceuticalsgroup.com"}
+            </p>
           </CardContent>
         </Card>
-      </Box>
+      </div>
     </>
   );
 };

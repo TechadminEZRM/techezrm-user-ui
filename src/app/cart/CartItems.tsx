@@ -1,35 +1,8 @@
 import type React from "react";
-import {
-  Box,
-  Typography,
-  IconButton,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Modal,
-  Backdrop,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-} from "@mui/material";
-import {
-  Add,
-  Remove,
-  DeleteOutline,
-  Close,
-  Warning,
-} from "@mui/icons-material";
-import { useAppStore } from "@/store/use-app-store";
-import {
-  useUpdateCartItem,
-  useRemoveFromCart,
-} from "@/api/handlers/cartHandler";
 import { useState } from "react";
+import { Plus, Minus, Trash2, X, AlertTriangle } from "lucide-react";
+import { useAppStore } from "@/store/use-app-store";
+import { useUpdateCartItem, useRemoveFromCart } from "@/api/handlers/cartHandler";
 
 interface CartItem {
   product: {
@@ -56,44 +29,25 @@ const CartItems: React.FC<CartItemsProps> = ({ cartItems }) => {
     open: boolean;
     productId: string;
     productName: string;
-  }>({
-    open: false,
-    productId: "",
-    productName: "",
-  });
+  }>({ open: false, productId: "", productName: "" });
 
   const updateQuantity = (productId: string, newQuantity: number) => {
     if (newQuantity < 1 || !customer?.id) return;
-    updateCartItemMutation.mutate({
-      productId,
-      data: { customerId: customer.id, quantity: newQuantity },
-    });
+    updateCartItemMutation.mutate({ productId, data: { customerId: customer.id, quantity: newQuantity } });
   };
 
   const handleRemoveFromCart = (productId: string, productName: string) => {
-    setConfirmationDialog({
-      open: true,
-      productId,
-      productName,
-    });
+    setConfirmationDialog({ open: true, productId, productName });
   };
 
   const confirmRemoveFromCart = () => {
     if (!customer?.id) return;
-    removeFromCartMutation.mutate({
-      customerId: customer.id,
-      productId: confirmationDialog.productId,
-    });
+    removeFromCartMutation.mutate({ customerId: customer.id, productId: confirmationDialog.productId });
     setConfirmationDialog({ open: false, productId: "", productName: "" });
   };
 
   const cancelRemoveFromCart = () => {
     setConfirmationDialog({ open: false, productId: "", productName: "" });
-  };
-
-  const removeFromCart = (productId: string) => {
-    if (!customer?.id) return;
-    removeFromCartMutation.mutate({ customerId: customer.id, productId });
   };
 
   const handleImageClick = (imageUrl: string) => {
@@ -105,427 +59,156 @@ const CartItems: React.FC<CartItemsProps> = ({ cartItems }) => {
     setIsModalOpen(false);
     setSelectedImage(null);
   };
-
   return (
-    <Box sx={{ flex: 1 }}>
+    <div className="flex-1">
       {/* Image Modal */}
-      <Modal
-        open={isModalOpen}
-        onClose={handleCloseModal}
-        closeAfterTransition
-        slots={{
-          backdrop: Backdrop,
-        }}
-        slotProps={{
-          backdrop: {
-            timeout: 500,
-            sx: {
-              backgroundColor: "rgba(0, 0, 0, 0.8)",
-              backdropFilter: "blur(8px)",
-            },
-          },
-        }}
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          p: 2,
-        }}
-      >
-        <Box
-          sx={{
-            position: "relative",
-            maxWidth: "90vw",
-            maxHeight: "90vh",
-            outline: "none",
-          }}
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 z-[1300] flex items-center justify-center p-4"
+          style={{ backgroundColor: "rgba(0,0,0,0.8)", backdropFilter: "blur(8px)" }}
+          onClick={handleCloseModal}
         >
-          {/* Close Button */}
-          <IconButton
-            onClick={handleCloseModal}
-            sx={{
-              position: "absolute",
-              top: 16,
-              right: 16,
-              color: "white",
-              backgroundColor: "rgba(0, 0, 0, 0.6)",
-              border: "2px solid rgba(255, 255, 255, 0.2)",
-              "&:hover": {
-                backgroundColor: "rgba(0, 0, 0, 0.8)",
-                border: "2px solid rgba(255, 255, 255, 0.4)",
-              },
-              zIndex: 1,
-            }}
-          >
-            <Close />
-          </IconButton>
-
-          {/* Image */}
-          {selectedImage && (
-            <img
-              src={selectedImage}
-              alt="Product"
-              style={{
-                width: "100%",
-                height: "auto",
-                maxHeight: "90vh",
-                objectFit: "contain",
-                borderRadius: "8px",
-                boxShadow: "0 20px 40px rgba(0, 0, 0, 0.3)",
-              }}
-            />
-          )}
-        </Box>
-      </Modal>
+          <div className="relative max-w-[90vw] max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={handleCloseModal}
+              className="absolute top-4 right-4 z-10 w-9 h-9 flex items-center justify-center rounded-full text-white border-2 border-white/20 hover:border-white/40 transition-colors"
+              style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
+            >
+              <X className="w-4 h-4" />
+            </button>
+            {selectedImage && (
+              <img
+                src={selectedImage}
+                alt="Product"
+                className="w-full h-auto max-h-[90vh] object-contain rounded-lg shadow-[0_20px_40px_rgba(0,0,0,0.3)]"
+              />
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Remove Confirmation Dialog */}
-      <Dialog
-        open={confirmationDialog.open}
-        onClose={cancelRemoveFromCart}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 2,
-            boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15)",
-          },
-        }}
-      >
-        <DialogTitle
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 2,
-            pb: 1,
-            color: "#d32f2f",
-          }}
-        >
-          <Warning sx={{ color: "#d32f2f" }} />
-          Remove Item from Cart
-        </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
-          <Typography variant="body1" sx={{ mb: 2, color: "#333" }}>
-            Are you sure you want to remove{" "}
-            <strong>"{confirmationDialog.productName}"</strong> from your cart?
-          </Typography>
-          {/* <Typography
-            variant="body2"
-            sx={{ color: "#666", fontStyle: "italic" }}
-          >
-            This action cannot be undone.
-          </Typography> */}
-        </DialogContent>
-        <DialogActions sx={{ p: 3, pt: 1 }}>
-          <Button
-            onClick={cancelRemoveFromCart}
-            variant="outlined"
-            sx={{
-              borderColor: "#666",
-              color: "#666",
-              "&:hover": {
-                borderColor: "#333",
-                backgroundColor: "rgba(0, 0, 0, 0.04)",
-              },
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={confirmRemoveFromCart}
-            variant="contained"
-            disabled={removeFromCartMutation.isPending}
-            sx={{
-              backgroundColor: "#d32f2f",
-              color: "white",
-              "&:hover": {
-                backgroundColor: "#b71c1c",
-              },
-              "&:disabled": {
-                backgroundColor: "#ccc",
-              },
-            }}
-          >
-            {removeFromCartMutation.isPending ? "Removing..." : "Remove"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {confirmationDialog.open && (
+        <div className="fixed inset-0 z-[1400] flex items-center justify-center p-4 bg-black/40">
+          <div className="bg-white rounded-[8px] shadow-[0_20px_40px_rgba(0,0,0,0.15)] w-full max-w-sm">
+            <div className="flex items-center gap-3 px-6 py-4 border-b border-[#f0f0f0]">
+              <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0" />
+              <span className="font-semibold text-red-600 text-base">Remove Item from Cart</span>
+            </div>
+            <div className="px-6 py-4">
+              <p className="text-[#333] text-sm">
+                Are you sure you want to remove <strong>"{confirmationDialog.productName}"</strong> from your cart?
+              </p>
+            </div>
+            <div className="flex justify-end gap-3 px-6 py-3">
+              <button
+                onClick={cancelRemoveFromCart}
+                className="border border-[#666] text-[#666] hover:border-[#333] hover:bg-black/5 px-6 py-1.5 text-sm font-medium rounded transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmRemoveFromCart}
+                disabled={removeFromCartMutation.isPending}
+                className="bg-red-600 hover:bg-red-700 disabled:bg-[#ccc] text-white px-6 py-1.5 text-sm font-medium rounded transition-colors"
+              >
+                {removeFromCartMutation.isPending ? "Removing..." : "Remove"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Cart Items Table */}
-      <TableContainer sx={{ backgroundColor: "white", borderRadius: 1, mb: 3 }}>
-        <Table sx={{ borderCollapse: "separate", borderSpacing: "0 8px" }}>
-          <TableHead>
-            <TableRow>
-              <TableCell
-                sx={{
-                  fontWeight: 600,
-                  color: "#333",
-                  fontSize: "0.875rem",
-                  py: 2,
-                  borderBottom: "1px solid rgba(234, 104, 36, 1)",
-                  backgroundColor: "transparent",
-                }}
-              >
-                Item
-              </TableCell>
-              <TableCell
-                align="center"
-                sx={{
-                  fontWeight: 600,
-                  color: "#333",
-                  fontSize: "0.875rem",
-                  py: 2,
-                  borderBottom: "1px solid rgba(234, 104, 36, 1)",
-                  backgroundColor: "transparent",
-                }}
-              >
-                Price / Kg
-              </TableCell>
-              <TableCell
-                align="center"
-                sx={{
-                  fontWeight: 600,
-                  color: "#333",
-                  fontSize: "0.875rem",
-                  py: 2,
-                  borderBottom: "1px solid rgba(234, 104, 36, 1)",
-                  backgroundColor: "transparent",
-                }}
-              >
-                Quantity
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  fontWeight: 600,
-                  color: "#333",
-                  fontSize: "0.875rem",
-                  py: 2,
-                  borderBottom: "1px solid rgba(234, 104, 36, 1)",
-                  backgroundColor: "transparent",
-                }}
-              >
-                Subtotal
-              </TableCell>
-              <TableCell
-                align="center"
-                sx={{
-                  fontWeight: 600,
-                  color: "#333",
-                  fontSize: "0.875rem",
-                  py: 2,
-                  borderBottom: "1px solid rgba(234, 104, 36, 1)",
-                  backgroundColor: "transparent",
-                }}
-              >
-                Action
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+      <div className="bg-white rounded mb-3 overflow-x-auto">
+        <table className="w-full border-separate" style={{ borderSpacing: "0 8px" }}>
+          <thead>
+            <tr>
+              {["Item", "Price / Kg", "Quantity", "Subtotal", "Action"].map((h, i) => (
+                <th
+                  key={h}
+                  className={`font-semibold text-[#333] text-sm py-3 border-b border-[rgba(234,104,36,1)] bg-transparent ${i === 1 || i === 2 ? "text-center" : i === 3 ? "text-right" : i === 4 ? "text-center" : "text-left"}`}
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
             {cartItems?.map((item) => (
-              <TableRow
-                key={item.product?._id}
-                sx={{
-                  "& td": {
-                    backgroundColor: "#fafafa",
-                    border: "none",
-                    "&:first-of-type": {
-                      borderTopLeftRadius: "20px",
-                      borderBottomLeftRadius: "20px",
-                    },
-                    "&:last-of-type": {
-                      borderTopRightRadius: "20px",
-                      borderBottomRightRadius: "20px",
-                    },
-                  },
-                }}
-              >
-                <TableCell sx={{ py: 2 }}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    <Box
-                      sx={{
-                        width: 60,
-                        height: 60,
-                        backgroundColor: "#ffa500",
-                        borderRadius: 1,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                        overflow: "hidden",
-                        cursor: "pointer",
-                        transition: "transform 0.2s ease-in-out",
-                        "&:hover": {
-                          transform: "scale(1.05)",
-                        },
-                      }}
-                      onClick={() =>
-                        item?.product?.bannerImage &&
-                        handleImageClick(item.product.bannerImage)
-                      }
+              <tr key={item.product?._id}>
+                {/* Item */}
+                <td className="py-3 bg-[#fafafa] rounded-tl-[20px] rounded-bl-[20px]">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className="w-[60px] h-[60px] bg-[#ffa500] rounded flex items-center justify-center flex-shrink-0 overflow-hidden cursor-pointer hover:scale-105 transition-transform"
+                      onClick={() => item?.product?.bannerImage && handleImageClick(item.product.bannerImage)}
                     >
                       {item?.product?.bannerImage ? (
-                        <img
-                          src={item.product.bannerImage}
-                          alt={item?.productName || "Product"}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            borderRadius: 4,
-                          }}
-                        />
+                        <img src={item.product.bannerImage} alt={item?.productName || "Product"} className="w-full h-full object-cover rounded" />
                       ) : (
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "100%",
-                            backgroundColor: "#ffa500",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: "white",
-                            fontSize: "12px",
-                            fontWeight: 600,
-                          }}
-                        >
-                          No Image
-                        </Box>
+                        <span className="text-white text-xs font-semibold">No Image</span>
                       )}
-                    </Box>
-                    <Box>
-                      <Typography
-                        variant="body1"
-                        sx={{
-                          fontWeight: 600,
-                          color: "#333",
-                          fontSize: "0.875rem",
-                          mb: 0.5,
-                        }}
-                      >
-                        {item.productName}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{ color: "#666", fontSize: "0.75rem" }}
-                      >
-                        Product ID:{" "}
-                        {item?.product?.uniqueId || item.product?._id}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </TableCell>
-                <TableCell align="center" sx={{ py: 2 }}>
-                  <Typography
-                    sx={{
-                      fontWeight: 600,
-                      color: "#333",
-                      fontSize: "0.875rem",
-                    }}
-                  >
-                    ${item.productPrice.toFixed(2)}
-                  </Typography>
-                </TableCell>
-                <TableCell align="center" sx={{ py: 2 }}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 1,
-                    }}
-                  >
-                    <IconButton
-                      size="small"
-                      onClick={() =>
-                        updateQuantity(item.product._id, item.quantity - 1)
-                      }
-                      sx={{
-                        width: 24,
-                        height: 24,
-                        border: "1px solid #ddd",
-                        borderRadius: "50%",
-                        "&:hover": { backgroundColor: "#f5f5f5" },
-                      }}
-                    >
-                      <Remove sx={{ fontSize: 14 }} />
-                    </IconButton>
-                    <Box sx={{ mx: 1, textAlign: "center", minWidth: 40 }}>
-                      <Typography
-                        sx={{
-                          fontWeight: 600,
-                          color: "#333",
-                          fontSize: "0.875rem",
-                        }}
-                      >
-                        {item.quantity}
-                      </Typography>
-                      <Typography
-                        sx={{
-                          color: "#4caf50",
-                          fontSize: "0.625rem",
-                          fontWeight: 500,
-                          textTransform: "uppercase",
-                          letterSpacing: "0.5px",
-                        }}
-                      >
-                        {/* IN STOCK: 6 */}
-                      </Typography>
-                    </Box>
-                    <IconButton
-                      size="small"
-                      onClick={() =>
-                        updateQuantity(item.product._id, item.quantity + 1)
-                      }
-                      sx={{
-                        width: 24,
-                        height: 24,
-                        border: "1px solid #ddd",
-                        borderRadius: "50%",
-                        "&:hover": { backgroundColor: "#f5f5f5" },
-                      }}
-                    >
-                      <Add sx={{ fontSize: 14 }} />
-                    </IconButton>
-                  </Box>
-                </TableCell>
-                <TableCell align="right" sx={{ py: 2 }}>
-                  <Typography
-                    sx={{
-                      fontWeight: 600,
-                      color: "#333",
-                      fontSize: "0.875rem",
-                    }}
-                  >
-                    ${(item.productPrice * item.quantity).toFixed(2)}
-                  </Typography>
-                </TableCell>
-                <TableCell align="center" sx={{ py: 2 }}>
-                  <IconButton
-                    size="small"
-                    onClick={() =>
-                      handleRemoveFromCart(item.product._id, item.productName)
-                    }
-                    sx={{
-                      color: "#f44336",
-                      "&:hover": { backgroundColor: "rgba(244, 67, 54, 0.1)" },
-                    }}
-                  >
-                    <DeleteOutline fontSize="small" />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-[#333] text-sm mb-0.5">{item.productName}</p>
+                      <p className="text-[#666] text-xs">Product ID: {item?.product?.uniqueId || item.product?._id}</p>
+                    </div>
+                  </div>
+                </td>
 
-      <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
-        <Button href="/checkout" variant="contained" color="primary">
+                {/* Price */}
+                <td className="py-3 bg-[#fafafa] text-center">
+                  <span className="font-semibold text-[#333] text-sm">${item.productPrice.toFixed(2)}</span>
+                </td>
+
+                {/* Quantity */}
+                <td className="py-3 bg-[#fafafa] text-center">
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => updateQuantity(item.product._id, item.quantity - 1)}
+                      className="w-6 h-6 border border-[#ddd] rounded-full flex items-center justify-center hover:bg-[#f5f5f5] transition-colors"
+                    >
+                      <Minus className="w-3 h-3" />
+                    </button>
+                    <div className="mx-1 text-center min-w-[40px]">
+                      <span className="font-semibold text-[#333] text-sm">{item.quantity}</span>
+                    </div>
+                    <button
+                      onClick={() => updateQuantity(item.product._id, item.quantity + 1)}
+                      className="w-6 h-6 border border-[#ddd] rounded-full flex items-center justify-center hover:bg-[#f5f5f5] transition-colors"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  </div>
+                </td>
+
+                {/* Subtotal */}
+                <td className="py-3 bg-[#fafafa] text-right">
+                  <span className="font-semibold text-[#333] text-sm">${(item.productPrice * item.quantity).toFixed(2)}</span>
+                </td>
+
+                {/* Action */}
+                <td className="py-3 bg-[#fafafa] text-center rounded-tr-[20px] rounded-br-[20px]">
+                  <button
+                    onClick={() => handleRemoveFromCart(item.product._id, item.productName)}
+                    className="text-red-500 hover:bg-red-50 w-8 h-8 flex items-center justify-center rounded-full transition-colors mx-auto"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex justify-center my-4">
+        <a href="/checkout" className="bg-[#F9A922] hover:bg-[#E8981F] text-white px-8 py-2 text-sm font-semibold rounded transition-colors">
           CheckOut
-        </Button>
-      </Box>
-    </Box>
+        </a>
+      </div>
+    </div>
   );
 };
 

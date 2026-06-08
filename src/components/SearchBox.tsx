@@ -1,30 +1,8 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import {
-  Box,
-  TextField,
-  InputAdornment,
-  IconButton,
-  Paper,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  Avatar,
-  Chip,
-  CircularProgress,
-  Divider,
-  Button,
-} from "@mui/material";
-import {
-  Search,
-  Close,
-  LocalOffer,
-  Category,
-  TrendingUp,
-} from "@mui/icons-material";
+import { Search, X, Tag, LayoutGrid, TrendingUp } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { useRouter } from "next/navigation";
 import { searchHandler } from "@/api/handlers/searchHandler";
 import type { SearchProduct, SearchCategory } from "@/api/services/search";
@@ -36,6 +14,8 @@ interface SearchBoxProps {
   showDropdown?: boolean;
 }
 
+const popularSearches = ["BCAA", "Protein", "Vitamins", "Creatine", "Amino Acids"];
+
 const SearchBox: React.FC<SearchBoxProps> = ({
   onSearchResults,
   placeholder = "Search products, categories...",
@@ -45,37 +25,19 @@ const SearchBox: React.FC<SearchBoxProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [searchResults, setSearchResults] = useState<{
-    products: SearchProduct[];
-    categories: SearchCategory[];
-  }>({ products: [], categories: [] });
+  const [searchResults, setSearchResults] = useState<{ products: SearchProduct[]; categories: SearchCategory[] }>({ products: [], categories: [] });
 
   const searchRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  // Popular searches (can be made dynamic)
-  const popularSearches = [
-    "BCAA",
-    "Protein",
-    "Vitamins",
-    "Creatine",
-    "Amino Acids",
-  ];
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(event.target as Node)
-      ) {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleSearch = async (query: string) => {
@@ -83,18 +45,11 @@ const SearchBox: React.FC<SearchBoxProps> = ({
       setSearchResults({ products: [], categories: [] });
       return;
     }
-
     setLoading(true);
     try {
-      const results = await searchHandler.search(query, 1, 6); // Limit for dropdown
-      setSearchResults({
-        products: results.products,
-        categories: results.categories,
-      });
-
-      if (onSearchResults) {
-        onSearchResults(results);
-      }
+      const results = await searchHandler.search(query, 1, 6);
+      setSearchResults({ products: results.products, categories: results.categories });
+      onSearchResults?.(results);
     } catch (error) {
       console.error("Search error:", error);
       setSearchResults({ products: [], categories: [] });
@@ -106,15 +61,9 @@ const SearchBox: React.FC<SearchBoxProps> = ({
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setSearchQuery(value);
-
     if (showDropdown) {
       setIsOpen(true);
-
-      // Debounce search
-      const timeoutId = setTimeout(() => {
-        handleSearch(value);
-      }, 300);
-
+      const timeoutId = setTimeout(() => handleSearch(value), 300);
       return () => clearTimeout(timeoutId);
     }
   };
@@ -151,252 +100,135 @@ const SearchBox: React.FC<SearchBoxProps> = ({
     setIsOpen(false);
   };
 
-  const hasResults =
-    searchResults.products.length > 0 || searchResults.categories.length > 0;
+  const hasResults = searchResults.products.length > 0 || searchResults.categories.length > 0;
 
   return (
-    <Box
-      ref={searchRef}
-      sx={{ position: "relative", width: fullWidth ? "100%" : "auto" }}
-    >
+    <div ref={searchRef} className={`relative ${fullWidth ? "w-full" : ""}`}>
       <form onSubmit={handleSubmit}>
-        <TextField
-          value={searchQuery}
-          onChange={handleInputChange}
-          onFocus={() => showDropdown && setIsOpen(true)}
-          placeholder={placeholder}
-          variant="outlined"
-          size="medium"
-          fullWidth={fullWidth}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search sx={{ color: "#666" }} />
-              </InputAdornment>
-            ),
-            endAdornment: searchQuery && (
-              <InputAdornment position="end">
-                <IconButton onClick={handleClear} size="small">
-                  <Close sx={{ fontSize: 20 }} />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              backgroundColor: "white",
-              borderRadius: 2,
-              "& fieldset": {
-                borderColor: "#e0e0e0",
-              },
-              "&:hover fieldset": {
-                borderColor: "#c0c0c0",
-              },
-              "&.Mui-focused fieldset": {
-                borderColor: "#ff6b35",
-              },
-            },
-          }}
-        />
+        <div className="relative flex items-center">
+          <Search className="absolute left-3 w-5 h-5 text-[#666] pointer-events-none" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={handleInputChange}
+            onFocus={() => showDropdown && setIsOpen(true)}
+            placeholder={placeholder}
+            className={`${fullWidth ? "w-full" : ""} bg-white border border-[#e0e0e0] rounded-lg pl-10 pr-10 py-3 text-sm text-[#333] placeholder:text-[#999] focus:outline-none focus:border-[#F9A922] hover:border-[#c0c0c0] transition-colors`}
+          />
+          {searchQuery && (
+            <button type="button" onClick={handleClear} className="absolute right-3 text-[#666] hover:text-[#333] transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
       </form>
 
       {/* Search Dropdown */}
       {showDropdown && isOpen && (
-        <Paper
-          sx={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            right: 0,
-            zIndex: 1300,
-            mt: 1,
-            maxHeight: 400,
-            overflow: "auto",
-            borderRadius: 2,
-            boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-            border: "1px solid #e0e0e0",
-          }}
-        >
+        <div className="absolute top-full left-0 right-0 z-[1300] mt-1 max-h-[400px] overflow-auto rounded-lg shadow-[0_8px_24px_rgba(0,0,0,0.12)] border border-[#e0e0e0] bg-white">
           {loading ? (
-            <Box sx={{ p: 3, textAlign: "center" }}>
-              <CircularProgress size={24} />
-              <Typography variant="body2" sx={{ mt: 1, color: "#666" }}>
-                Searching...
-              </Typography>
-            </Box>
+            <div className="p-6 flex flex-col items-center gap-2">
+              <Spinner size="sm" />
+              <span className="text-sm text-[#666]">Searching...</span>
+            </div>
           ) : searchQuery.trim() === "" ? (
-            // Popular Searches
-            <Box sx={{ p: 3 }}>
-              <Typography
-                variant="subtitle2"
-                sx={{ fontWeight: 600, mb: 2, color: "#333" }}
-              >
-                <TrendingUp
-                  sx={{ fontSize: 16, mr: 1, verticalAlign: "middle" }}
-                />
+            /* Popular Searches */
+            <div className="p-4">
+              <p className="text-sm font-semibold text-[#333] mb-3 flex items-center gap-1.5">
+                <TrendingUp className="w-4 h-4" />
                 Popular Searches
-              </Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+              </p>
+              <div className="flex flex-wrap gap-2">
                 {popularSearches.map((term) => (
-                  <Chip
+                  <button
                     key={term}
-                    label={term}
+                    type="button"
                     onClick={() => handlePopularSearchClick(term)}
-                    sx={{
-                      cursor: "pointer",
-                      "&:hover": {
-                        backgroundColor: "#ff6b35",
-                        color: "white",
-                      },
-                    }}
-                  />
+                    className="text-sm px-3 py-1 rounded-full border border-[#e0e0e0] text-[#555] hover:bg-[#F9A922] hover:text-white hover:border-[#F9A922] transition-colors"
+                  >
+                    {term}
+                  </button>
                 ))}
-              </Box>
-            </Box>
+              </div>
+            </div>
           ) : hasResults ? (
-            <List sx={{ py: 1 }}>
+            <div className="py-1">
               {/* Categories */}
               {searchResults.categories.length > 0 && (
                 <>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{ px: 2, py: 1, fontWeight: 600, color: "#333" }}
-                  >
-                    Categories
-                  </Typography>
+                  <p className="px-4 py-2 text-xs font-semibold text-[#333]">Categories</p>
                   {searchResults.categories.map((category: any) => (
-                    <ListItem
+                    <button
                       key={category._id}
-                      button
+                      type="button"
                       onClick={() => handleCategoryClick(category.slug)}
-                      sx={{
-                        "&:hover": {
-                          backgroundColor: "rgba(255, 107, 53, 0.04)",
-                        },
-                      }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-[rgba(255,107,53,0.04)] transition-colors"
                     >
-                      <ListItemAvatar>
-                        <Avatar
-                          sx={{
-                            backgroundColor: "#ff6b35",
-                            width: 32,
-                            height: 32,
-                          }}
-                        >
-                          <Category sx={{ fontSize: 18 }} />
-                        </Avatar>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={category.name}
-                        secondary={category.description}
-                        primaryTypographyProps={{
-                          fontWeight: 600,
-                          fontSize: "0.9rem",
-                        }}
-                        secondaryTypographyProps={{
-                          fontSize: "0.8rem",
-                          color: "#666",
-                        }}
-                      />
-                    </ListItem>
+                      <div className="w-8 h-8 rounded-full bg-[#F9A922] flex items-center justify-center flex-shrink-0">
+                        <LayoutGrid className="w-[18px] h-[18px] text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-[#333]">{category.name}</p>
+                        {category.description && <p className="text-xs text-[#666]">{category.description}</p>}
+                      </div>
+                    </button>
                   ))}
-                  {searchResults.products.length > 0 && <Divider />}
+                  {searchResults.products.length > 0 && <hr className="border-[#e0e0e0] my-1" />}
                 </>
               )}
 
               {/* Products */}
               {searchResults.products.length > 0 && (
                 <>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{ px: 2, py: 1, fontWeight: 600, color: "#333" }}
-                  >
-                    Products
-                  </Typography>
+                  <p className="px-4 py-2 text-xs font-semibold text-[#333]">Products</p>
                   {searchResults.products.map((product) => (
-                    <ListItem
+                    <button
                       key={product._id}
-                      button
+                      type="button"
                       onClick={() => handleProductClick(product._id)}
-                      sx={{
-                        "&:hover": {
-                          backgroundColor: "rgba(255, 107, 53, 0.04)",
-                        },
-                      }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-[rgba(255,107,53,0.04)] transition-colors"
                     >
-                      <ListItemAvatar>
-                        <Avatar
-                          src={product.bannerImage || product.images[0]}
-                          sx={{ width: 32, height: 32 }}
-                        >
-                          <LocalOffer />
-                        </Avatar>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={product.name}
-                        secondary={`${product.uniqueId} • $${product.price}`}
-                        primaryTypographyProps={{
-                          fontWeight: 600,
-                          fontSize: "0.9rem",
-                        }}
-                        secondaryTypographyProps={{
-                          fontSize: "0.8rem",
-                          color: "#666",
-                        }}
-                      />
+                      <div className="w-8 h-8 rounded-full overflow-hidden bg-[#f0f0f0] flex items-center justify-center flex-shrink-0">
+                        {(product.bannerImage || product.images?.[0]) ? (
+                          <img src={product.bannerImage || product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <Tag className="w-[18px] h-[18px] text-[#666]" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-[#333] truncate">{product.name}</p>
+                        <p className="text-xs text-[#666]">{product.uniqueId} • ${product.price}</p>
+                      </div>
                       {product.inStock && (
-                        <Chip
-                          label="In Stock"
-                          size="small"
-                          sx={{
-                            backgroundColor: "#4caf50",
-                            color: "white",
-                            fontSize: "0.7rem",
-                            height: 20,
-                          }}
-                        />
+                        <span className="text-[0.7rem] font-semibold px-2 py-0.5 rounded-full bg-[#4caf50] text-white flex-shrink-0">In Stock</span>
                       )}
-                    </ListItem>
+                    </button>
                   ))}
                 </>
               )}
 
               {/* View All Results */}
-              <Divider />
-              <Box sx={{ p: 2 }}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  onClick={() => {
-                    setIsOpen(false);
-                    router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
-                  }}
-                  sx={{
-                    borderColor: "#ff6b35",
-                    color: "#ff6b35",
-                    "&:hover": {
-                      borderColor: "#e55a2b",
-                      backgroundColor: "rgba(255, 107, 53, 0.04)",
-                    },
-                    textTransform: "none",
-                  }}
+              <hr className="border-[#e0e0e0]" />
+              <div className="p-3">
+                <button
+                  type="button"
+                  onClick={() => { setIsOpen(false); router.push(`/search?q=${encodeURIComponent(searchQuery)}`); }}
+                  className="w-full py-2 border border-[#F9A922] text-[#F9A922] text-sm font-medium rounded-lg hover:bg-[rgba(249,169,34,0.04)] hover:border-[#E8981F] transition-colors"
                 >
                   View All Results
-                </Button>
-              </Box>
-            </List>
+                </button>
+              </div>
+            </div>
           ) : (
-            // No Results
-            <Box sx={{ p: 3, textAlign: "center" }}>
-              <Search sx={{ fontSize: 48, color: "#c0c0c0", mb: 1 }} />
-              <Typography variant="body2" sx={{ color: "#666" }}>
-                No results found for "{searchQuery}"
-              </Typography>
-            </Box>
+            /* No Results */
+            <div className="p-6 flex flex-col items-center gap-2 text-center">
+              <Search className="w-12 h-12 text-[#c0c0c0]" />
+              <p className="text-sm text-[#666]">No results found for "{searchQuery}"</p>
+            </div>
           )}
-        </Paper>
+        </div>
       )}
-    </Box>
+    </div>
   );
 };
 

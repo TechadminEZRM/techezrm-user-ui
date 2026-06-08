@@ -1,14 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  Box,
-  TextField,
-  Autocomplete,
-  CircularProgress,
-  Typography,
-  Chip,
-} from "@mui/material";
+import React, { useState, useEffect, useRef } from "react";
+import { ChevronDown } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { countriesHandler } from "@/api/handlers/countriesHandler";
 import type { Country } from "@/api/services/countries";
 
@@ -48,153 +42,128 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
   const [countries, setCountries] = useState<Country[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
+  const [inputValue, setInputValue] = useState("");
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchCountries = async () => {
       setLoading(true);
       try {
-        let countriesData: Country[];
-
-        if (filterByContinent) {
-          countriesData = await countriesHandler.getCountriesByContinent(
-            filterByContinent
-          );
-        } else {
-          countriesData = await countriesHandler.getCountries();
-        }
-
-        setCountries(countriesData);
-      } catch (error) {
-        console.error("Failed to fetch countries:", error);
+        const data = filterByContinent
+          ? await countriesHandler.getCountriesByContinent(filterByContinent)
+          : await countriesHandler.getCountries();
+        setCountries(data);
+      } catch (err) {
+        console.error("Failed to fetch countries:", err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchCountries();
   }, [filterByContinent]);
 
   useEffect(() => {
     if (value && countries.length > 0) {
-      const country = countries.find((c) => c.countryCode === value);
-      setSelectedCountry(country || null);
+      const found = countries.find((c) => c.countryCode === value);
+      setSelectedCountry(found || null);
+      setInputValue(found ? `${found.emoji} ${found.name}` : "");
     } else {
       setSelectedCountry(null);
+      setInputValue("");
     }
   }, [value, countries]);
 
-  const handleCountryChange = (event: any, newValue: Country | null) => {
-    setSelectedCountry(newValue);
-    if (onChange && newValue) {
-      onChange(newValue.countryCode);
-    } else if (onChange) {
-      onChange("");
-    }
-  };
+  // Click outside to close
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+        // Restore display value if nothing selected
+        if (selectedCountry) setInputValue(`${selectedCountry.emoji} ${selectedCountry.name}`);
+        else setInputValue("");
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [selectedCountry]);
 
   const getOptionLabel = (option: Country) => {
-    let label = `${option.emoji} ${option.name}`;
-
-    if (showPhoneCode) {
-      label += ` (${option.phoneCode})`;
-    }
-
-    if (showCurrency) {
-      label += ` - ${option.currency}`;
-    }
-
-    if (showContinent) {
-      label += ` [${option.continent}]`;
-    }
-
-    return label;
+    let lbl = `${option.emoji} ${option.name}`;
+    if (showPhoneCode) lbl += ` (${option.phoneCode})`;
+    if (showCurrency) lbl += ` - ${option.currency}`;
+    if (showContinent) lbl += ` [${option.continent}]`;
+    return lbl;
   };
 
-  const renderOption = (props: any, option: Country) => (
-    <Box component="li" {...props}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-        <Typography sx={{ fontSize: "1.2rem" }}>{option.emoji}</Typography>
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-            {option.name}
-          </Typography>
-          <Box sx={{ display: "flex", gap: 1, mt: 0.5 }}>
-            {showPhoneCode && (
-              <Chip
-                label={option.phoneCode}
-                size="small"
-                variant="outlined"
-                sx={{ fontSize: "0.7rem", height: 20 }}
-              />
-            )}
-            {showCurrency && (
-              <Chip
-                label={option.currency}
-                size="small"
-                variant="outlined"
-                sx={{ fontSize: "0.7rem", height: 20 }}
-              />
-            )}
-            {showContinent && (
-              <Chip
-                label={option.continent}
-                size="small"
-                variant="outlined"
-                sx={{ fontSize: "0.7rem", height: 20 }}
-              />
-            )}
-          </Box>
-        </Box>
-      </Box>
-    </Box>
+  const filtered = countries.filter(
+    (c) =>
+      c.name.toLowerCase().includes(inputValue.replace(/[^\w\s]/g, "").trim().toLowerCase()) ||
+      c.countryCode.toLowerCase().includes(inputValue.toLowerCase())
   );
 
+  const handleSelect = (country: Country) => {
+    setSelectedCountry(country);
+    setInputValue(`${country.emoji} ${country.name}`);
+    setOpen(false);
+    onChange?.(country.countryCode);
+  };
+
+  const inputHeight = size === "small" ? "h-9" : "h-10";
+
   return (
-    <Autocomplete
-      options={countries}
-      value={selectedCountry}
-      onChange={handleCountryChange}
-      getOptionLabel={getOptionLabel}
-      renderOption={renderOption}
-      loading={loading}
-      disabled={disabled}
-      fullWidth={fullWidth}
-      size={size}
-      required={required}
-      placeholder={placeholder}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label={label}
-          error={error}
-          helperText={helperText}
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <>
-                {loading ? (
-                  <CircularProgress color="inherit" size={20} />
-                ) : null}
-                {params.InputProps.endAdornment}
-              </>
-            ),
-          }}
-        />
+    <div ref={containerRef} className={`relative ${fullWidth ? "w-full" : ""}`}>
+      {label && (
+        <label className="block text-sm font-medium text-[#1F2A44] mb-1">
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
       )}
-      isOptionEqualToValue={(option, value) =>
-        option.countryCode === value.countryCode
-      }
-      filterOptions={(options, { inputValue }) => {
-        const filtered = options.filter(
-          (option) =>
-            option.name.toLowerCase().includes(inputValue.toLowerCase()) ||
-            option.countryCode.toLowerCase().includes(inputValue.toLowerCase())
-        );
-        return filtered;
-      }}
-      noOptionsText="No countries found"
-      loadingText="Loading countries..."
-    />
+      <div className="relative">
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => { setInputValue(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          disabled={disabled}
+          placeholder={placeholder}
+          className={`flex ${inputHeight} w-full rounded-lg border pr-10 pl-4 py-2 text-sm text-[#1F2A44] placeholder:text-[#737791] focus:outline-none focus:ring-2 focus:ring-[#F9A922] focus:border-[#F9A922] disabled:bg-gray-100 disabled:cursor-not-allowed ${error ? "border-red-500" : "border-[#e0e0e0]"} bg-white`}
+        />
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+          {loading ? <Spinner size="sm" /> : <ChevronDown className="w-4 h-4 text-[#737791]" />}
+        </div>
+      </div>
+
+      {open && !loading && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-[#e0e0e0] rounded-xl shadow-lg max-h-60 overflow-y-auto">
+          {filtered.length === 0 ? (
+            <div className="px-4 py-3 text-sm text-[#737791]">No countries found</div>
+          ) : (
+            filtered.map((country) => (
+              <button
+                key={country.countryCode}
+                type="button"
+                onMouseDown={() => handleSelect(country)}
+                className="w-full flex items-start gap-3 px-4 py-2.5 hover:bg-[#FFFAF1] transition-colors text-left"
+              >
+                <span className="text-xl leading-none mt-0.5">{country.emoji}</span>
+                <div>
+                  <p className="text-sm font-medium text-[#1F2A44]">{country.name}</p>
+                  <div className="flex gap-2 mt-0.5 flex-wrap">
+                    {showPhoneCode && <span className="text-[10px] border border-[#e0e0e0] rounded px-1.5 py-px text-[#737791]">{country.phoneCode}</span>}
+                    {showCurrency && <span className="text-[10px] border border-[#e0e0e0] rounded px-1.5 py-px text-[#737791]">{country.currency}</span>}
+                    {showContinent && <span className="text-[10px] border border-[#e0e0e0] rounded px-1.5 py-px text-[#737791]">{country.continent}</span>}
+                  </div>
+                </div>
+              </button>
+            ))
+          )}
+        </div>
+      )}
+
+      {helperText && (
+        <p className={`text-xs mt-1 ${error ? "text-red-500" : "text-[#737791]"}`}>{helperText}</p>
+      )}
+    </div>
   );
 };
 

@@ -1,973 +1,137 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  InputAdornment,
-  Card,
-  CardContent,
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
+import { Search } from "lucide-react";
 import CompanyContactInfo from "@/components/CompanyContactInfo";
+
+const TH = ({ children }: { children: React.ReactNode }) => (
+  <th className="font-bold text-left p-3 text-sm border-b border-[#e8e8e8] bg-[#f5f5f5]">{children}</th>
+);
+const TD = ({ children }: { children: React.ReactNode }) => (
+  <td className="p-3 text-sm text-[#333]">{children}</td>
+);
 
 export default function ScovilleHeatUnitsPage() {
   return (
-    <Box sx={{ minHeight: "100vh" }}>
-      {/* Hero Section with Background Image */}
-      <Box
-        sx={{
-          width: "100%",
-          backgroundImage:
-            "url('https://nutraceuticalsgroup.com/images/mainImage.webp')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          py: 16,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          position: "relative",
-          "&::before": {
-            content: '""',
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            zIndex: 1,
-          },
-        }}
-      >
-        {/* Main Heading */}
-        <Box
-          sx={{
-            position: "relative",
-            zIndex: 2,
-            textAlign: "center",
-            mb: 6,
-          }}
-        >
-          <Typography
-            variant="h1"
-            component="h1"
-            sx={{
-              fontWeight: "bold",
-              color: "#ffffff",
-              fontSize: { xs: "2.5rem", sm: "3.5rem", md: "4rem" },
-              textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
-              mb: 2,
-              letterSpacing: "0.02em",
-            }}
-          >
-            Scoville Heat Units
-          </Typography>
-          <Typography
-            variant="h5"
-            sx={{
-              color: "rgba(255, 255, 255, 0.9)",
-              fontWeight: 400,
-              fontSize: { xs: "1.1rem", sm: "1.3rem" },
-              textShadow: "1px 1px 2px rgba(0, 0, 0, 0.3)",
-            }}
-          >
-            Heat Scale & Capsaicin Measurement Database
-          </Typography>
-        </Box>
+    <div className="min-h-screen">
+      <div className="w-full py-64 flex flex-col justify-center items-center relative"
+        style={{ backgroundImage: "url('https://nutraceuticalsgroup.com/images/mainImage.webp')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}>
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative z-[2] text-center mb-6">
+          <h1 className="font-bold text-white text-[clamp(2.5rem,5vw,4rem)] mb-2 tracking-[0.02em]" style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.5)" }}>Scoville Heat Units</h1>
+          <p className="text-white/90 font-normal text-lg md:text-xl" style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.3)" }}>Heat Scale &amp; Capsaicin Measurement Database</p>
+        </div>
+        <div className="relative z-[2] w-[90%] max-w-[700px]">
+          <div className="relative flex items-center bg-white/95 backdrop-blur-[15px] rounded-[50px]" style={{ boxShadow: "0 25px 50px rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.08)" }}>
+            <input placeholder="Search heat levels, peppers, capsaicin content, or SHU ratings..."
+              className="w-full h-[60px] text-lg px-6 pr-16 rounded-[50px] bg-transparent text-[#2c3e50] font-medium placeholder:text-[#7f8c8d] focus:outline-none" />
+            <div className="absolute right-3 flex items-center justify-center w-10 h-10 rounded-full bg-[#F9A922] transition-transform hover:scale-110" style={{ boxShadow: "0 4px 12px rgba(249,169,34,0.3)" }}>
+              <Search className="w-5 h-5 text-white" />
+            </div>
+          </div>
+          <p className="text-center mt-2 text-white/90 text-sm font-medium">Explore the complete Scoville scale from mild to extreme heat levels</p>
+        </div>
+      </div>
 
-        {/* Search Box */}
-        <Box
-          sx={{
-            position: "relative",
-            zIndex: 2,
-            width: "90%",
-            maxWidth: 700,
-          }}
-        >
-          <TextField
-            placeholder="Search heat levels, peppers, capsaicin content, or SHU ratings..."
-            variant="outlined"
-            fullWidth
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Box
-                    sx={{
-                      position: "relative",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: 40,
-                      height: 40,
-                      borderRadius: "50%",
-                      background: "linear-gradient(135deg, #ff7849, #ff6b35)",
-                      boxShadow: "0 4px 12px rgba(255, 120, 73, 0.3)",
-                      marginRight: 1,
-                      transition: "all 0.3s ease",
-                      "&:hover": {
-                        transform: "scale(1.1)",
-                        boxShadow: "0 6px 16px rgba(255, 120, 73, 0.4)",
-                      },
-                    }}
-                  >
-                    <SearchIcon
-                      sx={{
-                        color: "#ffffff",
-                        fontSize: 20,
-                        filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))",
-                        transition: "all 0.3s ease",
-                      }}
-                    />
-                  </Box>
-                </InputAdornment>
-              ),
-              sx: {
-                fontSize: "18px",
-                height: 60,
-                "& input": {
-                  paddingRight: 2,
-                },
-              },
-            }}
-            sx={{
-              backgroundColor: "rgba(255, 255, 255, 0.95)",
-              backdropFilter: "blur(15px)",
-              borderRadius: "50px",
-              boxShadow:
-                "0 25px 50px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.08)",
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "50px",
-                background:
-                  "linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))",
-                "& fieldset": {
-                  borderColor: "rgba(255, 255, 255, 0.4)",
-                  borderWidth: 1.5,
-                  borderRadius: "50px",
-                },
-                "&:hover fieldset": {
-                  borderColor: "rgba(255, 255, 255, 0.6)",
-                  borderWidth: 2,
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "rgba(255, 120, 73, 0.8)",
-                  borderWidth: 2.5,
-                },
-                "&:hover": {
-                  background:
-                    "linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85))",
-                  transform: "translateY(-3px) scale(1.02)",
-                  transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                  boxShadow:
-                    "0 35px 70px rgba(0, 0, 0, 0.15), 0 12px 24px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)",
-                },
-                "&.Mui-focused": {
-                  background:
-                    "linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.9))",
-                  boxShadow:
-                    "0 40px 80px rgba(0, 0, 0, 0.18), 0 15px 30px rgba(0, 0, 0, 0.12), 0 0 0 4px rgba(255, 120, 73, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9)",
-                  transform: "translateY(-4px) scale(1.03)",
-                  transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                },
-              },
-              "& .MuiInputBase-input": {
-                color: "#2c3e50",
-                fontWeight: 500,
-                "&::placeholder": {
-                  color: "#7f8c8d",
-                  opacity: 0.8,
-                  fontWeight: 400,
-                },
-              },
-              "& .MuiInputAdornment-root": {
-                marginRight: 1,
-                "& .MuiSvgIcon-root": {
-                  filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))",
-                },
-              },
-            }}
-          />
-          <Typography
-            variant="body2"
-            sx={{
-              textAlign: "center",
-              mt: 2,
-              color: "rgba(255, 255, 255, 0.9)",
-              fontSize: "14px",
-              fontWeight: 500,
-            }}
-          >
-            Explore the complete Scoville scale from mild to extreme heat levels
-          </Typography>
-        </Box>
-      </Box>
+      <div className="px-4 py-6 max-w-[1200px] mx-auto">
+        <h2 className="mb-3 font-bold text-[#333] text-2xl">Understanding the Scoville Scale</h2>
+        <p className="mb-4 text-[#666] leading-relaxed">The Scoville scale is the measurement system used to quantify the heat or spiciness of chilli peppers and other spicy foods. Developed by American pharmacist Wilbur Scoville in 1912, this scale is determined by a panel of people tasting diluted samples with the human tongue, rather than using a chemical method and provides a numerical value that represents the concentration of capsaicin, the compound responsible for the burning sensation experienced when consuming spicy foods.</p>
+        <p className="mb-4 text-[#666] leading-relaxed">The Scoville scale ranges from 0 to over 16 million Scoville Heat Units (SHU), with the lower end representing mild, sweet peppers and the higher end representing the most intensely fiery chilli peppers. The scale works by measuring the amount of capsaicin present in a specific pepper variety, with a higher SHU indicating a greater concentration of this compound.</p>
+        <p className="mb-6 text-[#666] leading-relaxed">Understanding the Scoville scale is crucial when exploring the world of chilli peppers, as it allows us to appreciate the nuances of spiciness and make informed choices about the level of heat we can handle. This knowledge can enhance our culinary and health experiences, whether we&apos;re experimenting with supplements, creating spicy condiments, or simply enjoying the thrill of a well-balanced, flavorful dish.</p>
+        <p className="mb-4 text-[#666] leading-relaxed">Nutraceuticals Group Europe supplies a range of the chilli powders and extracts, but are we too hot for you to handle? Below we have the Scoville scale so you can see which ingredient suits you, your product and your customers.</p>
 
-      {/* Content Section */}
-      <Box sx={{ px: 4, py: 6, maxWidth: 1200, mx: "auto" }}>
-        {/* Introduction */}
-        <Typography
-          variant="h4"
-          component="h2"
-          sx={{ mb: 3, fontWeight: "bold", color: "#333" }}
-        >
-          Understanding the Scoville Scale
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{ mb: 4, color: "#666", lineHeight: 1.6 }}
-        >
-          The Scoville scale is the measurement system used to quantify the heat
-          or spiciness of chilli peppers and other spicy foods. Developed by
-          American pharmacist Wilbur Scoville in 1912, this scale is determined
-          by a panel of people tasting diluted samples with the human tongue,
-          rather than using a chemical method and provides a numerical value
-          that represents the concentration of capsaicin, the compound
-          responsible for the burning sensation experienced when consuming spicy
-          foods.
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{ mb: 4, color: "#666", lineHeight: 1.6 }}
-        >
-          The Scoville scale ranges from 0 to over 16 million Scoville Heat
-          Units (SHU), with the lower end representing mild, sweet peppers and
-          the higher end representing the most intensely fiery chilli peppers.
-          The scale works by measuring the amount of capsaicin present in a
-          specific pepper variety, with a higher SHU indicating a greater
-          concentration of this compound.
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{ mb: 6, color: "#666", lineHeight: 1.6 }}
-        >
-          Understanding the Scoville scale is crucial when exploring the world
-          of chilli peppers, as it allows us to appreciate the nuances of
-          spiciness and make informed choices about the level of heat we can
-          handle. This knowledge can enhance our culinary and health
-          experiences, whether we're experimenting with supplements, creating
-          spicy condiments, or simply enjoying the thrill of a well-balanced,
-          flavorful dish.
-        </Typography>
+        <h3 className="mt-4 mb-3 font-bold text-[#333] text-xl">Complete Scoville Heat Scale</h3>
+        <div className="overflow-x-auto mb-6 shadow-md rounded-lg">
+          <table className="w-full border-collapse bg-white">
+            <thead><tr><TH>Approx Heat Rating (SHU)</TH><TH>Heat vs Pure Capsaicin</TH><TH>Example</TH><TH>Approx Pungency</TH><TH>Source</TH><TH>Code</TH><TH>Item Name</TH></tr></thead>
+            <tbody>
+              {[
+                ["16,000,000,000","100000%","Resiniferatoxin","","Chemical","",""],
+                ["5,300,000,000","33125%","Tinyatoxin","","Chemical","",""],
+                ["16,000,000","100%","Capsaicin Pure","Pure Capsaicin","Chemical","",""],
+                ["15,000,000","94%","Dihydrocapsaicin","","Chemical","",""],
+                ["9,200,000","58%","Nonivamide","","Chemical","",""],
+                ["9,100,000","57%","Nordihydrocapsaicin","","Chemical","",""],
+                ["8,600,000","54%","Homocapsaicin, Homodihydrocapsaicin","","Chemical","",""],
+                ["2,200,000","14%","Carolina Reaper, Dragons Breath","","Pepper","",""],
+                ["2,009,999","13%","Trinidad Moruga Scorpion","","Pepper","",""],
+                ["2,000,000","13%","Pepper Spray","Extreme Heat","Chemical","",""],
+                ["1,600,000","10%","Capsaicin 10%","","Pepper","NIGEHER008215","Capsicum Pepper Extract Oleoresin 10% Capsaicin 1.6 Million SHU ~60:1 (Chilli) (Capsicum annuum)"],
+                ["1,350,000","8%","Naga Viper","","Pepper","",""],
+                ["1,000,000","6%","Capsaicin 6.2%","","Pepper","NIGEHER008211","Capsicum Pepper Extract Oleoresin 6.2% Capsaicin 1 Million SHU ~40:1 (Chilli) (Capsicum annuum)"],
+                ["1,000,000","6%","Ghost Pepper (Bhut Jolokia)","","Pepper","",""],
+                ["800,000","5%","Capsaicin 5%","","Chemical","",""],
+                ["750,000","5%","Infinity Chilli, Bhut Jolokia chili pepper, Super Naga","","Pepper","",""],
+                ["500,000","3.1%","Red Savina habanero","","Pepper","",""],
+                ["400,000","2.5%","Capsaicin 2.5%","","Chemical","",""],
+                ["400,000","2.5%","Animal Repellant - Capsaicin 2.5%","","Chemical","",""],
+                ["350,000","2.2%","Chocolate habanero, Habanaga, Nagabon","","Pepper","",""],
+                ["200,000","1.3%","Habanero","Very High Heat","Pepper","",""],
+                ["160,000","1.0%","Capsaicin 1%","","Chemical","",""],
+                ["160,000","1.0%","Shogaol","","Chemical","",""],
+                ["100,000","0.6%","Piperine","","Chemical","NIGEHER006001","Black Pepper Extract 95% Piperine ~25:1 (Piper nigrum)"],
+                ["100,000","0.6%","Habanero chili, Scotch bonnet, Datil, Rocoto, White Habanero, Jamaican hot pepper","","Pepper","",""],
+                ["80,000","0.5%","Capsaicin 0.5%","","Chemical","NIGEHER009001","Cayenne Pepper Extract 0.5% Capsaicinoids (Chilli) (Capsicum annuum Cayenne)"],
+                ["75,000","0.5%","Red Amazon","","Pepper","",""],
+                ["75,000","0.5%","Pequin","","Pepper","",""],
+                ["70,000","0.4%","Chiltecepin","High Heat","Pepper","",""],
+                ["60,000","0.4%","Gingerol","","Chemical","",""],
+                ["50,000","0.3%","Byadgi chilli, Bird's eye chili (Thai Chili Pepper), Malagueta pepper, Chiltepin pepper, Piri piri","","Pepper","",""],
+                ["30,000","0.2%","Cayenne Pepper","","Pepper","NIGEHER009301HT","Cayenne Pepper Powder (Chilli) (Capsicum annuum Cayenne) Heat Treated"],
+                ["30,000","0.2%","Tabasco Pepper","","Pepper","",""],
+                ["25,000","0.2%","Arbol","","Pepper","",""],
+                ["25,000","0.2%","Japone","Moderate","Pepper","",""],
+                ["25,000","0.2%","Guntur chilli, Ají pepper, Cumari pepper (Capsicum Chinense), Katara (spicy), Arbol pepper","","Pepper","",""],
+                ["16,000","0.10%","Capsiate","","Pepper","",""],
+                ["10,000","0.06%","Smoked Jalepeno (Chipotle)","","Pepper","",""],
+                ["10,000","0.06%","Serrano pepper, Peter pepper, Aleppo pepper","","Pepper","",""],
+                ["7,000","0.04%","Puya","","Pepper","",""],
+                ["7,000","0.04%","Tabasco Sauce (Green Habanero)","","Pepper","",""],
+                ["5,000","0.03%","Guajillo","","Pepper","",""],
+                ["3,500","0.02%","Jalapeno pepper","","Pepper","",""],
+                ["3,000","0.02%","Poblano","","Pepper","",""],
+                ["2,500","0.02%","Tabasco Sauce (Red)","","Pepper","",""],
+                ["2,500","0.02%","Pasilla","","Pepper","",""],
+                ["2,500","0.02%","Espelette pepper, Chipotle, Guajillo pepper, Hungarian wax pepper, Bullet pepper","","Pepper","",""],
+                ["2,200","0.01%","Sriracha Sauce","","Pepper","",""],
+                ["2,000","0.01%","Tabasco Sauce (Chipotle)","","Pepper","",""],
+                ["1,000","0.01%","Mild Jalepeno","Mild","Pepper","",""],
+                ["1,000","0.01%","Guindillas peppers","","Pepper","",""],
+                ["1,000","0.01%","New Mexican","","Pepper","",""],
+                ["1,000","0.01%","Ancho","","Pepper","",""],
+                ["1,000","0.01%","Anaheim pepper, Poblano pepper, Rocotillo pepper, Peppadew","","Pepper","",""],
+                ["450","0.00%","Frank's Red Hot Sauce","","Pepper","",""],
+                ["100","0.00%","Pimento, Peperoncini, Banana pepper","","Pepper","",""],
+                ["0","0.00%","Bell pepper, Cubanelle, Aji dulce","No Heat","Pepper","NIGEHER008251","Red Bell Pepper Powder (Capsicum annuum) Heat Treated"],
+              ].map((r, i) => <tr key={i} className="border-b border-[#e8e8e8] hover:bg-gray-50">{r.map((c, j) => <TD key={j}>{c}</TD>)}</tr>)}
+            </tbody>
+          </table>
+        </div>
 
-        <Typography
-          variant="body1"
-          sx={{ mb: 4, color: "#666", lineHeight: 1.6 }}
-        >
-          Nutraceuticals Group Europe supplies a range of the chilli powders and
-          extracts, but are we too hot for you to handle? Below we have the
-          Scoville scale so you can see which ingredient suits you, your product
-          and your customers. Please read our blog on Capsaicin or contact our
-          friendly and knowledgeable technical sales colleagues to help guide
-          you to the best ingredients to allow you to achieve your desired
-          flavour profile or check our hot items here.
-        </Typography>
+        <h3 className="mt-4 mb-3 font-bold text-[#333] text-xl">Available Products</h3>
+        <div className="overflow-x-auto mb-6 shadow-md rounded-lg">
+          <table className="w-full border-collapse bg-white">
+            <thead><tr><TH>Item Code</TH><TH>Item Name</TH></tr></thead>
+            <tbody>
+              {[
+                ["NIGEHER009001","Cayenne Pepper Extract 0.5% Capsaicinoids (Chilli) (Capsicum annuum Cayenne)"],
+                ["NIGEHER009005","Cayenne Pepper Extract 0.6% Capsaicinoids (Chilli) (Capsicum annuum Cayenne)"],
+                ["NIGEHER009010","Cayenne Pepper Extract 1.0% Capsaicinoids (Chilli) (Capsicum annuum Cayenne)"],
+                ["NIGEHER009015","Cayenne Pepper Extract 1.3% Capsaicinoids (Chilli) (Capsicum annuum Cayenne)"],
+                ["NIGEHER009080","Cayenne Pepper Extract 4:1 (Chilli) (Capsicum annuum Cayenne)"],
+                ["NIGEHER009090","Cayenne Pepper Extract 7:1 (Chilli) (Capsicum annuum Cayenne)"],
+                ["NIGEHER009101","Cayenne Pepper Extract 8:1 (Chilli) (Capsicum annuum Cayenne)"],
+                ["NIGEHER009190","Cayenne Pepper Powder 40K SHU (Chilli) (Capsicum annuum Cayenne) NHT"],
+                ["NIGEHER009201","Cayenne Pepper Powder 100K SHU (Chilli) (Capsicum annuum Cayenne) Heat Treated"],
+                ["NIGEHER009301HT","Cayenne Pepper Powder (Chilli) (Capsicum annuum Cayenne) Heat Treated"],
+              ].map((r, i) => <tr key={i} className="border-b border-[#e8e8e8] hover:bg-gray-50"><TD>{r[0]}</TD><TD>{r[1]}</TD></tr>)}
+            </tbody>
+          </table>
+        </div>
 
-        {/* Scoville Scale Table */}
-        <Typography
-          variant="h5"
-          component="h3"
-          sx={{ mb: 3, fontWeight: "bold", color: "#333", mt: 4 }}
-        >
-          Complete Scoville Heat Scale
-        </Typography>
-        <TableContainer
-          component={Paper}
-          sx={{ mb: 6, boxShadow: 2, overflowX: "auto" }}
-        >
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
-                <TableCell sx={{ fontWeight: "bold" }}>
-                  Approx Heat Rating (SHU)
-                </TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>
-                  Heat vs Pure Capsaicin
-                </TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Example</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>
-                  Approx Pungency
-                </TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Source</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Code</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Item Name</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell>16,000,000,000</TableCell>
-                <TableCell>100000%</TableCell>
-                <TableCell>Resiniferatoxin</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Chemical</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>5,300,000,000</TableCell>
-                <TableCell>33125%</TableCell>
-                <TableCell>Tinyatoxin</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Chemical</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>16,000,000</TableCell>
-                <TableCell>100%</TableCell>
-                <TableCell>Capsaicin Pure</TableCell>
-                <TableCell>Pure Capsaicin</TableCell>
-                <TableCell>Chemical</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>15,000,000</TableCell>
-                <TableCell>94%</TableCell>
-                <TableCell>Dihydrocapsaicin</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Chemical</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>9,200,000</TableCell>
-                <TableCell>58%</TableCell>
-                <TableCell>Nonivamide</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Chemical</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>9,100,000</TableCell>
-                <TableCell>57%</TableCell>
-                <TableCell>Nordihydrocapsaicin</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Chemical</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>8,600,000</TableCell>
-                <TableCell>54%</TableCell>
-                <TableCell>Homocapsaicin, Homodihydrocapsaicin</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Chemical</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>2,200,000</TableCell>
-                <TableCell>14%</TableCell>
-                <TableCell>Carolina Reaper, Dragons Breath</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>2,009,999</TableCell>
-                <TableCell>13%</TableCell>
-                <TableCell>Trinidad Moruga Scorpion</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>2,000,000</TableCell>
-                <TableCell>13%</TableCell>
-                <TableCell>Pepper Spray</TableCell>
-                <TableCell>Extreme Heat</TableCell>
-                <TableCell>Chemical</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>1,600,000</TableCell>
-                <TableCell>10%</TableCell>
-                <TableCell>Capsaicin 10%</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell>NIGEHER008215</TableCell>
-                <TableCell>
-                  Capsicum Pepper Extract Oleoresin 10% Capsaicin 1.6 Million
-                  SHU ~60:1 (Chilli) (Capsicum annuum)
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>1,350,000</TableCell>
-                <TableCell>8%</TableCell>
-                <TableCell>Naga Viper</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>1,000,000</TableCell>
-                <TableCell>6%</TableCell>
-                <TableCell>Capsaicin 6.2%</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell>NIGEHER008211</TableCell>
-                <TableCell>
-                  Capsicum Pepper Extract Oleoresin 6.2% Capsaicin 1 Million SHU
-                  ~40:1 (Chilli) (Capsicum annuum)
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>1,000,000</TableCell>
-                <TableCell>6%</TableCell>
-                <TableCell>Ghost Pepper (Bhut Jolokia)</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>800,000</TableCell>
-                <TableCell>5%</TableCell>
-                <TableCell>Capsaicin 5%</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Chemical</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>750,000</TableCell>
-                <TableCell>5%</TableCell>
-                <TableCell>
-                  Infinity Chilli, Bhut Jolokia chili pepper, Super Naga
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>500,000</TableCell>
-                <TableCell>3.1%</TableCell>
-                <TableCell>Red Savina habanero</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>400,000</TableCell>
-                <TableCell>2.5%</TableCell>
-                <TableCell>Capsaicin 2.5%</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Chemical</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>400,000</TableCell>
-                <TableCell>2.5%</TableCell>
-                <TableCell>Animal Repellant - Capsaicin 2.5%</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Chemical</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>350,000</TableCell>
-                <TableCell>2.2%</TableCell>
-                <TableCell>Chocolate habanero, Habanaga, Nagabon</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>200,000</TableCell>
-                <TableCell>1.3%</TableCell>
-                <TableCell>Habanero</TableCell>
-                <TableCell>Very High Heat</TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>160,000</TableCell>
-                <TableCell>1.0%</TableCell>
-                <TableCell>Capsaicin 1%</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Chemical</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>160,000</TableCell>
-                <TableCell>1.0%</TableCell>
-                <TableCell>Shogaol</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Chemical</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>100,000</TableCell>
-                <TableCell>0.6%</TableCell>
-                <TableCell>Piperine</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Chemical</TableCell>
-                <TableCell>NIGEHER006001</TableCell>
-                <TableCell>
-                  Black Pepper Extract 95% Piperine ~25:1 (Piper nigrum)
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>100,000</TableCell>
-                <TableCell>0.6%</TableCell>
-                <TableCell>
-                  Habanero chili, Scotch bonnet, Datil, Rocoto, White Habanero,
-                  Jamaican hot pepper
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>80,000</TableCell>
-                <TableCell>0.5%</TableCell>
-                <TableCell>Capsaicin 0.5%</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Chemical</TableCell>
-                <TableCell>NIGEHER009001</TableCell>
-                <TableCell>
-                  Cayenne Pepper Extract 0.5% Capsaicinoids (Chilli) (Capsicum
-                  annuum Cayenne)
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>75,000</TableCell>
-                <TableCell>0.5%</TableCell>
-                <TableCell>Red Amazon</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>75,000</TableCell>
-                <TableCell>0.5%</TableCell>
-                <TableCell>Pequin</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>70,000</TableCell>
-                <TableCell>0.4%</TableCell>
-                <TableCell>Chiltecepin</TableCell>
-                <TableCell>High Heat</TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>60,000</TableCell>
-                <TableCell>0.4%</TableCell>
-                <TableCell>Gingerol</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Chemical</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>50,000</TableCell>
-                <TableCell>0.3%</TableCell>
-                <TableCell>
-                  Byadgi chilli, Bird's eye chili (Thai Chili Pepper), Malagueta
-                  pepper, Chiltepin pepper, Piri piri
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>30,000</TableCell>
-                <TableCell>0.2%</TableCell>
-                <TableCell>Cayenne Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell>NIGEHER009301HT</TableCell>
-                <TableCell>
-                  Cayenne Pepper Powder (Chilli) (Capsicum annuum Cayenne) Heat
-                  Treated
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>30,000</TableCell>
-                <TableCell>0.2%</TableCell>
-                <TableCell>Tabasco Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>25,000</TableCell>
-                <TableCell>0.2%</TableCell>
-                <TableCell>Arbol</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>25,000</TableCell>
-                <TableCell>0.2%</TableCell>
-                <TableCell>Japone</TableCell>
-                <TableCell>Moderate</TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>25,000</TableCell>
-                <TableCell>0.2%</TableCell>
-                <TableCell>
-                  Guntur chilli, Ají pepper, Cumari pepper (Capsicum Chinense),
-                  Katara (spicy), Arbol pepper
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>16,000</TableCell>
-                <TableCell>0.10%</TableCell>
-                <TableCell>Capsiate</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>10,000</TableCell>
-                <TableCell>0.06%</TableCell>
-                <TableCell>Smoked Jalepeno (Chipotle)</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>10,000</TableCell>
-                <TableCell>0.06%</TableCell>
-                <TableCell>
-                  Serrano pepper, Peter pepper, Aleppo pepper
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>7,000</TableCell>
-                <TableCell>0.04%</TableCell>
-                <TableCell>Puya</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>7,000</TableCell>
-                <TableCell>0.04%</TableCell>
-                <TableCell>Tabasco Sauce (Green Habanero)</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>5,000</TableCell>
-                <TableCell>0.03%</TableCell>
-                <TableCell>Guajillo</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>3,500</TableCell>
-                <TableCell>0.02%</TableCell>
-                <TableCell>Jalapeno pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>3,000</TableCell>
-                <TableCell>0.02%</TableCell>
-                <TableCell>Poblano</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>2,500</TableCell>
-                <TableCell>0.02%</TableCell>
-                <TableCell>Tabasco Sauce (Red)</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>2,500</TableCell>
-                <TableCell>0.02%</TableCell>
-                <TableCell>Pasilla</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>2,500</TableCell>
-                <TableCell>0.02%</TableCell>
-                <TableCell>
-                  Espelette pepper, Chipotle, Guajillo pepper, Hungarian wax
-                  pepper, Bullet pepper
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>2,200</TableCell>
-                <TableCell>0.01%</TableCell>
-                <TableCell>Sriracha Sauce</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>2,000</TableCell>
-                <TableCell>0.01%</TableCell>
-                <TableCell>Tabasco Sauce (Chipotle)</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>1,000</TableCell>
-                <TableCell>0.01%</TableCell>
-                <TableCell>Mild Jalepeno</TableCell>
-                <TableCell>Mild</TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>1,000</TableCell>
-                <TableCell>0.01%</TableCell>
-                <TableCell>Guindillas peppers</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>1,000</TableCell>
-                <TableCell>0.01%</TableCell>
-                <TableCell>New Mexican</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>1,000</TableCell>
-                <TableCell>0.01%</TableCell>
-                <TableCell>Ancho</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>1,000</TableCell>
-                <TableCell>0.01%</TableCell>
-                <TableCell>
-                  Anaheim pepper, Poblano pepper, Rocotillo pepper, Peppadew
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>450</TableCell>
-                <TableCell>0.00%</TableCell>
-                <TableCell>Frank's Red Hot Sauce</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>100</TableCell>
-                <TableCell>0.00%</TableCell>
-                <TableCell>Pimento, Peperoncini, Banana pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>0</TableCell>
-                <TableCell>0.00%</TableCell>
-                <TableCell>Bell pepper, Cubanelle, Aji dulce</TableCell>
-                <TableCell>No Heat</TableCell>
-                <TableCell>Pepper</TableCell>
-                <TableCell>NIGEHER008251</TableCell>
-                <TableCell>
-                  Red Bell Pepper Powder (Capsicum annuum) Heat Treated
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        {/* Product Table */}
-        <Typography
-          variant="h5"
-          component="h3"
-          sx={{ mb: 3, fontWeight: "bold", color: "#333", mt: 4 }}
-        >
-          Available Products
-        </Typography>
-        <TableContainer
-          component={Paper}
-          sx={{ mb: 6, boxShadow: 2, overflowX: "auto" }}
-        >
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
-                <TableCell sx={{ fontWeight: "bold" }}>Item Code</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Item Name</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell>NIGEHER009001</TableCell>
-                <TableCell>
-                  Cayenne Pepper Extract 0.5% Capsaicinoids (Chilli) (Capsicum
-                  annuum Cayenne)
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEHER009005</TableCell>
-                <TableCell>
-                  Cayenne Pepper Extract 0.6% Capsaicinoids (Chilli) (Capsicum
-                  annuum Cayenne)
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEHER009010</TableCell>
-                <TableCell>
-                  Cayenne Pepper Extract 1.0% Capsaicinoids (Chilli) (Capsicum
-                  annuum Cayenne)
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEHER009015</TableCell>
-                <TableCell>
-                  Cayenne Pepper Extract 1.3% Capsaicinoids (Chilli) (Capsicum
-                  annuum Cayenne)
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEHER009080</TableCell>
-                <TableCell>
-                  Cayenne Pepper Extract 4:1 (Chilli) (Capsicum annuum Cayenne)
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEHER009090</TableCell>
-                <TableCell>
-                  Cayenne Pepper Extract 7:1 (Chilli) (Capsicum annuum Cayenne)
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEHER009101</TableCell>
-                <TableCell>
-                  Cayenne Pepper Extract 8:1 (Chilli) (Capsicum annuum Cayenne)
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEHER009190</TableCell>
-                <TableCell>
-                  Cayenne Pepper Powder 40K SHU (Chilli) (Capsicum annuum
-                  Cayenne) NHT
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEHER009201</TableCell>
-                <TableCell>
-                  Cayenne Pepper Powder 100K SHU (Chilli) (Capsicum annuum
-                  Cayenne) Heat Treated
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEHER009301HT</TableCell>
-                <TableCell>
-                  Cayenne Pepper Powder (Chilli) (Capsicum annuum Cayenne) Heat
-                  Treated
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        {/* Disclaimer */}
-        <Card
-          sx={{
-            mt: 6,
-            mb: 4,
-            backgroundColor: "#f8f9fa",
-            border: "1px solid #e9ecef",
-          }}
-        >
-          <CardContent>
-            <Typography
-              variant="body2"
-              sx={{ color: "#666", lineHeight: 1.6, fontStyle: "italic" }}
-            >
-              All information is correct to the best of our knowledge and
-              Nutraceuticals Group Europe takes no responsibility for any errors
-              or mistakes. Links to other sources and reference material are
-              included for accuracy. Any errors or omissions? Please let us know
-              through our contact form.
-            </Typography>
-          </CardContent>
-        </Card>
-
-        {/* Contact Information */}
+        <div className="mt-6 mb-4 bg-[#f8f9fa] border border-[#e9ecef] rounded-lg p-4">
+          <p className="text-[#666] text-sm leading-relaxed italic">All information is correct to the best of our knowledge and Nutraceuticals Group Europe takes no responsibility for any errors or mistakes. Links to other sources and reference material are included for accuracy. Any errors or omissions? Please let us know through our contact form.</p>
+        </div>
         <CompanyContactInfo />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }

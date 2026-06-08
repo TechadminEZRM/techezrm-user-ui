@@ -1,758 +1,244 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  // Grid,
-  Chip,
-  Button,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  Divider,
-  // Avatar,
-  Skeleton,
-  Alert,
-  Paper,
-} from "@mui/material";
-import {
-  Close,
-  Visibility,
-  CalendarToday,
-  AttachMoney,
-  // LocalShipping,
-  Business,
-  Email,
-  Phone,
-  LocationOn,
-  Schedule,
-  PriorityHigh,
-  CheckCircle,
-  Pending,
-  Cancel,
-  Warning,
-} from "@mui/icons-material";
+import { X, Eye, Calendar, DollarSign, Building2, Mail, Phone, MapPin, Clock, AlertCircle, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useRFQListing } from "@/api/handlers/rfqHandler";
 import { RFQListingItem } from "@/api/services/rfq";
 
-interface RFQListingProps {
-  customerPhone: string;
-}
+interface RFQListingProps { customerPhone: string; }
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "pending":
-      return "warning";
-    case "approved":
-      return "success";
-    case "rejected":
-      return "error";
-    case "completed":
-      return "info";
-    default:
-      return "default";
-  }
+const statusStyles: Record<string, string> = {
+  pending: "bg-yellow-100 text-yellow-800",
+  approved: "bg-green-100 text-green-800",
+  rejected: "bg-red-100 text-red-800",
+  completed: "bg-blue-100 text-blue-800",
+};
+const urgencyStyles: Record<string, string> = {
+  high: "bg-red-100 text-red-800",
+  medium: "bg-yellow-100 text-yellow-800",
+  low: "bg-green-100 text-green-800",
 };
 
-const getStatusIcon = (status: string) => {
-  switch (status) {
-    case "pending":
-      return <Pending />;
-    case "approved":
-      return <CheckCircle />;
-    case "rejected":
-      return <Cancel />;
-    case "completed":
-      return <CheckCircle />;
-    default:
-      return <Pending />;
-  }
-};
+const formatDate = (d: string) => new Date(d).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+const formatCurrency = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
 
-const getUrgencyColor = (urgency: string) => {
-  switch (urgency) {
-    case "high":
-      return "error";
-    case "medium":
-      return "warning";
-    case "low":
-      return "success";
-    default:
-      return "default";
-  }
-};
+const InfoRow = ({ icon: Icon, label, value }: { icon: any; label?: string; value: string }) => (
+  <div className="flex items-center gap-2 mb-1.5">
+    <Icon className="w-4 h-4 text-[#F9A922] flex-shrink-0" />
+    {label && <span className="text-sm font-medium text-[#333]">{label}</span>}
+    <span className="text-sm text-[#555]">{value}</span>
+  </div>
+);
 
-const getUrgencyIcon = (urgency: string) => {
-  switch (urgency) {
-    case "high":
-      return <PriorityHigh />;
-    case "medium":
-      return <Warning />;
-    case "low":
-      return <CheckCircle />;
-    default:
-      return <Pending />;
-  }
-};
+const Chip = ({ label, className }: { label: string; className: string }) => (
+  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${className}`}>{label}</span>
+);
 
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-};
-
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount);
-};
-
-const RFQDetailModal: React.FC<{
-  open: boolean;
-  onClose: () => void;
-  rfq: RFQListingItem | null;
-}> = ({ open, onClose, rfq }) => {
+const RFQDetailModal: React.FC<{ open: boolean; onClose: () => void; rfq: RFQListingItem | null }> = ({ open, onClose, rfq }) => {
   if (!rfq) return null;
-
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="md"
-      fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 3,
-          maxHeight: "90vh",
-          overflow: "hidden",
-          boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
-          border: "1px solid rgba(255, 107, 53, 0.1)",
-        },
-      }}
-    >
-      <DialogTitle
-        sx={{
-          background: "linear-gradient(135deg, #ff6b35 0%, #f7931e 100%)",
-          color: "white",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          position: "relative",
-          overflow: "hidden",
-          "&::before": {
-            content: '""',
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background:
-              'url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>\')',
-            opacity: 0.3,
-          },
-        }}
-      >
-        <Box>
-          <Typography variant="h5" fontWeight="bold">
-            RFQ Details
-          </Typography>
-          <Typography variant="body2" sx={{ opacity: 0.9 }}>
-            {rfq.uniqueId}
-          </Typography>
-        </Box>
-        <IconButton
-          onClick={onClose}
-          sx={{
-            color: "white",
-            background: "rgba(255,255,255,0.1)",
-            backdropFilter: "blur(10px)",
-            "&:hover": {
-              background: "rgba(255,255,255,0.2)",
-            },
-          }}
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl p-0 rounded-2xl overflow-hidden max-h-[90vh]">
+        {/* Header */}
+        <div
+          className="flex justify-between items-center p-6 text-white relative"
+          style={{ background: "linear-gradient(135deg, #F9A922 0%, #f7931e 100%)" }}
         >
-          <Close />
-        </IconButton>
-      </DialogTitle>
+          <div>
+            <h2 className="text-xl font-bold">RFQ Details</h2>
+            <p className="text-sm opacity-90">{rfq.uniqueId}</p>
+          </div>
+          <button onClick={onClose} className="bg-white/10 hover:bg-white/20 rounded-full p-1.5 transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-      <DialogContent sx={{ p: 0 }}>
-        <Box sx={{ maxHeight: "calc(90vh - 80px)", overflowY: "auto" }}>
-          <Box sx={{ p: 3 }}>
-            {/* Header Info */}
-            <Box sx={{ mb: 3 }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: { xs: "column", md: "row" },
-                  justifyContent: "space-between",
-                  alignItems: { xs: "flex-start", md: "center" },
-                  gap: 2,
-                }}
-              >
-                <Box>
-                  <Typography variant="h6" fontWeight="bold" color="primary">
-                    {rfq.productName}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Quantity: {rfq.quantity} units
-                  </Typography>
-                </Box>
-                <Box sx={{ display: "flex", gap: 1, flexShrink: 0 }}>
-                  <Chip
-                    icon={getStatusIcon(rfq.status)}
-                    label={rfq.status.toUpperCase()}
-                    color={getStatusColor(rfq.status) as any}
-                  />
-                  <Chip
-                    icon={getUrgencyIcon(rfq.urgency)}
-                    label={rfq.urgency.toUpperCase()}
-                    color={getUrgencyColor(rfq.urgency) as any}
-                  />
-                </Box>
-              </Box>
-            </Box>
+        <div className="p-6 overflow-y-auto" style={{ maxHeight: "calc(90vh - 80px)" }}>
+          {/* Product + Status */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4 pb-4 border-b border-[#e0e0e0]">
+            <div>
+              <h3 className="text-lg font-bold text-[#F9A922]">{rfq.productName}</h3>
+              <p className="text-sm text-[#737791]">Quantity: {rfq.quantity} units</p>
+            </div>
+            <div className="flex gap-2">
+              <Chip label={rfq.status.toUpperCase()} className={statusStyles[rfq.status] || "bg-gray-100 text-gray-800"} />
+              <Chip label={rfq.urgency.toUpperCase()} className={urgencyStyles[rfq.urgency] || "bg-gray-100 text-gray-800"} />
+            </div>
+          </div>
 
-            <Divider sx={{ mb: 3 }} />
+          {/* Customer Info */}
+          <div className="mb-4">
+            <h4 className="font-bold text-base mb-3">Customer Information</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <InfoRow icon={Building2} value={rfq.customerName} />
+                <InfoRow icon={Mail} value={rfq.customerEmail} />
+                <InfoRow icon={Phone} value={`${rfq.customerPhoneCountryCode} ${rfq.customerPhone}`} />
+              </div>
+              <div>
+                {rfq.companyName && <InfoRow icon={Building2} label="" value={rfq.companyName} />}
+                {rfq.companyAddress && <InfoRow icon={MapPin} label="" value={rfq.companyAddress} />}
+                {rfq.department && <InfoRow icon={Building2} label="" value={rfq.department} />}
+              </div>
+            </div>
+          </div>
 
-            {/* Customer Information */}
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-                Customer Information
-              </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: { xs: "column", md: "row" },
-                  gap: 3,
-                }}
-              >
-                <Box sx={{ flex: 1 }}>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                    <Business sx={{ mr: 1, color: "primary.main" }} />
-                    <Typography variant="body2" fontWeight="medium">
-                      {rfq.customerName}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                    <Email sx={{ mr: 1, color: "primary.main" }} />
-                    <Typography variant="body2">{rfq.customerEmail}</Typography>
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <Phone sx={{ mr: 1, color: "primary.main" }} />
-                    <Typography variant="body2">
-                      {rfq.customerPhoneCountryCode} {rfq.customerPhone}
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box sx={{ flex: 1 }}>
-                  {rfq.companyName && (
-                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                      <Business sx={{ mr: 1, color: "primary.main" }} />
-                      <Typography variant="body2" fontWeight="medium">
-                        {rfq.companyName}
-                      </Typography>
-                    </Box>
-                  )}
-                  {rfq.companyAddress && (
-                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                      <LocationOn sx={{ mr: 1, color: "primary.main" }} />
-                      <Typography variant="body2">
-                        {rfq.companyAddress}
-                      </Typography>
-                    </Box>
-                  )}
-                  {rfq.department && (
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                      <Business sx={{ mr: 1, color: "primary.main" }} />
-                      <Typography variant="body2">{rfq.department}</Typography>
-                    </Box>
-                  )}
-                </Box>
-              </Box>
-            </Box>
+          <hr className="border-[#e0e0e0] mb-4" />
 
-            <Divider sx={{ mb: 3 }} />
+          {/* Project Details */}
+          <div className="mb-4">
+            <h4 className="font-bold text-base mb-3">Project Details</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <InfoRow icon={Calendar} label="Expected Delivery:" value={formatDate(rfq.expectedDeliveryDate)} />
+                <InfoRow icon={DollarSign} label="Budget:" value={formatCurrency(rfq.budget)} />
+              </div>
+              <div>
+                {rfq.availabilityDay && <InfoRow icon={Clock} label="Availability:" value={rfq.availabilityDay} />}
+                {rfq.availabilityTime && <InfoRow icon={Clock} label="Time:" value={rfq.availabilityTime} />}
+              </div>
+            </div>
+          </div>
 
-            {/* Project Details */}
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-                Project Details
-              </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: { xs: "column", md: "row" },
-                  gap: 3,
-                }}
-              >
-                <Box sx={{ flex: 1 }}>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                    <CalendarToday sx={{ mr: 1, color: "primary.main" }} />
-                    <Typography variant="body2" fontWeight="medium">
-                      Expected Delivery:
-                    </Typography>
-                    <Typography variant="body2" sx={{ ml: 1 }}>
-                      {formatDate(rfq.expectedDeliveryDate)}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                    <AttachMoney sx={{ mr: 1, color: "primary.main" }} />
-                    <Typography variant="body2" fontWeight="medium">
-                      Budget:
-                    </Typography>
-                    <Typography variant="body2" sx={{ ml: 1 }}>
-                      {formatCurrency(rfq.budget)}
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box sx={{ flex: 1 }}>
-                  {rfq.availabilityDay && (
-                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                      <Schedule sx={{ mr: 1, color: "primary.main" }} />
-                      <Typography variant="body2" fontWeight="medium">
-                        Availability:
-                      </Typography>
-                      <Typography variant="body2" sx={{ ml: 1 }}>
-                        {rfq.availabilityDay}
-                      </Typography>
-                    </Box>
-                  )}
-                  {rfq.availabilityTime && (
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                      <Schedule sx={{ mr: 1, color: "primary.main" }} />
-                      <Typography variant="body2" fontWeight="medium">
-                        Time:
-                      </Typography>
-                      <Typography variant="body2" sx={{ ml: 1 }}>
-                        {rfq.availabilityTime}
-                      </Typography>
-                    </Box>
-                  )}
-                </Box>
-              </Box>
-            </Box>
+          <hr className="border-[#e0e0e0] mb-4" />
 
-            <Divider sx={{ mb: 3 }} />
+          {/* Description */}
+          <div className="mb-4">
+            <h4 className="font-bold text-base mb-3">Description</h4>
+            <div className="bg-[rgba(255,107,53,0.05)] border border-[rgba(255,107,53,0.1)] rounded-lg p-3">
+              <p className="text-sm text-[#333]">{rfq.description}</p>
+            </div>
+          </div>
 
-            {/* Description */}
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-                Description
-              </Typography>
-              <Paper
-                sx={{
-                  p: 2,
-                  background: "rgba(255, 107, 53, 0.05)",
-                  border: "1px solid rgba(255, 107, 53, 0.1)",
-                }}
-              >
-                <Typography variant="body2">{rfq.description}</Typography>
-              </Paper>
-            </Box>
+          {/* Additional Requirements */}
+          {rfq.additionalRequirements && (
+            <>
+              <hr className="border-[#e0e0e0] mb-4" />
+              <div className="mb-4">
+                <h4 className="font-bold text-base mb-3">Additional Requirements</h4>
+                <div className="bg-[rgba(255,107,53,0.05)] border border-[rgba(255,107,53,0.1)] rounded-lg p-3">
+                  <p className="text-sm text-[#333]">{rfq.additionalRequirements}</p>
+                </div>
+              </div>
+            </>
+          )}
 
-            {/* Additional Requirements */}
-            {rfq.additionalRequirements && (
-              <>
-                <Divider sx={{ mb: 3 }} />
-                <Box sx={{ mb: 3 }}>
-                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-                    Additional Requirements
-                  </Typography>
-                  <Paper
-                    sx={{
-                      p: 2,
-                      background: "rgba(255, 107, 53, 0.05)",
-                      border: "1px solid rgba(255, 107, 53, 0.1)",
-                    }}
-                  >
-                    <Typography variant="body2">
-                      {rfq.additionalRequirements}
-                    </Typography>
-                  </Paper>
-                </Box>
-              </>
-            )}
-
-            {/* Timestamps */}
-            <Divider sx={{ mb: 3 }} />
-            <Box>
-              <Typography variant="body2" color="text.secondary">
-                Created: {formatDate(rfq.createdAt)}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Last Updated: {formatDate(rfq.updatedAt)}
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
+          <hr className="border-[#e0e0e0] mb-3" />
+          <p className="text-xs text-[#737791]">Created: {formatDate(rfq.createdAt)}</p>
+          <p className="text-xs text-[#737791]">Last Updated: {formatDate(rfq.updatedAt)}</p>
+        </div>
       </DialogContent>
     </Dialog>
   );
 };
 
+const StatBox = ({ label, value }: { label: string; value: string }) => (
+  <div className="p-3 bg-[rgba(255,107,53,0.05)] border border-[rgba(255,107,53,0.1)] rounded-xl">
+    <p className="text-[0.7rem] font-semibold text-[#737791] uppercase mb-1">{label}</p>
+    <p className="text-[0.9rem] font-semibold text-[#F9A922]">{value}</p>
+  </div>
+);
+
 const RFQListing: React.FC<RFQListingProps> = ({ customerPhone }) => {
-  // Clean phone number by removing country code prefix
-  const cleanPhoneNumber = (phone: string) => {
-    if (!phone) return "";
-
-    // Remove common country code patterns:
-    // +91-9876543210 -> 9876543210
-    // +91 9876543210 -> 9876543210
-    // 91-9876543210 -> 9876543210
-    // +1-555-123-4567 -> 555-123-4567
-    // +44 20 7946 0958 -> 20 7946 0958
-
-    // First, remove leading + and country codes (1-3 digits)
-    let cleaned = phone.replace(/^\+?\d{1,3}[- ]?/, "");
-
-    // Remove any remaining spaces or dashes at the beginning
-    cleaned = cleaned.replace(/^[- ]+/, "");
-
-    return cleaned;
+  const cleanPhoneNumber = (p: string) => {
+    if (!p) return "";
+    return p.replace(/^\+?\d{1,3}[- ]?/, "").replace(/^[- ]+/, "");
   };
-
   const cleanedPhone = cleanPhoneNumber(customerPhone);
   const { data, isLoading, error } = useRFQListing(cleanedPhone);
   const [selectedRFQ, setSelectedRFQ] = useState<RFQListingItem | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const handleViewDetails = (rfq: RFQListingItem) => {
-    setSelectedRFQ(rfq);
-    setModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setModalOpen(false);
-    setSelectedRFQ(null);
-  };
-
   if (isLoading) {
     return (
-      <Box>
-        <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
-          Your RFQs
-        </Typography>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          {[1, 2, 3].map((item) => (
-            <Card key={item}>
-              <CardContent>
-                <Skeleton variant="text" width="60%" height={32} />
-                <Skeleton variant="text" width="40%" height={24} />
-                <Box sx={{ mt: 2 }}>
-                  <Skeleton variant="rectangular" height={20} />
-                </Box>
-              </CardContent>
-            </Card>
+      <div>
+        <h2 className="text-xl font-bold mb-6">Your RFQs</h2>
+        <div className="flex flex-col gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-white rounded-xl p-5 border border-[#e0e0e0]">
+              <div className="h-6 bg-gray-200 rounded w-3/5 mb-3 animate-pulse" />
+              <div className="h-4 bg-gray-200 rounded w-2/5 mb-4 animate-pulse" />
+              <div className="h-4 bg-gray-200 rounded animate-pulse" />
+            </div>
           ))}
-        </Box>
-      </Box>
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Box>
-        <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
-          Your RFQs
-        </Typography>
-        <Alert severity="error">
-          Failed to load RFQs. Please try again later.
-        </Alert>
-      </Box>
+      <div>
+        <h2 className="text-xl font-bold mb-6">Your RFQs</h2>
+        <div className="bg-red-50 text-red-700 p-4 rounded-xl border border-red-200 text-sm">Failed to load RFQs. Please try again later.</div>
+      </div>
     );
   }
 
   const rfqs = data?.data || [];
 
   return (
-    <Box>
-      {/* <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
-        Your RFQs ({rfqs.length})
-      </Typography> */}
-
+    <div>
       {rfqs.length === 0 ? (
-        <Card>
-          <CardContent sx={{ textAlign: "center", py: 4 }}>
-            <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-              No RFQs Found
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              You havent submitted any RFQs yet. Start by requesting a quote
-              for any product.
-            </Typography>
-          </CardContent>
-        </Card>
+        <div className="bg-white rounded-xl p-10 text-center border border-[#e0e0e0]">
+          <h3 className="text-lg font-semibold text-[#737791] mb-2">No RFQs Found</h3>
+          <p className="text-sm text-[#737791]">You haven't submitted any RFQs yet. Start by requesting a quote for any product.</p>
+        </div>
       ) : (
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        <div className="flex flex-col gap-6">
           {rfqs.map((rfq) => (
-            <Card
+            <div
               key={rfq._id}
-              sx={{
-                width: "100%",
-                maxWidth: 800,
-                mx: "auto",
-                transition: "all 0.3s ease",
-                borderRadius: 2,
-                overflow: "hidden",
-                background: "linear-gradient(135deg, #ffffff 0%, #fafafa 100%)",
-                border: "1px solid rgba(255, 107, 53, 0.1)",
-                "&:hover": {
-                  transform: "translateY(-2px)",
-                  boxShadow: "0 12px 24px rgba(255, 107, 53, 0.12)",
-                  borderColor: "rgba(255, 107, 53, 0.3)",
-                },
-              }}
+              className="w-full max-w-3xl mx-auto rounded-xl overflow-hidden border border-[rgba(255,107,53,0.1)] transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(255,107,53,0.12)] hover:border-[rgba(255,107,53,0.3)]"
+              style={{ background: "linear-gradient(135deg, #ffffff 0%, #fafafa 100%)" }}
             >
-              <CardContent sx={{ p: 3 }}>
-                {/* Header Section */}
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    mb: 2,
-                    pb: 2,
-                    borderBottom: "1px solid rgba(0,0,0,0.08)",
-                  }}
-                >
-                  <Box sx={{ flex: 1 }}>
-                    <Typography
-                      variant="h6"
-                      fontWeight={600}
-                      color="primary"
-                      sx={{ mb: 0.5, fontSize: "1.1rem" }}
-                    >
-                      {rfq.productName}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1,
-                        fontSize: "0.8rem",
-                        fontWeight: 400,
-                      }}
-                    >
-                      <Box
-                        component="span"
-                        sx={{
-                          width: 4,
-                          height: 4,
-                          borderRadius: "50%",
-                          backgroundColor: "primary.main",
-                        }}
-                      />
+              <div className="p-6">
+                {/* Header */}
+                <div className="flex justify-between items-start pb-3 mb-4 border-b border-black/8">
+                  <div className="flex-1">
+                    <h3 className="text-[1.1rem] font-semibold text-[#F9A922] mb-1">{rfq.productName}</h3>
+                    <p className="text-[0.8rem] text-[#737791] flex items-center gap-1">
+                      <span className="w-1 h-1 rounded-full bg-[#F9A922] inline-block" />
                       {rfq.uniqueId} • {formatDate(rfq.createdAt)}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: "flex", gap: 1, flexShrink: 0 }}>
-                    <Chip
-                      icon={getStatusIcon(rfq.status)}
-                      label={rfq.status.toUpperCase()}
-                      color={getStatusColor(rfq.status) as any}
-                      size="small"
-                      sx={{
-                        fontWeight: 500,
-                        fontSize: "0.7rem",
-                        height: 24,
-                      }}
-                    />
-                    <Chip
-                      icon={getUrgencyIcon(rfq.urgency)}
-                      label={rfq.urgency.toUpperCase()}
-                      color={getUrgencyColor(rfq.urgency) as any}
-                      size="small"
-                      sx={{
-                        fontWeight: 500,
-                        fontSize: "0.7rem",
-                        height: 24,
-                      }}
-                    />
-                  </Box>
-                </Box>
+                    </p>
+                  </div>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <Chip label={rfq.status.toUpperCase()} className={`${statusStyles[rfq.status] || "bg-gray-100 text-gray-800"} text-[0.7rem]`} />
+                    <Chip label={rfq.urgency.toUpperCase()} className={`${urgencyStyles[rfq.urgency] || "bg-gray-100 text-gray-800"} text-[0.7rem]`} />
+                  </div>
+                </div>
 
-                {/* Details Grid */}
-                <Box sx={{ mb: 2 }}>
-                  <Box
-                    sx={{
-                      display: "grid",
-                      gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" },
-                      gap: 2,
-                      mb: 2,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        p: 1.5,
-                        backgroundColor: "rgba(255, 107, 53, 0.05)",
-                        borderRadius: 1.5,
-                        border: "1px solid rgba(255, 107, 53, 0.1)",
-                      }}
-                    >
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          mb: 0.5,
-                          fontSize: "0.7rem",
-                          fontWeight: 500,
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        Quantity
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        fontWeight={600}
-                        color="primary"
-                        sx={{ fontSize: "0.9rem" }}
-                      >
-                        {rfq.quantity} units
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        p: 1.5,
-                        backgroundColor: "rgba(255, 107, 53, 0.05)",
-                        borderRadius: 1.5,
-                        border: "1px solid rgba(255, 107, 53, 0.1)",
-                      }}
-                    >
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          mb: 0.5,
-                          fontSize: "0.7rem",
-                          fontWeight: 500,
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        Budget
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        fontWeight={600}
-                        color="primary"
-                        sx={{ fontSize: "0.9rem" }}
-                      >
-                        {formatCurrency(rfq.budget)}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        p: 1.5,
-                        backgroundColor: "rgba(255, 107, 53, 0.05)",
-                        borderRadius: 1.5,
-                        border: "1px solid rgba(255, 107, 53, 0.1)",
-                      }}
-                    >
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          mb: 0.5,
-                          fontSize: "0.7rem",
-                          fontWeight: 500,
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        Expected Delivery
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        fontWeight={600}
-                        color="primary"
-                        sx={{ fontSize: "0.9rem" }}
-                      >
-                        {formatDate(rfq.expectedDeliveryDate)}
-                      </Typography>
-                    </Box>
-                  </Box>
+                {/* Stat Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                  <StatBox label="Quantity" value={`${rfq.quantity} units`} />
+                  <StatBox label="Budget" value={formatCurrency(rfq.budget)} />
+                  <StatBox label="Expected Delivery" value={formatDate(rfq.expectedDeliveryDate)} />
+                </div>
 
-                  {/* Description */}
-                  <Box
-                    sx={{
-                      p: 2,
-                      backgroundColor: "rgba(0,0,0,0.02)",
-                      borderRadius: 1.5,
-                      border: "1px solid rgba(0,0,0,0.08)",
-                    }}
-                  >
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        mb: 1,
-                        fontSize: "0.7rem",
-                        fontWeight: 500,
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      Description
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        lineHeight: 1.5,
-                        color: "#333",
-                        fontSize: "0.85rem",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {rfq.description}
-                    </Typography>
-                  </Box>
-                </Box>
+                {/* Description */}
+                <div className="bg-black/[0.02] border border-black/8 rounded-xl p-3 mb-4">
+                  <p className="text-[0.7rem] font-semibold text-[#737791] uppercase mb-1">Description</p>
+                  <p className="text-[0.85rem] text-[#333] leading-snug">{rfq.description}</p>
+                </div>
 
-                {/* Action Button */}
-                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                  <Button
-                    variant="contained"
-                    startIcon={<Visibility />}
-                    onClick={() => handleViewDetails(rfq)}
-                    sx={{
-                      background:
-                        "linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)",
-                      color: "white",
-                      borderRadius: 1.5,
-                      px: 3,
-                      py: 1,
-                      fontWeight: 500,
-                      textTransform: "none",
-                      fontSize: "0.8rem",
-                      "&:hover": {
-                        background:
-                          "linear-gradient(135deg, #e55a2b 0%, #ff6b35 100%)",
-                        transform: "translateY(-1px)",
-                        boxShadow: "0 6px 16px rgba(255, 107, 53, 0.25)",
-                      },
-                      transition: "all 0.3s ease",
-                    }}
+                {/* View Details */}
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => { setSelectedRFQ(rfq); setModalOpen(true); }}
+                    className="flex items-center gap-2 text-sm font-medium text-white px-5 py-2 rounded-xl transition-all hover:-translate-y-px hover:shadow-[0_6px_16px_rgba(255,107,53,0.25)]"
+                    style={{ background: "linear-gradient(135deg, #F9A922 0%, #ff8c42 100%)" }}
                   >
-                    View Details
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
+                    <Eye className="w-4 h-4" /> View Details
+                  </button>
+                </div>
+              </div>
+            </div>
           ))}
-        </Box>
+        </div>
       )}
 
-      <RFQDetailModal
-        open={modalOpen}
-        onClose={handleCloseModal}
-        rfq={selectedRFQ}
-      />
-    </Box>
+      <RFQDetailModal open={modalOpen} onClose={() => { setModalOpen(false); setSelectedRFQ(null); }} rfq={selectedRFQ} />
+    </div>
   );
 };
 

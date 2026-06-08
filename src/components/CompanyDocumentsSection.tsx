@@ -1,14 +1,5 @@
 import React, { useState } from "react";
-import {
-  Box,
-  Typography,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  styled,
-  IconButton,
-} from "@mui/material";
-import { ExpandMore, Download, Lock } from "@mui/icons-material";
+import { ChevronDown, Download, Lock } from "lucide-react";
 
 interface Document {
   name: string;
@@ -33,269 +24,90 @@ interface CompanyDocumentsSectionProps {
   onBatchSpecificChange: (value: string) => void;
 }
 
-const StyledAccordion = styled(Accordion)(({ theme }) => ({
-  background: "linear-gradient(135deg, #ffffff 0%, #fafafa 100%)",
-  border: "1px solid rgba(255, 107, 53, 0.1)",
-  borderRadius: "8px",
-  marginBottom: "12px",
-  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.04)",
-  transition: "all 0.3s ease",
-  overflow: "hidden",
-
-  "&:before": {
-    display: "none",
-  },
-
-  "&:hover": {
-    borderColor: "rgba(255, 107, 53, 0.25)",
-    boxShadow: "0 6px 20px rgba(255, 107, 53, 0.1)",
-    transform: "translateY(-1px)",
-  },
-
-  "&.Mui-expanded": {
-    background: "linear-gradient(135deg, #fff8f6 0%, #fff5f2 100%)",
-    borderColor: "rgba(255, 107, 53, 0.3)",
-    boxShadow: "0 8px 24px rgba(255, 107, 53, 0.12)",
-  },
-}));
-
-const StyledAccordionSummary = styled(AccordionSummary)(({ theme }) => ({
-  padding: "12px 16px",
-  minHeight: "48px",
-
-  "& .MuiAccordionSummary-content": {
-    margin: "0",
-    alignItems: "center",
-  },
-
-  "& .MuiAccordionSummary-expandIconWrapper": {
-    color: "#ff6b35",
-    transition: "all 0.3s ease",
-    width: "28px",
-    height: "28px",
-    borderRadius: "50%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "rgba(255, 107, 53, 0.1)",
-    fontSize: "16px",
-
-    "&:hover": {
-      background: "rgba(255, 107, 53, 0.2)",
-      transform: "scale(1.05)",
-    },
-  },
-
-  "&.Mui-expanded .MuiAccordionSummary-expandIconWrapper": {
-    background: "rgba(255, 107, 53, 0.2)",
-    transform: "rotate(180deg)",
-  },
-}));
-
-const StyledAccordionDetails = styled(AccordionDetails)(({ theme }) => ({
-  padding: "0 16px 16px",
-  background: "rgba(255, 107, 53, 0.02)",
-  borderTop: "1px solid rgba(255, 107, 53, 0.08)",
-}));
-
-const DocumentRow = styled(Box)(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  padding: "8px 12px",
-  marginBottom: "6px",
-  backgroundColor: "rgba(255, 255, 255, 0.7)",
-  borderRadius: "6px",
-  border: "1px solid rgba(255, 107, 53, 0.05)",
-  transition: "all 0.2s ease",
-
-  "&:hover": {
-    backgroundColor: "rgba(255, 107, 53, 0.05)",
-    borderColor: "rgba(255, 107, 53, 0.1)",
-    transform: "translateX(4px)",
-  },
-
-  "&:last-child": {
-    marginBottom: 0,
-  },
-}));
-
-const DocumentInfo = styled(Box)(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  gap: "8px",
-  flex: 1,
-}));
-
-const DocumentName = styled(Typography)(({ theme }) => ({
-  fontSize: "12px",
-  fontWeight: 500,
-  color: "#333",
-  lineHeight: 1.4,
-}));
-
-const DocumentExpiry = styled(Typography)(({ theme }) => ({
-  fontSize: "10px",
-  color: "#666",
-  fontStyle: "italic",
-}));
-
-const DownloadButton = styled(IconButton)(({ theme }) => ({
-  fontSize: "12px",
-  padding: "4px 8px",
-  minWidth: "70px",
-  height: "24px",
-  backgroundColor: "rgba(255, 107, 53, 0.1)",
-  color: "#ff6b35",
-  borderRadius: "4px",
-  transition: "all 0.2s ease",
-
-  "&:hover": {
-    backgroundColor: "rgba(255, 107, 53, 0.2)",
-    transform: "scale(1.05)",
-  },
-
-  "& .MuiSvgIcon-root": {
-    fontSize: "12px",
-  },
-}));
-
 const CompanyDocumentsSection: React.FC<CompanyDocumentsSectionProps> = ({
-  companySpecific,
-  facilitySpecific,
-  productSpecific,
-  batchSpecific,
-  onCompanySpecificChange,
-  onFacilitySpecificChange,
-  onProductSpecificChange,
-  onBatchSpecificChange,
+  companySpecific, facilitySpecific, productSpecific, batchSpecific,
+  onCompanySpecificChange, onFacilitySpecificChange, onProductSpecificChange, onBatchSpecificChange,
 }) => {
-  const [expanded, setExpanded] = useState<string | false>(false);
-
-  const handleChange =
-    (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
-      setExpanded(isExpanded ? panel : false);
-    };
+  const [expanded, setExpanded] = useState<number | null>(null);
 
   const documentCategories: DocumentCategory[] = [
-    {
-      title: "Company Specific Documents",
-      count: 3,
-      documents: [
-        { name: "Business License", expiryDate: "14-08-2026" },
-        { name: "Certificate of Registration", expiryDate: "04-12-2050" },
-        { name: "Fair Trade Certificate", expiryDate: "11-09-2027" },
-      ],
-    },
-    {
-      title: "Facility Specific Documents",
-      count: 1,
-      documents: [{ name: "FDA Registration", expiryDate: "31-12-2026" }],
-    },
-    {
-      title: "Product Specific Documents",
-      count: 4,
-      documents: [
-        { name: "BSE-TSE Statement", expiryDate: "24-12-2026" },
-        { name: "Non GMO Statement/Certificate", expiryDate: "24-12-2026" },
-        { name: "Pesticide Statement/Report", expiryDate: "24-12-2026" },
-        { name: "Vegan/Vegetarian Statement", expiryDate: "24-12-2026" },
-      ],
-    },
-    {
-      title: "Batch Specific Documents",
-      count: 5,
-      documents: [
-        { name: "Certificate of Analysis (COA)", isLocked: true },
-        { name: "Specification Sheet", isLocked: true },
-        { name: "Composition Statement", isLocked: true },
-        { name: "MSDS Statement", isLocked: true },
-        { name: "COO Statement", isLocked: true },
-      ],
-    },
+    { title: "Company Specific Documents", count: 3, documents: [
+      { name: "Business License", expiryDate: "14-08-2026" },
+      { name: "Certificate of Registration", expiryDate: "04-12-2050" },
+      { name: "Fair Trade Certificate", expiryDate: "11-09-2027" },
+    ]},
+    { title: "Facility Specific Documents", count: 1, documents: [
+      { name: "FDA Registration", expiryDate: "31-12-2026" },
+    ]},
+    { title: "Product Specific Documents", count: 4, documents: [
+      { name: "BSE-TSE Statement", expiryDate: "24-12-2026" },
+      { name: "Non GMO Statement/Certificate", expiryDate: "24-12-2026" },
+      { name: "Pesticide Statement/Report", expiryDate: "24-12-2026" },
+      { name: "Vegan/Vegetarian Statement", expiryDate: "24-12-2026" },
+    ]},
+    { title: "Batch Specific Documents", count: 5, documents: [
+      { name: "Certificate of Analysis (COA)", isLocked: true },
+      { name: "Specification Sheet", isLocked: true },
+      { name: "Composition Statement", isLocked: true },
+      { name: "MSDS Statement", isLocked: true },
+      { name: "COO Statement", isLocked: true },
+    ]},
   ];
 
   return (
-    <Box sx={{ mt: 4, mb: 3 }}>
-      <Typography
-        variant="h6"
-        sx={{
-          fontWeight: 600,
-          mb: 3,
-          fontSize: { xs: "1.1rem", md: "1.2rem" },
-          color: "#333",
-          textAlign: "left",
-        }}
-      >
-        Company Specific Documents
-      </Typography>
+    <div className="mt-8 mb-6">
+      <h3 className="font-semibold text-[#333] text-lg md:text-xl mb-6">Company Specific Documents</h3>
 
       {documentCategories.map((category, index) => (
-        <StyledAccordion
+        <div
           key={index}
-          expanded={expanded === `panel${index}`}
-          onChange={handleChange(`panel${index}`)}
+          className="bg-white border border-[rgba(255,107,53,0.1)] rounded-lg mb-3 shadow-[0_2px_6px_rgba(0,0,0,0.04)] transition-all hover:border-[rgba(255,107,53,0.25)] hover:shadow-[0_6px_20px_rgba(255,107,53,0.1)] hover:-translate-y-px overflow-hidden"
+          style={{ background: expanded === index ? "linear-gradient(135deg, #fff8f6 0%, #fff5f2 100%)" : "linear-gradient(135deg, #ffffff 0%, #fafafa 100%)" }}
         >
-          <StyledAccordionSummary
-            expandIcon={<ExpandMore />}
-            aria-controls={`panel${index}bh-content`}
-            id={`panel${index}bh-header`}
+          {/* Accordion Header */}
+          <button
+            type="button"
+            className="w-full flex items-center justify-between p-3 text-left"
+            onClick={() => setExpanded(expanded === index ? null : index)}
           >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Typography
-                sx={{
-                  fontSize: "0.9rem",
-                  fontWeight: 600,
-                  color: "#333",
-                }}
-              >
-                {category.title}
-              </Typography>
-              <Box
-                sx={{
-                  backgroundColor: "rgba(255, 107, 53, 0.1)",
-                  color: "#ff6b35",
-                  px: 1,
-                  py: 0.5,
-                  borderRadius: "12px",
-                  fontSize: "0.75rem",
-                  fontWeight: 600,
-                  minWidth: "24px",
-                  textAlign: "center",
-                }}
-              >
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-[#333]">{category.title}</span>
+              <span className="bg-[rgba(255,107,53,0.1)] text-[#F9A922] px-2 py-0.5 rounded-full text-xs font-semibold min-w-[24px] text-center">
                 {category.count}
-              </Box>
-            </Box>
-          </StyledAccordionSummary>
+              </span>
+            </div>
+            <div className={`w-7 h-7 rounded-full bg-[rgba(255,107,53,0.1)] flex items-center justify-center transition-transform ${expanded === index ? "rotate-180" : ""}`}>
+              <ChevronDown className="w-4 h-4 text-[#F9A922]" />
+            </div>
+          </button>
 
-          <StyledAccordionDetails>
-            <Box sx={{ pt: 1 }}>
-              {category.documents.map((document, docIndex) => (
-                <DocumentRow key={docIndex}>
-                  <DocumentInfo>
-                    {document.isLocked && (
-                      <Lock sx={{ fontSize: "12px", color: "#ff6b35" }} />
-                    )}
-                    <Box>
-                      <DocumentName>{document.name}</DocumentName>
-                      {document.expiryDate && (
-                        <DocumentExpiry>
-                          Expires: {document.expiryDate}
-                        </DocumentExpiry>
-                      )}
-                    </Box>
-                  </DocumentInfo>
-                  <DownloadButton size="small">
-                    <Download sx={{ fontSize: "12px" }} />
-                  </DownloadButton>
-                </DocumentRow>
-              ))}
-            </Box>
-          </StyledAccordionDetails>
-        </StyledAccordion>
+          {/* Accordion Content */}
+          {expanded === index && (
+            <div className="px-4 pb-4 bg-[rgba(255,107,53,0.02)] border-t border-[rgba(255,107,53,0.08)]">
+              <div className="pt-2">
+                {category.documents.map((doc, docIndex) => (
+                  <div
+                    key={docIndex}
+                    className="flex items-center justify-between p-2 px-3 mb-1.5 last:mb-0 bg-white/70 rounded-md border border-[rgba(255,107,53,0.05)] transition-all hover:bg-[rgba(255,107,53,0.05)] hover:border-[rgba(255,107,53,0.1)] hover:translate-x-1"
+                  >
+                    <div className="flex items-center gap-2 flex-1">
+                      {doc.isLocked && <Lock className="w-3 h-3 text-[#F9A922] flex-shrink-0" />}
+                      <div>
+                        <p className="text-xs font-medium text-[#333] leading-tight">{doc.name}</p>
+                        {doc.expiryDate && <p className="text-[10px] text-[#666] italic">Expires: {doc.expiryDate}</p>}
+                      </div>
+                    </div>
+                    <button className="bg-[rgba(255,107,53,0.1)] text-[#F9A922] rounded p-1 hover:bg-[rgba(255,107,53,0.2)] transition-colors">
+                      <Download className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       ))}
-    </Box>
+    </div>
   );
 };
 

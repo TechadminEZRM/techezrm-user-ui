@@ -1,17 +1,6 @@
 "use client";
 
 import React from "react";
-
-import {
-  Box,
-  Typography,
-  Container,
-  Grid,
-  Card,
-  CardContent,
-  Alert,
-  Skeleton,
-} from "@mui/material";
 import { useFeaturedCategories } from "@/api/handlers";
 import { useRouter } from "next/navigation";
 import type { Category } from "@/api/services";
@@ -21,293 +10,116 @@ interface CategoryCardProps {
   isHighlighted?: boolean;
 }
 
-const CategoryCard: React.FC<CategoryCardProps> = ({
-  category,
-  isHighlighted = false,
-}) => {
+const getImageUrl = (imageUrl: string | undefined | null) => {
+  if (!imageUrl || typeof imageUrl !== "string") return "./vitIcon.png";
+  if (imageUrl.startsWith("http")) return imageUrl;
+  return `${process.env.NEXT_PUBLIC_API_URL}/${imageUrl}`;
+};
+
+const CategoryCard: React.FC<CategoryCardProps> = ({ category, isHighlighted = false }) => {
   const router = useRouter();
-
-  const getImageUrl = (imageUrl: string | undefined | null) => {
-    // Check if imageUrl exists and is a string
-    if (!imageUrl || typeof imageUrl !== "string") {
-      return "./vitIcon.png"; // Return default icon if no image URL
-    }
-
-    if (imageUrl.startsWith("http")) {
-      return imageUrl;
-    }
-    return `${process.env.NEXT_PUBLIC_API_URL}/${imageUrl}`;
-  };
-
-  const handleCategoryClick = () => {
-    // Navigate to product page with category filter
-    router.push(`/product?category=${category.slug}`);
-  };
-
   return (
-    <Card
-      onClick={handleCategoryClick}
-      sx={{
-        borderRadius: "12px",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-        width: "13.6rem", // Dynamic width ~250px
-        minWidth: "12.6rem", // Ensure consistent minimum width
-        height: "4.5rem", // Dynamic height ~75px
-        bgcolor: isHighlighted ? "#ff7849" : "white",
-        color: isHighlighted ? "white" : "#333",
-        transition: "all 0.3s ease",
-        cursor: "pointer",
-        "&:hover": {
-          boxShadow: "0 4px 16px rgba(0, 0, 0, 0.15)",
-          transform: "translateY(-2px)",
-          bgcolor: isHighlighted ? "#e55a2b" : "#f8f9fa",
-        },
-      }}
+    <div
+      onClick={() => router.push(`/product?category=${category.slug}`)}
+      className={`flex items-center gap-3 px-5 py-0 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.1)] cursor-pointer transition-all hover:shadow-[0_4px_16px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 ${
+        isHighlighted ? "bg-[#F9A922] hover:bg-[#E8981F] text-white" : "bg-white hover:bg-[#f8f9fa] text-[#333]"
+      }`}
+      style={{ width: "13.6rem", minWidth: "12.6rem", height: "4.5rem" }}
     >
-      <CardContent
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: 2,
-          py: 1.5,
-          px: 3,
-          height: "100%",
-          "&:last-child": {
-            pb: 1.5,
-          },
-        }}
-      >
-        <Box
-          component="img"
-          src={getImageUrl(category.image)}
-          alt={`${category.name} Icon`}
-          onError={(e) => {
-            // Fallback to default icon if image fails to load
-            const target = e.target as HTMLImageElement;
-            target.src = "./vitIcon.png";
-          }}
-          sx={{
-            width: 28,
-            height: 28,
-            minWidth: 28, // Prevent image from shrinking
-            filter: isHighlighted ? "brightness(0) invert(1)" : "none",
-            objectFit: "contain",
-          }}
-        />
-        <Typography
-          variant="body1"
-          title={category.name} // Tooltip on hover
-          sx={{
-            fontWeight: 500,
-            fontSize: "1rem",
-            lineHeight: 1.2,
-            flex: 1, // Take remaining space
-            overflow: "hidden",
-            whiteSpace: "nowrap",
-            textOverflow: "ellipsis",
-            cursor: "pointer",
-          }}
-        >
-          {category.name}
-        </Typography>
-      </CardContent>
-    </Card>
+      <img
+        src={getImageUrl(category.image)}
+        alt={`${category.name} Icon`}
+        onError={(e) => { (e.target as HTMLImageElement).src = "./vitIcon.png"; }}
+        className="w-7 h-7 min-w-[28px] object-contain"
+        style={{ filter: isHighlighted ? "brightness(0) invert(1)" : "none" }}
+      />
+      <span className="font-medium text-base leading-tight flex-1 overflow-hidden whitespace-nowrap text-ellipsis" title={category.name}>
+        {category.name}
+      </span>
+    </div>
   );
 };
 
 const CategoryCardSkeleton: React.FC = () => (
-  <Card
-    sx={{
-      borderRadius: "12px",
-      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-      width: "13em",
-      bgcolor: "white",
-    }}
-  >
-    <CardContent
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        gap: 2,
-        py: 3,
-        px: 3,
-        "&:last-child": {
-          pb: 3,
-        },
-      }}
-    >
-      <Skeleton variant="rectangular" width={28} height={28} />
-      <Skeleton variant="text" width={100} height={20} />
-    </CardContent>
-  </Card>
+  <div className="flex items-center gap-3 px-5 py-4 rounded-xl bg-white shadow-[0_2px_8px_rgba(0,0,0,0.1)]" style={{ width: "13rem" }}>
+    <div className="w-7 h-7 bg-gray-200 rounded animate-pulse flex-shrink-0" />
+    <div className="h-4 bg-gray-200 rounded w-24 animate-pulse" />
+  </div>
 );
 
 const FeaturedCategory: React.FC = () => {
   const { data: response, isLoading, error, isError } = useFeaturedCategories();
 
-  // Debug logging
-  React.useEffect(() => {
-    console.log("Featured Categories Loading:", isLoading);
-    console.log("Featured Categories Error:", error);
-    console.log("Featured Categories Response:", response);
-  }, [isLoading, error, response]);
-
-  // Function to organize categories into rows for better visual layout
   const organizeIntoRows = (categories: Category[]) => {
     const rows: Category[][] = [];
-    const totalCategories = categories.length;
-
-    if (totalCategories === 0) return rows;
-
-    // For small number of categories, put them in a single row
-    if (totalCategories <= 4) {
-      rows.push(categories);
-      return rows;
-    }
-
-    // For larger numbers, distribute across multiple rows
-    const itemsPerRow = Math.ceil(totalCategories / 3); // Aim for 3 rows max
-    for (let i = 0; i < totalCategories; i += itemsPerRow) {
-      rows.push(categories.slice(i, i + itemsPerRow));
-    }
-
+    const total = categories.length;
+    if (total === 0) return rows;
+    if (total <= 4) { rows.push(categories); return rows; }
+    const perRow = Math.ceil(total / 3);
+    for (let i = 0; i < total; i += perRow) rows.push(categories.slice(i, i + perRow));
     return rows;
   };
-
-  const renderLoadingState = () => (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 3,
-        alignItems: "center",
-      }}
-    >
-      {[1, 2, 3].map((rowIndex) => (
-        <Grid container spacing={2} key={rowIndex} justifyContent="center">
-          {Array.from({ length: rowIndex === 2 ? 3 : 4 }).map(
-            (_, cardIndex) => (
-              <Grid key={cardIndex}>
-                <CategoryCardSkeleton />
-              </Grid>
-            )
-          )}
-        </Grid>
-      ))}
-    </Box>
-  );
-
-  const renderErrorState = () => (
-    <Alert severity="error" sx={{ mb: 2 }}>
-      <Typography variant="h6">Error loading categories</Typography>
-      <Typography variant="body2">
-        {error instanceof Error ? error.message : "Something went wrong"}
-      </Typography>
-    </Alert>
-  );
-
-  const renderEmptyState = () => (
-    <Box sx={{ textAlign: "center", py: 4 }}>
-      <Typography variant="h6" sx={{ color: "#666", mb: 1 }}>
-        No featured categories found
-      </Typography>
-      <Typography variant="body2" sx={{ color: "#999" }}>
-        Featured categories will appear here once they are available.
-      </Typography>
-    </Box>
-  );
 
   const categories = response?.categories || [];
   const categoryRows = organizeIntoRows(categories);
 
   return (
-    <Box
-      sx={{
-        bgcolor: "#f8f9fa",
-        py: { xs: 4, md: 6 },
-        mt: { xs: -4, md: -12, lg:-15}
-      }}
-    >
-      <Container maxWidth="lg">
+    <div className="bg-[#f8f9fa] py-8 md:py-12">
+      <div className="max-w-7xl mx-auto px-4">
         {/* Section Title */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            mb: 4,
-          }}
-        >
-          <Box
-            sx={{
-              width: 4,
-              height: 32,
-              bgcolor: "#ff7849",
-              mr: 2,
-            }}
-          />
-          <Typography
-            variant="h4"
-            sx={{
-              fontWeight: 600,
-              color: "#333",
-              fontSize: { xs: "1.5rem", md: "2rem" },
-              py:2
-
-            }}
-          >
-            Featured Category
-          </Typography>
+        <div className="flex items-center mb-8">
+          <div className="w-1 h-8 bg-[#F9A922] mr-4 rounded-sm" />
+          <h2 className="text-2xl md:text-3xl font-semibold text-[#333] py-2">Featured Category</h2>
           {!isLoading && categories.length > 0 && (
-            <Typography
-              variant="body2"
-              sx={{
-                ml: 2,
-                color: "#666",
-                fontSize: "0.9rem",
-              }}
-            >
-              ({categories.length} categories)
-            </Typography>
+            <span className="ml-3 text-sm text-[#666]">({categories.length} categories)</span>
           )}
-        </Box>
+        </div>
 
-        {/* Category Grid */}
-        {isLoading && renderLoadingState()}
-        {isError && renderErrorState()}
-        {!isLoading &&
-          !isError &&
-          categories.length === 0 &&
-          renderEmptyState()}
-        {!isLoading && !isError && categories.length > 0 && (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 3,
-              alignItems: "center",
-            }}
-          >
-            {categoryRows.map((row, rowIndex) => (
-              <Grid
-                container
-                spacing={2}
-                key={rowIndex}
-                justifyContent="center"
-              >
-                {row.map((category, cardIndex) => (
-                  <Grid key={category._id}>
-                    <CategoryCard
-                      category={category}
-                      isHighlighted={cardIndex === 1 && rowIndex === 0} // Highlight second item in first row
-                    />
-                  </Grid>
-                ))}
-              </Grid>
+        {/* Loading */}
+        {isLoading && (
+          <div className="flex flex-col gap-6 items-center">
+            {[1, 2, 3].map((row) => (
+              <div key={row} className="flex flex-wrap gap-4 justify-center">
+                {Array.from({ length: row === 2 ? 3 : 4 }).map((_, i) => <CategoryCardSkeleton key={i} />)}
+              </div>
             ))}
-          </Box>
+          </div>
         )}
-      </Container>
-    </Box>
+
+        {/* Error */}
+        {isError && (
+          <div className="bg-red-50 text-red-700 p-4 rounded-xl border border-red-200 mb-4">
+            <p className="font-semibold">Error loading categories</p>
+            <p className="text-sm">{error instanceof Error ? error.message : "Something went wrong"}</p>
+          </div>
+        )}
+
+        {/* Empty */}
+        {!isLoading && !isError && categories.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-[#666] text-lg mb-1">No featured categories found</p>
+            <p className="text-[#999] text-sm">Featured categories will appear here once they are available.</p>
+          </div>
+        )}
+
+        {/* Categories */}
+        {!isLoading && !isError && categories.length > 0 && (
+          <div className="flex flex-col gap-6 items-center">
+            {categoryRows.map((row, rowIndex) => (
+              <div key={rowIndex} className="flex flex-wrap gap-4 justify-center">
+                {row.map((category, cardIndex) => (
+                  <CategoryCard
+                    key={category._id}
+                    category={category}
+                    isHighlighted={cardIndex === 1 && rowIndex === 0}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

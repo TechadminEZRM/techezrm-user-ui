@@ -1,31 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Typography,
-  Container,
-  Paper,
-  Button,
-  Alert,
-  CircularProgress,
-  Divider,
-  Chip,
-  IconButton,
-} from "@mui/material";
-import {
-  CheckCircle,
-  Home,
-  ShoppingBag,
-  Download,
-  Receipt,
-  LocalShipping,
-  Payment,
-  Person,
-  Email,
-  Phone,
-  LocationOn,
-} from "@mui/icons-material";
+import { CheckCircle2, Home, ShoppingBag, Download, Receipt, Truck, CreditCard, User, Mail, Phone, MapPin } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAppStore } from "@/store/use-app-store";
 import { useClearCart } from "@/api/handlers/cartHandler";
@@ -35,16 +11,12 @@ import { toast } from "react-toastify";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import OrderReceiptPDF from "@/components/OrderReceiptPDF";
+import { Spinner } from "@/components/ui/spinner";
 
 interface OrderDetails {
   _id: string;
   uniqueId: string;
-  customer: {
-    _id: string;
-    name: string;
-    email: string;
-    phone?: string;
-  };
+  customer: { _id: string; name: string; email: string; phone?: string };
   orderStatus: string;
   paymentStatus: string;
   paymentMethod: string;
@@ -53,637 +25,200 @@ interface OrderDetails {
   tax: number;
   shippingCost: number;
   discount: number;
-  shippingAddress: {
-    street: string;
-    city?: string;
-    state?: string;
-    postalCode?: string;
-    country?: string;
-  };
-  billingAddress: {
-    street: string;
-    city?: string;
-    state?: string;
-    postalCode?: string;
-    country?: string;
-  };
-  items: Array<{
-    product: {
-      _id: string;
-      name: string;
-      description?: string;
-    };
-    quantity: number;
-    price: number;
-  }>;
+  shippingAddress: { street: string; city?: string; state?: string; postalCode?: string; country?: string };
+  billingAddress: { street: string; city?: string; state?: string; postalCode?: string; country?: string };
+  items: Array<{ product: { _id: string; name: string; description?: string }; quantity: number; price: number }>;
   createdAt: string;
   updatedAt: string;
+}
+
+function InfoPanel({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-white rounded-[8px] border border-[#e9ecef] mb-6">
+      <div className="flex items-center gap-2 px-6 py-4 border-b border-[#f0f0f0]">
+        <span className="text-[#F9A922]">{icon}</span>
+        <p className="text-base font-semibold text-[#333]">{title}</p>
+      </div>
+      <div className="px-6 py-4">{children}</div>
+    </div>
+  );
 }
 
 const PaymentSuccessPage: React.FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { customer } = useAppStore();
-
   const [loading, setLoading] = useState(true);
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
   const [error, setError] = useState<string>("");
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-
-  // Cart mutation for clearing cart
   const { mutate: clearCart } = useClearCart();
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
-        // Extract customerOrderId from URL
         const customerOrderId = searchParams.get("customerOrderId");
-        const orderId = searchParams.get("orderId");
-        const orderUniqueId = searchParams.get("orderUniqueId");
-
-        if (!customerOrderId) {
-          setError("Order ID not found in URL");
-          setLoading(false);
-          return;
-        }
-
-        // Fetch order details
-        const response = await axios.get(
-          `${API_CONFIG.baseURL}/public/customer-orders/details/ObjectId/${customerOrderId}`
-        );
-
+        if (!customerOrderId) { setError("Order ID not found in URL"); setLoading(false); return; }
+        const response = await axios.get(`${API_CONFIG.baseURL}/public/customer-orders/details/ObjectId/${customerOrderId}`);
         if (response?.data?.success) {
           setOrderDetails(response.data.data);
-
-          // Clear cart after successful order
           if (customer?.id) {
-            try {
-              clearCart(customer.id);
-              // toast.success("Cart cleared successfully");
-            } catch (cartError) {
-              console.error("Error clearing cart:", cartError);
-              toast.error("Failed to clear cart");
-            }
+            try { clearCart(customer.id); } catch (cartError) { console.error("Error clearing cart:", cartError); toast.error("Failed to clear cart"); }
           }
-        } else {
-          setError("Failed to fetch order details");
-        }
+        } else { setError("Failed to fetch order details"); }
       } catch (err) {
         console.error("Error fetching order details:", err);
         setError("Failed to load order details");
-      } finally {
-        setLoading(false);
-      }
+      } finally { setLoading(false); }
     };
-
     fetchOrderDetails();
   }, [searchParams, customer?.id, clearCart]);
 
-  const handleGoHome = () => {
-    router.push("/");
-  };
-
-  const handleViewOrders = () => {
-    router.push("/profile?page=orders");
-  };
-
   const handleDownloadPDF = async () => {
-    if (!orderDetails) {
-      toast.error("Unable to generate PDF");
-      return;
-    }
-
+    if (!orderDetails) { toast.error("Unable to generate PDF"); return; }
     setIsGeneratingPDF(true);
-
     try {
-      // Create a temporary container for PDF generation
       const tempContainer = document.createElement("div");
-      tempContainer.style.position = "absolute";
-      tempContainer.style.left = "-9999px";
-      tempContainer.style.top = "-9999px";
-      tempContainer.style.width = "800px";
-      tempContainer.style.backgroundColor = "white";
-      tempContainer.style.padding = "20px";
-      tempContainer.style.fontFamily = "Arial, sans-serif";
-
+      Object.assign(tempContainer.style, { position: "absolute", left: "-9999px", top: "-9999px", width: "800px", backgroundColor: "white", padding: "20px", fontFamily: "Arial, sans-serif" });
       document.body.appendChild(tempContainer);
-
-      // Create React element and render it
       const { createRoot } = await import("react-dom/client");
       const root = createRoot(tempContainer);
-
-      // Render the PDF component
       root.render(<OrderReceiptPDF orderDetails={orderDetails} />);
-
-      // Wait for rendering to complete
       await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Configure html2canvas options for better PDF quality
-      const canvas = await html2canvas(tempContainer, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-        width: tempContainer.scrollWidth,
-        height: tempContainer.scrollHeight,
-        scrollX: 0,
-        scrollY: 0,
-      });
-
+      const canvas = await html2canvas(tempContainer, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: "#ffffff", logging: false, width: tempContainer.scrollWidth, height: tempContainer.scrollHeight, scrollX: 0, scrollY: 0 });
       const imgData = canvas.toDataURL("image/png", 1.0);
-
-      // Calculate PDF dimensions
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 295; // A4 height in mm
+      const imgWidth = 210; const pageHeight = 295;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      // Create PDF
       const pdf = new jsPDF("p", "mm", "a4");
-
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      // Add first page
+      let heightLeft = imgHeight; let position = 0;
       pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
-
-      // Add additional pages if content is longer than one page
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      // Clean up
+      while (heightLeft >= 0) { position = heightLeft - imgHeight; pdf.addPage(); pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight); heightLeft -= pageHeight; }
       root.unmount();
       document.body.removeChild(tempContainer);
-
-      // Save the PDF
-      const fileName = `order-receipt-${
-        orderDetails?.uniqueId || "receipt"
-      }.pdf`;
-      pdf.save(fileName);
-
+      pdf.save(`order-receipt-${orderDetails?.uniqueId || "receipt"}.pdf`);
       toast.success("PDF downloaded successfully!");
     } catch (error) {
       console.error("Error generating PDF:", error);
       toast.error("Failed to generate PDF");
-    } finally {
-      setIsGeneratingPDF(false);
-    }
+    } finally { setIsGeneratingPDF(false); }
   };
 
   if (loading) {
     return (
-      <Container maxWidth="sm" sx={{ py: 4 }}>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            minHeight: "40vh",
-            gap: 2,
-          }}
-        >
-          <CircularProgress size={32} sx={{ color: "#ff6b35" }} />
-          <Typography sx={{ color: "#666", fontSize: "0.8rem" }}>
-            Processing your order...
-          </Typography>
-        </Box>
-      </Container>
+      <div className="max-w-lg mx-auto px-4 py-8">
+        <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
+          <Spinner size="md" className="border-[#F9A922] border-t-transparent" />
+          <p className="text-[#666] text-sm">Processing your order...</p>
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Container maxWidth="sm" sx={{ py: 4 }}>
-        <Alert severity="error" sx={{ borderRadius: 2 }}>
-          {error}
-        </Alert>
-      </Container>
+      <div className="max-w-lg mx-auto px-4 py-8">
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-[8px] p-4">{error}</div>
+      </div>
     );
   }
 
   if (!orderDetails) {
     return (
-      <Container maxWidth="sm" sx={{ py: 4 }}>
-        <Alert severity="warning" sx={{ borderRadius: 2 }}>
-          Order details not found
-        </Alert>
-      </Container>
+      <div className="max-w-lg mx-auto px-4 py-8">
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 rounded-[8px] p-4">Order details not found</div>
+      </div>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 3 }}>
+    <div className="max-w-5xl mx-auto px-4 py-6">
       {/* Success Header */}
-      <Paper
-        elevation={0}
-        sx={{
-          p: 4,
-          textAlign: "center",
-          borderRadius: 2,
-          backgroundColor: "#f8f9fa",
-          border: "1px solid #e9ecef",
-          mb: 3,
-        }}
-      >
-        <CheckCircle
-          sx={{
-            fontSize: 64,
-            color: "#28a745",
-            mb: 2,
-          }}
-        />
-        <Typography
-          sx={{
-            fontSize: "1.5rem",
-            fontWeight: 600,
-            color: "#333",
-            mb: 1,
-          }}
-        >
-          Payment Successful
-        </Typography>
-        <Typography
-          sx={{
-            fontSize: "1rem",
-            color: "#666",
-          }}
-        >
-          Order #{orderDetails?.uniqueId || "N/A"}
-        </Typography>
-      </Paper>
+      <div className="bg-[#f8f9fa] border border-[#e9ecef] rounded-[8px] p-8 text-center mb-6">
+        <CheckCircle2 className="w-16 h-16 text-[#28a745] mx-auto mb-4" />
+        <p className="text-2xl font-semibold text-[#333] mb-2">Payment Successful</p>
+        <p className="text-base text-[#666]">Order #{orderDetails?.uniqueId || "N/A"}</p>
+      </div>
 
       {/* Two Column Layout */}
-      <Box
-        sx={{ display: "flex", gap: 3, flexWrap: { xs: "wrap", lg: "nowrap" } }}
-      >
+      <div className="flex flex-col lg:flex-row gap-6">
         {/* Left Column */}
-        <Box sx={{ flex: 1, minWidth: { xs: "100%", lg: "400px" } }}>
+        <div className="flex-1">
           {/* Order Summary */}
-          <Paper
-            elevation={0}
-            sx={{
-              p: 3,
-              borderRadius: 2,
-              border: "1px solid #e9ecef",
-              mb: 3,
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-              <Receipt sx={{ fontSize: 20, color: "#ff6b35" }} />
-              <Typography
-                sx={{ fontSize: "1rem", fontWeight: 600, color: "#333" }}
-              >
-                Order Summary
-              </Typography>
-            </Box>
-
-            <Box
-              sx={{ display: "flex", justifyContent: "space-between", mb: 1.5 }}
-            >
-              <Typography sx={{ fontSize: "0.9rem", color: "#666" }}>
-                Subtotal
-              </Typography>
-              <Typography sx={{ fontSize: "0.9rem", color: "#333" }}>
-                ${(orderDetails?.subTotal || 0).toFixed(2)}
-              </Typography>
-            </Box>
-            <Box
-              sx={{ display: "flex", justifyContent: "space-between", mb: 1.5 }}
-            >
-              <Typography sx={{ fontSize: "0.9rem", color: "#666" }}>
-                Tax
-              </Typography>
-              <Typography sx={{ fontSize: "0.9rem", color: "#333" }}>
-                ${(orderDetails?.tax || 0).toFixed(2)}
-              </Typography>
-            </Box>
-            <Box
-              sx={{ display: "flex", justifyContent: "space-between", mb: 1.5 }}
-            >
-              <Typography sx={{ fontSize: "0.9rem", color: "#666" }}>
-                Shipping
-              </Typography>
-              <Typography sx={{ fontSize: "0.9rem", color: "#333" }}>
-                ${(orderDetails?.shippingCost || 0).toFixed(2)}
-              </Typography>
-            </Box>
+          <InfoPanel icon={<Receipt className="w-5 h-5" />} title="Order Summary">
+            {[["Subtotal", `$${(orderDetails?.subTotal || 0).toFixed(2)}`, ""], ["Tax", `$${(orderDetails?.tax || 0).toFixed(2)}`, ""], ["Shipping", `$${(orderDetails?.shippingCost || 0).toFixed(2)}`, ""]].map(([l, v]) => (
+              <div key={l} className="flex justify-between mb-3"><p className="text-sm text-[#666]">{l}</p><p className="text-sm text-[#333]">{v}</p></div>
+            ))}
             {(orderDetails?.discount || 0) > 0 && (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  mb: 1.5,
-                }}
-              >
-                <Typography sx={{ fontSize: "0.9rem", color: "#666" }}>
-                  Discount
-                </Typography>
-                <Typography sx={{ fontSize: "0.9rem", color: "#28a745" }}>
-                  -${(orderDetails?.discount || 0).toFixed(2)}
-                </Typography>
-              </Box>
+              <div className="flex justify-between mb-3"><p className="text-sm text-[#666]">Discount</p><p className="text-sm text-[#28a745]">-${(orderDetails?.discount || 0).toFixed(2)}</p></div>
             )}
-            <Divider sx={{ my: 2 }} />
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              <Typography
-                sx={{ fontSize: "1.1rem", fontWeight: 600, color: "#333" }}
-              >
-                Total
-              </Typography>
-              <Typography
-                sx={{ fontSize: "1.1rem", fontWeight: 600, color: "#ff6b35" }}
-              >
-                ${(orderDetails?.totalAmount || 0).toFixed(2)}
-              </Typography>
-            </Box>
-          </Paper>
+            <hr className="my-4 border-[#f0f0f0]" />
+            <div className="flex justify-between">
+              <p className="text-lg font-semibold text-[#333]">Total</p>
+              <p className="text-lg font-semibold text-[#F9A922]">${(orderDetails?.totalAmount || 0).toFixed(2)}</p>
+            </div>
+          </InfoPanel>
 
           {/* Customer Details */}
-          <Paper
-            elevation={0}
-            sx={{
-              p: 3,
-              borderRadius: 2,
-              border: "1px solid #e9ecef",
-              mb: 3,
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-              <Person sx={{ fontSize: 20, color: "#ff6b35" }} />
-              <Typography
-                sx={{ fontSize: "1rem", fontWeight: 600, color: "#333" }}
-              >
-                Customer Details
-              </Typography>
-            </Box>
-            <Box sx={{ mb: 1.5 }}>
-              <Typography
-                sx={{
-                  fontSize: "0.9rem",
-                  fontWeight: 500,
-                  color: "#333",
-                  mb: 0.5,
-                }}
-              >
-                {orderDetails?.customer?.name || "N/A"}
-              </Typography>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
-              >
-                <Email sx={{ fontSize: 16, color: "#666" }} />
-                <Typography sx={{ fontSize: "0.85rem", color: "#666" }}>
-                  {orderDetails?.customer?.email || "N/A"}
-                </Typography>
-              </Box>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Phone sx={{ fontSize: 16, color: "#666" }} />
-                <Typography sx={{ fontSize: "0.85rem", color: "#666" }}>
-                  {orderDetails?.customer?.phone || "N/A"}
-                </Typography>
-              </Box>
-            </Box>
-          </Paper>
+          <InfoPanel icon={<User className="w-5 h-5" />} title="Customer Details">
+            <p className="text-sm font-medium text-[#333] mb-2">{orderDetails?.customer?.name || "N/A"}</p>
+            <div className="flex items-center gap-2 mb-2"><Mail className="w-4 h-4 text-[#666]" /><p className="text-sm text-[#666]">{orderDetails?.customer?.email || "N/A"}</p></div>
+            <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-[#666]" /><p className="text-sm text-[#666]">{orderDetails?.customer?.phone || "N/A"}</p></div>
+          </InfoPanel>
 
           {/* Order Status */}
-          <Paper
-            elevation={0}
-            sx={{
-              p: 3,
-              borderRadius: 2,
-              border: "1px solid #e9ecef",
-              mb: 3,
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-              <Payment sx={{ fontSize: 20, color: "#ff6b35" }} />
-              <Typography
-                sx={{ fontSize: "1rem", fontWeight: 600, color: "#333" }}
-              >
-                Order Status
-              </Typography>
-            </Box>
-            <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
-              <Chip
-                label={orderDetails?.orderStatus || "Unknown"}
-                size="medium"
-                sx={{
-                  fontSize: "0.8rem",
-                  height: 28,
-                  backgroundColor: "#e3f2fd",
-                  color: "#1976d2",
-                }}
-              />
-              <Chip
-                label={orderDetails?.paymentStatus || "Unknown"}
-                size="medium"
-                sx={{
-                  fontSize: "0.8rem",
-                  height: 28,
-                  backgroundColor: "#e8f5e8",
-                  color: "#2e7d32",
-                }}
-              />
-              <Chip
-                label={orderDetails?.paymentMethod || "Unknown"}
-                size="medium"
-                sx={{
-                  fontSize: "0.8rem",
-                  height: 28,
-                  backgroundColor: "#fff3e0",
-                  color: "#f57c00",
-                }}
-              />
-            </Box>
-          </Paper>
-        </Box>
+          <InfoPanel icon={<CreditCard className="w-5 h-5" />} title="Order Status">
+            <div className="flex gap-3 flex-wrap">
+              <span className="text-sm px-3 py-1 rounded-full bg-[#e3f2fd] text-[#1976d2]">{orderDetails?.orderStatus || "Unknown"}</span>
+              <span className="text-sm px-3 py-1 rounded-full bg-[#e8f5e8] text-[#2e7d32]">{orderDetails?.paymentStatus || "Unknown"}</span>
+              <span className="text-sm px-3 py-1 rounded-full bg-[#fff3e0] text-[#f57c00]">{orderDetails?.paymentMethod || "Unknown"}</span>
+            </div>
+          </InfoPanel>
+        </div>
 
         {/* Right Column */}
-        <Box sx={{ flex: 1, minWidth: { xs: "100%", lg: "400px" } }}>
+        <div className="flex-1">
           {/* Shipping Address */}
-          <Paper
-            elevation={0}
-            sx={{
-              p: 3,
-              borderRadius: 2,
-              border: "1px solid #e9ecef",
-              mb: 3,
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-              <LocationOn sx={{ fontSize: 20, color: "#ff6b35" }} />
-              <Typography
-                sx={{ fontSize: "1rem", fontWeight: 600, color: "#333" }}
-              >
-                Shipping Address
-              </Typography>
-            </Box>
-            <Typography
-              sx={{ fontSize: "0.9rem", color: "#666", lineHeight: 1.6 }}
-            >
+          <InfoPanel icon={<MapPin className="w-5 h-5" />} title="Shipping Address">
+            <p className="text-sm text-[#666] leading-relaxed">
               {orderDetails?.shippingAddress?.street || "N/A"}
-              {orderDetails?.shippingAddress?.city && (
-                <>
-                  <br />
-                  {orderDetails.shippingAddress.city}
-                  {orderDetails?.shippingAddress?.state &&
-                    `, ${orderDetails.shippingAddress.state}`}
-                  {orderDetails?.shippingAddress?.postalCode &&
-                    ` ${orderDetails.shippingAddress.postalCode}`}
-                </>
-              )}
-              {orderDetails?.shippingAddress?.country && (
-                <>
-                  <br />
-                  {orderDetails.shippingAddress.country}
-                </>
-              )}
-            </Typography>
-          </Paper>
+              {orderDetails?.shippingAddress?.city && <><br />{orderDetails.shippingAddress.city}{orderDetails?.shippingAddress?.state && `, ${orderDetails.shippingAddress.state}`}{orderDetails?.shippingAddress?.postalCode && ` ${orderDetails.shippingAddress.postalCode}`}</>}
+              {orderDetails?.shippingAddress?.country && <><br />{orderDetails.shippingAddress.country}</>}
+            </p>
+          </InfoPanel>
 
           {/* Order Items */}
-          <Paper
-            elevation={0}
-            sx={{
-              p: 3,
-              borderRadius: 2,
-              border: "1px solid #e9ecef",
-              mb: 3,
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-              <LocalShipping sx={{ fontSize: 20, color: "#ff6b35" }} />
-              <Typography
-                sx={{ fontSize: "1rem", fontWeight: 600, color: "#333" }}
-              >
-                Order Items
-              </Typography>
-            </Box>
+          <InfoPanel icon={<Truck className="w-5 h-5" />} title="Order Items">
             {orderDetails?.items?.map((item, index) => (
-              <Box
-                key={index}
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  mb: 2,
-                  p: 2,
-                  backgroundColor: "#f8f9fa",
-                  borderRadius: 1,
-                }}
-              >
-                <Box sx={{ flex: 1 }}>
-                  <Typography
-                    sx={{
-                      fontSize: "0.9rem",
-                      color: "#333",
-                      fontWeight: 500,
-                      mb: 0.5,
-                    }}
-                  >
-                    {item?.product?.name || "N/A"}
-                  </Typography>
-                  <Typography sx={{ fontSize: "0.8rem", color: "#666" }}>
-                    Qty: {item?.quantity || 0} × $
-                    {((item?.price || 0) / (item?.quantity || 1)).toFixed(2)}
-                  </Typography>
-                </Box>
-                <Typography
-                  sx={{
-                    fontSize: "0.9rem",
-                    color: "#333",
-                    fontWeight: 500,
-                    ml: 2,
-                  }}
-                >
-                  ${(item?.price || 0).toFixed(2)}
-                </Typography>
-              </Box>
-            )) || (
-              <Typography sx={{ fontSize: "0.9rem", color: "#666" }}>
-                No items found
-              </Typography>
-            )}
-          </Paper>
-        </Box>
-      </Box>
+              <div key={index} className="flex justify-between items-start mb-4 p-4 bg-[#f8f9fa] rounded">
+                <div className="flex-1">
+                  <p className="text-sm text-[#333] font-medium mb-1">{item?.product?.name || "N/A"}</p>
+                  <p className="text-xs text-[#666]">Qty: {item?.quantity || 0} × ${((item?.price || 0) / (item?.quantity || 1)).toFixed(2)}</p>
+                </div>
+                <p className="text-sm text-[#333] font-medium ml-4">${(item?.price || 0).toFixed(2)}</p>
+              </div>
+            )) || <p className="text-sm text-[#666]">No items found</p>}
+          </InfoPanel>
+        </div>
+      </div>
 
       {/* Action Buttons */}
-      <Box sx={{ display: "flex", gap: 2, mb: 2, mt: 2 }}>
-        <Button
-          variant="outlined"
-          startIcon={<Home />}
-          onClick={handleGoHome}
-          sx={{
-            flex: 1,
-            py: 1.5,
-            fontSize: "0.9rem",
-            fontWeight: 500,
-            textTransform: "none",
-            borderColor: "#ddd",
-            color: "#666",
-            "&:hover": {
-              borderColor: "#ccc",
-              backgroundColor: "#f9f9f9",
-            },
-          }}
-        >
-          Continue Shopping
-        </Button>
-        <Button
-          variant="contained"
-          startIcon={<ShoppingBag />}
-          onClick={handleViewOrders}
-          sx={{
-            flex: 1,
-            py: 1.5,
-            fontSize: "0.9rem",
-            fontWeight: 500,
-            textTransform: "none",
-            backgroundColor: "#ff6b35",
-            "&:hover": {
-              backgroundColor: "#e55a2b",
-            },
-          }}
-        >
-          View Orders
-        </Button>
-      </Box>
-
-      {/* Download PDF Button */}
-      <Button
-        variant="outlined"
-        startIcon={
-          isGeneratingPDF ? <CircularProgress size={16} /> : <Download />
-        }
+      <div className="flex gap-4 mb-4 mt-4">
+        <button onClick={() => router.push("/")} className="flex-1 flex items-center justify-center gap-2 border border-[#ddd] text-[#666] hover:border-[#ccc] hover:bg-[#f9f9f9] py-3 text-sm font-medium rounded transition-colors">
+          <Home className="w-4 h-4" /> Continue Shopping
+        </button>
+        <button onClick={() => router.push("/profile?page=orders")} className="flex-1 flex items-center justify-center gap-2 bg-[#F9A922] hover:bg-[#E8981F] text-white py-3 text-sm font-medium rounded transition-colors">
+          <ShoppingBag className="w-4 h-4" /> View Orders
+        </button>
+      </div>
+      <button
         onClick={handleDownloadPDF}
         disabled={isGeneratingPDF}
-        fullWidth
-        sx={{
-          py: 1.5,
-          fontSize: "0.9rem",
-          fontWeight: 500,
-          textTransform: "none",
-          borderColor: "#ff6b35",
-          color: "#ff6b35",
-          "&:hover": {
-            borderColor: "#e55a2b",
-            backgroundColor: "rgba(255, 107, 53, 0.04)",
-          },
-          "&:disabled": {
-            borderColor: "#ccc",
-            color: "#999",
-          },
-        }}
+        className="w-full flex items-center justify-center gap-2 border border-[#F9A922] text-[#F9A922] hover:bg-[rgba(255,107,53,0.04)] disabled:border-[#ccc] disabled:text-[#999] py-3 text-sm font-medium rounded transition-colors"
       >
-        {isGeneratingPDF ? "Generating PDF..." : "Download Order Receipt"}
-      </Button>
-    </Container>
+        {isGeneratingPDF ? <><Spinner size="sm" /> Generating PDF...</> : <><Download className="w-4 h-4" /> Download Order Receipt</>}
+      </button>
+    </div>
   );
 };
 

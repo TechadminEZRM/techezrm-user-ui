@@ -1,23 +1,10 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  Paper,
-} from "@mui/material";
-import { Search, MyLocation, Place } from "@mui/icons-material";
+import React, { useCallback, useRef, useState } from "react";
+import { Search, Navigation, MapPin } from "lucide-react";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
-import {
-  mapsService,
-  AutocompleteResult,
-  GeocodeResult,
-} from "@/api/services/maps";
+import { mapsService, AutocompleteResult, GeocodeResult } from "@/api/services/maps";
+import { Spinner } from "@/components/ui/spinner";
 
 interface MapSelectorProps {
   onLocationSelect: (lat: number, lng: number, address: string) => void;
@@ -39,458 +26,158 @@ const MapSelector: React.FC<MapSelectorProps> = ({
   const [mapRef, setMapRef] = useState<google.maps.Map | null>(null);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Load Google Maps script
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey:
-      process.env.NEXT_PUBLIC_MAPS_API_KEY,
+    googleMapsApiKey: process.env.NEXT_PUBLIC_MAPS_API_KEY,
     libraries: ["places"],
   });
 
-  // Handle map load
-  const handleMapLoad = useCallback((map: google.maps.Map) => {
-    setMapRef(map);
-  }, []);
+  const handleMapLoad = useCallback((map: google.maps.Map) => { setMapRef(map); }, []);
 
-  // Debounced search function for autocomplete
-  const debouncedSearch = useCallback(
-    (query: string) => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
+  const debouncedSearch = useCallback((query: string) => {
+    if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
+    debounceTimeoutRef.current = setTimeout(async () => {
+      if (query.trim().length > 2) {
+        try {
+          setIsLoading(true);
+          const results = await mapsService.getAutocompleteSuggestions(query, currentLocation.lat, currentLocation.lng, 5000, "address");
+          setSuggestions(results); setShowSuggestions(true); setSelectedIndex(-1);
+        } catch (error) { console.error("Error getting autocomplete suggestions:", error); setSuggestions([]); setShowSuggestions(false); }
+        finally { setIsLoading(false); }
+      } else { setSuggestions([]); setShowSuggestions(false); }
+    }, 300);
+  }, [currentLocation]);
+
+  const handleInputChange = useCallback((value: string) => { setSearchInput(value); debouncedSearch(value); }, [debouncedSearch]);
+
+  const handleSuggestionSelect = useCallback(async (placeId: string) => {
+    try {
+      setIsLoading(true);
+      const placeDetails = await mapsService.getPlaceDetails(placeId, "geometry,formatted_address,name");
+      if (placeDetails.geometry?.location) {
+        const { lat, lng } = placeDetails.geometry.location;
+        const address = placeDetails.formatted_address || placeDetails.name || "";
+        setCurrentLocation({ lat, lng });
+        onLocationSelect(lat, lng, address);
+        setSearchInput(address); setShowSuggestions(false); setSuggestions([]);
+        if (mapRef) mapRef.panTo({ lat, lng });
       }
+    } catch (error) { console.error("Error getting place details:", error); }
+    finally { setIsLoading(false); }
+  }, [onLocationSelect, mapRef]);
 
-      debounceTimeoutRef.current = setTimeout(async () => {
-        if (query.trim().length > 2) {
-          try {
-            setIsLoading(true);
-            const results = await mapsService.getAutocompleteSuggestions(
-              query,
-              currentLocation.lat,
-              currentLocation.lng,
-              5000,
-              "address"
-            );
-            setSuggestions(results);
-            setShowSuggestions(true);
-            setSelectedIndex(-1);
-          } catch (error) {
-            console.error("Error getting autocomplete suggestions:", error);
-            setSuggestions([]);
-            setShowSuggestions(false);
-          } finally {
-            setIsLoading(false);
-          }
-        } else {
-          setSuggestions([]);
-          setShowSuggestions(false);
-        }
-      }, 300); // 300ms debounce delay
-    },
-    [currentLocation]
-  );
-
-  // Handle input change with debouncing
-  const handleInputChange = useCallback(
-    (value: string) => {
-      setSearchInput(value);
-      debouncedSearch(value);
-    },
-    [debouncedSearch]
-  );
-
-  // Handle suggestion selection
-  const handleSuggestionSelect = useCallback(
-    async (placeId: string) => {
-      try {
-        setIsLoading(true);
-        const placeDetails = await mapsService.getPlaceDetails(
-          placeId,
-          "geometry,formatted_address,name"
-        );
-
-        if (placeDetails.geometry?.location) {
-          const location = placeDetails.geometry.location;
-          const lat = location.lat;
-          const lng = location.lng;
-          const address =
-            placeDetails.formatted_address || placeDetails.name || "";
-
-          setCurrentLocation({ lat, lng });
-          onLocationSelect(lat, lng, address);
-          setSearchInput(address);
-          setShowSuggestions(false);
-          setSuggestions([]);
-
-          // Pan map to selected location
-          if (mapRef) {
-            mapRef.panTo({ lat, lng });
-          }
-        }
-      } catch (error) {
-        console.error("Error getting place details:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [onLocationSelect]
-  );
-
-  // Handle keyboard navigation
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (!showSuggestions || suggestions.length === 0) return;
-
-      switch (e.key) {
-        case "ArrowDown":
-          e.preventDefault();
-          setSelectedIndex((prev) =>
-            prev < suggestions.length - 1 ? prev + 1 : prev
-          );
-          break;
-        case "ArrowUp":
-          e.preventDefault();
-          setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
-          break;
-        case "Enter":
-          e.preventDefault();
-          if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
-            handleSuggestionSelect(suggestions[selectedIndex].place_id);
-          }
-          break;
-        case "Escape":
-          setShowSuggestions(false);
-          setSelectedIndex(-1);
-          break;
-      }
-    },
-    [showSuggestions, suggestions, selectedIndex, handleSuggestionSelect]
-  );
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (!showSuggestions || suggestions.length === 0) return;
+    switch (e.key) {
+      case "ArrowDown": e.preventDefault(); setSelectedIndex((p) => p < suggestions.length - 1 ? p + 1 : p); break;
+      case "ArrowUp": e.preventDefault(); setSelectedIndex((p) => p > 0 ? p - 1 : -1); break;
+      case "Enter": e.preventDefault(); if (selectedIndex >= 0 && selectedIndex < suggestions.length) handleSuggestionSelect(suggestions[selectedIndex].place_id); break;
+      case "Escape": setShowSuggestions(false); setSelectedIndex(-1); break;
+    }
+  }, [showSuggestions, suggestions, selectedIndex, handleSuggestionSelect]);
 
   const handleSearch = useCallback(async () => {
     if (!searchInput.trim()) return;
-
     try {
       setIsLoading(true);
       const results = await mapsService.geocode(searchInput);
-
       if (results.length > 0) {
-        const location = results[0].geometry.location;
-        const lat = location.lat;
-        const lng = location.lng;
+        const { lat, lng } = results[0].geometry.location;
         const address = results[0].formatted_address;
-
         setCurrentLocation({ lat, lng });
         onLocationSelect(lat, lng, address);
         setShowSuggestions(false);
-
-        // Pan map to selected location
-        if (mapRef) {
-          mapRef.panTo({ lat, lng });
-        }
+        if (mapRef) mapRef.panTo({ lat, lng });
       }
-    } catch (error) {
-      console.error("Error searching for address:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [searchInput, onLocationSelect]);
+    } catch (error) { console.error("Error searching for address:", error); }
+    finally { setIsLoading(false); }
+  }, [searchInput, onLocationSelect, mapRef]);
 
   const handleCurrentLocation = useCallback(async () => {
     if (!navigator.geolocation) return;
-
     try {
       setIsLoading(true);
-      const position = await new Promise<GeolocationPosition>(
-        (resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject);
-        }
-      );
-
-      const lat = position.coords.latitude;
-      const lng = position.coords.longitude;
-      const location = { lat, lng };
-
-      setCurrentLocation(location);
-
-      // Pan map to current location
-      if (mapRef) {
-        mapRef.panTo({ lat, lng });
-      }
-
-      // Get address for current location
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject));
+      const lat = position.coords.latitude; const lng = position.coords.longitude;
+      setCurrentLocation({ lat, lng });
+      if (mapRef) mapRef.panTo({ lat, lng });
       try {
         const results = await mapsService.reverseGeocode(lat, lng);
-        if (results.length > 0) {
-          const address = results[0].formatted_address;
-          onLocationSelect(lat, lng, address);
-          setSearchInput(address);
-        } else {
-          onLocationSelect(lat, lng, `${lat.toFixed(6)}, ${lng.toFixed(6)}`);
-        }
-      } catch (error) {
-        console.error("Error getting address for current location:", error);
-        onLocationSelect(lat, lng, `${lat.toFixed(6)}, ${lng.toFixed(6)}`);
-      }
-    } catch (error) {
-      console.error("Error getting current location:", error);
-    } finally {
-      setIsLoading(false);
-    }
+        if (results.length > 0) { onLocationSelect(lat, lng, results[0].formatted_address); setSearchInput(results[0].formatted_address); }
+        else onLocationSelect(lat, lng, `${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+      } catch { onLocationSelect(lat, lng, `${lat.toFixed(6)}, ${lng.toFixed(6)}`); }
+    } catch (error) { console.error("Error getting current location:", error); }
+    finally { setIsLoading(false); }
+  }, [onLocationSelect, mapRef]);
+
+  const handleMapClick = useCallback(async (event: google.maps.MapMouseEvent) => {
+    if (!event.latLng) return;
+    const lat = event.latLng.lat(); const lng = event.latLng.lng();
+    try {
+      setIsLoading(true);
+      const results = await mapsService.reverseGeocode(lat, lng);
+      if (results.length > 0) { setCurrentLocation({ lat, lng }); onLocationSelect(lat, lng, results[0].formatted_address); setSearchInput(results[0].formatted_address); }
+    } catch (error) { console.error("Error getting address for clicked location:", error); }
+    finally { setIsLoading(false); }
   }, [onLocationSelect]);
 
-  // Handle map click
-  const handleMapClick = useCallback(
-    async (event: google.maps.MapMouseEvent) => {
-      if (!event.latLng) return;
-
-      const lat = event.latLng.lat();
-      const lng = event.latLng.lng();
-
-      try {
-        setIsLoading(true);
-        const results = await mapsService.reverseGeocode(lat, lng);
-        if (results.length > 0) {
-          const address = results[0].formatted_address;
-          setCurrentLocation({ lat, lng });
-          onLocationSelect(lat, lng, address);
-          setSearchInput(address);
-        }
-      } catch (error) {
-        console.error("Error getting address for clicked location:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [onLocationSelect]
-  );
-
   return (
-    <Box sx={{ height, position: "relative" }}>
+    <div style={{ height }} className="relative">
       {/* Search Box */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: 12,
-          left: 12,
-          right: 12,
-          zIndex: 1000,
-          backgroundColor: "white",
-          borderRadius: 1.5,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-          p: 1.5,
-        }}
-      >
-        <Box sx={{ position: "relative" }}>
-          <Box sx={{ display: "flex", gap: 1.5 }}>
-            <Box sx={{ flex: 1, position: "relative" }}>
-              <TextField
-                placeholder="Search for an address..."
-                variant="outlined"
-                fullWidth
-                size="small"
-                value={searchInput}
-                onChange={(e) => handleInputChange(e.target.value)}
-                onKeyDown={handleKeyDown}
-                onFocus={() => {
-                  if (suggestions.length > 0) {
-                    setShowSuggestions(true);
-                  }
-                }}
-                onBlur={() => {
-                  // Delay hiding suggestions to allow clicking on them
-                  setTimeout(() => setShowSuggestions(false), 200);
-                }}
-                disabled={isLoading}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    backgroundColor: "white",
-                    fontSize: "0.875rem",
-                    "& fieldset": {
-                      borderColor: "#e0e0e0",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: "#ccc",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#ff6b35",
-                    },
-                  },
-                  "& .MuiInputBase-input": {
-                    fontSize: "0.875rem",
-                    py: 1,
-                  },
-                }}
-              />
-
-              {/* Autocomplete Suggestions Dropdown */}
-              {showSuggestions && suggestions.length > 0 && (
-                <Paper
-                  sx={{
-                    position: "absolute",
-                    top: "100%",
-                    left: 0,
-                    right: 0,
-                    mt: 0.5,
-                    maxHeight: 200,
-                    overflow: "auto",
-                    zIndex: 1001,
-                    boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: 1.5,
-                  }}
-                >
-                  <List sx={{ py: 0 }}>
-                    {suggestions.map((suggestion, index) => (
-                      <ListItem
-                        key={suggestion.place_id}
-                        onClick={() =>
-                          handleSuggestionSelect(suggestion.place_id)
-                        }
-                        sx={{
-                          cursor: "pointer",
-                          backgroundColor:
-                            selectedIndex === index ? "#ff6b35" : "transparent",
-                          color: selectedIndex === index ? "white" : "inherit",
-                          py: 0.5,
-                          px: 1,
-                          "&:hover": {
-                            backgroundColor:
-                              selectedIndex === index ? "#e55a2b" : "#f5f5f5",
-                          },
-                          transition: "all 0.2s ease",
-                        }}
-                      >
-                        <Place
-                          sx={{
-                            mr: 1.5,
-                            fontSize: 16,
-                            color:
-                              selectedIndex === index ? "white" : "#ff6b35",
-                          }}
-                        />
-                        <ListItemText
-                          primary={suggestion.structured_formatting.main_text}
-                          secondary={
-                            suggestion.structured_formatting.secondary_text
-                          }
-                          primaryTypographyProps={{
-                            fontWeight: 500,
-                            fontSize: "0.8rem",
-                          }}
-                          secondaryTypographyProps={{
-                            fontSize: "0.7rem",
-                            color:
-                              selectedIndex === index
-                                ? "rgba(255,255,255,0.8)"
-                                : "text.secondary",
-                          }}
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
-                </Paper>
-              )}
-            </Box>
-
-            <Button
-              variant="contained"
-              startIcon={<Search />}
-              size="small"
-              onClick={handleSearch}
+      <div className="absolute top-3 left-3 right-3 z-[1000] bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.12)] p-3">
+        <div className="flex gap-2">
+          <div className="flex-1 relative">
+            <input
+              type="text"
+              placeholder="Search for an address..."
+              value={searchInput}
+              onChange={(e) => handleInputChange(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
               disabled={isLoading}
-              sx={{
-                backgroundColor: "#ff6b35",
-                color: "white",
-                textTransform: "none",
-                fontWeight: 500,
-                fontSize: "0.8rem",
-                px: 2,
-                py: 0.5,
-                minWidth: "auto",
-                "&:hover": {
-                  backgroundColor: "#e55a2b",
-                },
-                "&:disabled": {
-                  backgroundColor: "#ccc",
-                },
-              }}
-            >
-              Search
-            </Button>
-            <Button
-              variant="outlined"
-              startIcon={<MyLocation />}
-              size="small"
-              onClick={handleCurrentLocation}
-              disabled={isLoading}
-              sx={{
-                borderColor: "#ff6b35",
-                color: "#ff6b35",
-                textTransform: "none",
-                fontWeight: 500,
-                fontSize: "0.8rem",
-                px: 1.5,
-                py: 0.5,
-                minWidth: "auto",
-                "&:hover": {
-                  borderColor: "#e55a2b",
-                  backgroundColor: "rgba(255, 107, 53, 0.04)",
-                },
-                "&:disabled": {
-                  borderColor: "#ccc",
-                  color: "#ccc",
-                },
-              }}
-            >
-              My Location
-            </Button>
-          </Box>
-        </Box>
-      </Box>
+              className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#F9A922] hover:border-[#ccc] disabled:bg-[#f5f5f5] transition-colors"
+            />
+            {/* Suggestions */}
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 max-h-[200px] overflow-auto z-[1001] shadow-[0_4px_16px_rgba(0,0,0,0.1)] border border-[#e0e0e0] rounded-xl bg-white">
+                {suggestions.map((suggestion, index) => (
+                  <button
+                    key={suggestion.place_id}
+                    type="button"
+                    onClick={() => handleSuggestionSelect(suggestion.place_id)}
+                    className={`w-full flex items-center gap-3 px-3 py-2 text-left transition-colors ${selectedIndex === index ? "bg-[#F9A922] text-white" : "hover:bg-[#f5f5f5]"}`}
+                  >
+                    <MapPin className={`w-4 h-4 flex-shrink-0 ${selectedIndex === index ? "text-white" : "text-[#F9A922]"}`} />
+                    <div>
+                      <p className={`text-[0.8rem] font-medium ${selectedIndex === index ? "text-white" : "text-[#333]"}`}>{suggestion.structured_formatting.main_text}</p>
+                      <p className={`text-[0.7rem] ${selectedIndex === index ? "text-white/80" : "text-[#666]"}`}>{suggestion.structured_formatting.secondary_text}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <button onClick={handleSearch} disabled={isLoading} className="flex items-center gap-1.5 bg-[#F9A922] hover:bg-[#E8981F] disabled:bg-[#ccc] text-white text-[0.8rem] font-medium px-3 py-2 rounded-lg transition-colors">
+            <Search className="w-4 h-4" /> Search
+          </button>
+          <button onClick={handleCurrentLocation} disabled={isLoading} className="flex items-center gap-1.5 border border-[#F9A922] text-[#F9A922] hover:bg-[rgba(249,169,34,0.04)] disabled:border-[#ccc] disabled:text-[#ccc] text-[0.8rem] font-medium px-2.5 py-2 rounded-lg transition-colors">
+            <Navigation className="w-4 h-4" /> My Location
+          </button>
+        </div>
+      </div>
 
       {/* Map Container */}
-      <Box
-        sx={{
-          height: "100%",
-          width: "100%",
-          borderRadius: 2,
-          overflow: "hidden",
-          position: "relative",
-        }}
-      >
-        {/* Google Maps Component */}
+      <div className="h-full w-full rounded-lg overflow-hidden relative">
         {loadError && (
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              textAlign: "center",
-              color: "#666",
-              zIndex: 1000,
-            }}
-          >
-            <Typography variant="h6">Error loading map</Typography>
-            <Typography variant="body2">
-              Please check your Google Maps API key
-            </Typography>
-          </Box>
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-[#666] z-10">
+            <p className="text-lg font-medium">Error loading map</p>
+            <p className="text-sm">Please check your Google Maps API key</p>
+          </div>
         )}
-
         {!isLoaded ? (
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              textAlign: "center",
-              color: "#666",
-              zIndex: 1000,
-            }}
-          >
-            <Typography variant="h6">Loading map...</Typography>
-          </Box>
+          <div className="absolute inset-0 flex items-center justify-center text-[#666] z-10">
+            <p className="text-lg">Loading map...</p>
+          </div>
         ) : (
           <GoogleMap
             mapContainerStyle={{ width: "100%", height: "100%" }}
@@ -498,177 +185,44 @@ const MapSelector: React.FC<MapSelectorProps> = ({
             zoom={12}
             onLoad={handleMapLoad}
             onClick={handleMapClick}
-            options={{
-              styles: [
-                {
-                  featureType: "poi",
-                  elementType: "labels",
-                  stylers: [{ visibility: "off" }],
-                },
-              ],
-              disableDefaultUI: false,
-              zoomControl: true,
-              mapTypeControl: true,
-              scaleControl: true,
-              streetViewControl: false,
-              rotateControl: false,
-              fullscreenControl: true,
-            }}
+            options={{ styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }], disableDefaultUI: false, zoomControl: true, mapTypeControl: true, scaleControl: true, streetViewControl: false, rotateControl: false, fullscreenControl: true }}
           >
-            {/* Location Marker */}
             <Marker
               position={currentLocation}
-              icon={{
-                url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
-                  <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="10" fill="#ff6b35" stroke="white" stroke-width="2"/>
-                    <circle cx="12" cy="12" r="4" fill="white"/>
-                  </svg>
-                `)}`,
-                scaledSize: new google.maps.Size(24, 24),
-                anchor: new google.maps.Point(12, 12),
-              }}
+              icon={{ url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#F9A922" stroke="white" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="white"/></svg>`)}`, scaledSize: new google.maps.Size(24, 24), anchor: new google.maps.Point(12, 12) }}
             />
           </GoogleMap>
         )}
 
-        {/* Loading Overlay */}
+        {/* Loading overlay */}
         {isLoading && (
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: "rgba(255, 255, 255, 0.8)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 200,
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 1,
-              }}
-            >
-              <Box
-                sx={{
-                  width: 24,
-                  height: 24,
-                  border: "2px solid #ff6b35",
-                  borderTop: "2px solid transparent",
-                  borderRadius: "50%",
-                  animation: "spin 1s linear infinite",
-                  "@keyframes spin": {
-                    "0%": { transform: "rotate(0deg)" },
-                    "100%": { transform: "rotate(360deg)" },
-                  },
-                }}
-              />
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ fontSize: "0.8rem" }}
-              >
-                Loading...
-              </Typography>
-            </Box>
-          </Box>
+          <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-[200]">
+            <div className="flex flex-col items-center gap-2">
+              <Spinner size="sm" className="border-[#F9A922] border-t-transparent" />
+              <span className="text-sm text-[#666]">Loading...</span>
+            </div>
+          </div>
         )}
 
-        {/* Coordinates Display */}
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: 12,
-            right: 12,
-            backgroundColor: "rgba(255, 255, 255, 0.95)",
-            borderRadius: 1,
-            p: 1,
-            fontSize: "0.75rem",
-            color: "#666",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-            border: "1px solid rgba(0,0,0,0.1)",
-            zIndex: 1000,
-          }}
-        >
+        {/* Coordinates */}
+        <div className="absolute bottom-3 right-3 bg-white/95 rounded px-2 py-1 text-xs text-[#666] shadow-[0_2px_4px_rgba(0,0,0,0.1)] border border-black/10 z-[1000]">
           {currentLocation.lat.toFixed(6)}, {currentLocation.lng.toFixed(6)}
-        </Box>
+        </div>
 
-        {/* Map Attribution */}
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: 12,
-            left: 12,
-            backgroundColor: "rgba(255, 255, 255, 0.9)",
-            borderRadius: 0.5,
-            px: 1,
-            py: 0.5,
-            fontSize: "0.7rem",
-            color: "#666",
-            zIndex: 1000,
-          }}
-        >
+        {/* Attribution */}
+        <div className="absolute bottom-3 left-3 bg-white/90 rounded px-2 py-1 text-[0.7rem] text-[#666] z-[1000]">
           © Google Maps
-        </Box>
-      </Box>
+        </div>
+      </div>
 
       {/* Instructions */}
-      <Box
-        sx={{
-          position: "absolute",
-          bottom: 12,
-          left: 12,
-          backgroundColor: "rgba(255, 255, 255, 0.95)",
-          borderRadius: 1.5,
-          p: 1.5,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-          maxWidth: 280,
-        }}
-      >
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ mb: 0.5, fontWeight: 600, fontSize: "0.75rem" }}
-        >
-          Instructions:
-        </Typography>
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ display: "block", mb: 0.3, fontSize: "0.7rem" }}
-        >
-          • Type for address suggestions
-        </Typography>
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ display: "block", mb: 0.3, fontSize: "0.7rem" }}
-        >
-          • Use ↑↓ arrows, Enter to select
-        </Typography>
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ display: "block", mb: 0.3, fontSize: "0.7rem" }}
-        >
-          • Click map to select location
-        </Typography>
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ display: "block", fontSize: "0.7rem" }}
-        >
-          • Use "My Location" for GPS
-        </Typography>
-      </Box>
-    </Box>
+      <div className="absolute bottom-3 left-3 bg-white/95 rounded-xl p-3 shadow-[0_2px_8px_rgba(0,0,0,0.12)] max-w-[280px]">
+        <p className="text-[0.75rem] font-semibold text-[#666] mb-1">Instructions:</p>
+        {["Type for address suggestions", "Use ↑↓ arrows, Enter to select", "Click map to select location", 'Use "My Location" for GPS'].map((t) => (
+          <p key={t} className="text-[0.7rem] text-[#666] mb-0.5">• {t}</p>
+        ))}
+      </div>
+    </div>
   );
 };
 

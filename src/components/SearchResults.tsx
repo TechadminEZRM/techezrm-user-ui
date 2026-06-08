@@ -1,35 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  CardMedia,
-  Grid,
-  Chip,
-  Button,
-  Divider,
-  Paper,
-  Avatar,
-  IconButton,
-  Snackbar,
-} from "@mui/material";
-import {
-  ShoppingCart,
-  Visibility,
-  LocalOffer,
-  Category,
-  Search,
-  CheckCircle,
-  ErrorOutline,
-} from "@mui/icons-material";
+import { Tag, LayoutGrid, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { SearchProduct, SearchCategory } from "@/api/services/search";
 import { useAppStore } from "@/store/use-app-store";
-import { useAddToCart, useProductVariants } from "@/api/handlers";
-import ProductCard from "./ProductCard"
+import { useAddToCart } from "@/api/handlers";
+import ProductCard from "./ProductCard";
+import { toast } from "react-toastify";
 
 interface SearchResultsProps {
   products: SearchProduct[];
@@ -49,6 +27,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   loading = false,
 }) => {
   const router = useRouter();
+  const { customer, isAuthenticated } = useAppStore();
+  const addToCartMutation = useAddToCart();
 
   const handleProductClick = (productId: string) => {
     router.push(`/product/detail/${productId}`);
@@ -58,226 +38,111 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     router.push(`/product?category=${slug}`);
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(price);
-  };
-
-  if (loading) {
-    return (
-      <Box sx={{ p: 3, textAlign: "center" }}>
-        <Typography variant="h6" sx={{ color: "#666" }}>
-          Searching...
-        </Typography>
-      </Box>
-    );
-  }
-
-  const hasResults = totalProducts > 0 || totalCategories > 0;
-  // Snackbar state for feedback
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const { customer, isAuthenticated } = useAppStore();
-  const addToCartMutation = useAddToCart();
-
-
-  const handleAddToCart = (product:any, unitSize:any) => {
-    // Check if user is authenticated
+  const handleAddToCart = (product: any, unitSize: any) => {
     if (!isAuthenticated || !customer) {
-      // Redirect to login page
       router.push("/sign_in");
       return;
     }
-
-    // Add to cart if authenticated
     addToCartMutation.mutate(
+      { customerId: customer.id, productId: product?._id, quantity: unitSize },
       {
-        customerId: customer.id,
-        productId: product?._id,
-        quantity: unitSize,
-      },
-      {
-        onSuccess: () => {
-          setSnackbarMessage(`added to cart successfully!`);
-          setSnackbarOpen(true);
-        },
+        onSuccess: () => toast.success("Added to cart successfully!"),
         onError: (error) => {
           console.error("Failed to add to cart:", error);
-          setSnackbarMessage(
-            "Failed to add product to cart. Please try again."
-          );
-          setSnackbarOpen(true);
+          toast.error("Failed to add product to cart. Please try again.");
         },
       }
     );
   };
 
+  if (loading) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-lg text-[#666]">Searching...</p>
+      </div>
+    );
+  }
+
+  const hasResults = totalProducts > 0 || totalCategories > 0;
+
   return (
-    <>
-    <Box sx={{ p: 3 }}>
+    <div className="p-6">
       {/* Search Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: 600, color: "#333", mb: 1 }}>
-          Search Results --
-        </Typography>
-        <Typography variant="body1" sx={{ color: "#666", mb: 2 }}>
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold text-[#333] mb-1">Search Results --</h2>
+        <p className="text-[#666] mb-4">
           {hasResults ? (
-            <>
-              Found {totalProducts + totalCategories} results for "
-              <strong>{searchQuery}</strong>"
-            </>
+            <>Found {totalProducts + totalCategories} results for "<strong>{searchQuery}</strong>"</>
           ) : (
-            <>
-              No results found for "<strong>{searchQuery}</strong>"
-            </>
+            <>No results found for "<strong>{searchQuery}</strong>"</>
           )}
-        </Typography>
+        </p>
 
         {hasResults && (
-          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+          <div className="flex flex-wrap gap-2">
             {totalProducts > 0 && (
-              <Chip
-                icon={<LocalOffer />}
-                label={`${totalProducts} Products`}
-                color="primary"
-                variant="outlined"
-                sx={{
-                  borderColor: "#ff6b35",
-                  color: "#ff6b35",
-                  "& .MuiChip-icon": {
-                    color: "#ff6b35",
-                  },
-                }}
-              />
+              <span className="flex items-center gap-1.5 text-sm border border-[#F9A922] text-[#F9A922] px-3 py-1 rounded-full">
+                <Tag className="w-4 h-4" />
+                {totalProducts} Products
+              </span>
             )}
             {totalCategories > 0 && (
-              <Chip
-                icon={<Category />}
-                label={`${totalCategories} Categories`}
-                color="secondary"
-                variant="outlined"
-              />
+              <span className="flex items-center gap-1.5 text-sm border border-[#9c27b0] text-[#9c27b0] px-3 py-1 rounded-full">
+                <LayoutGrid className="w-4 h-4" />
+                {totalCategories} Categories
+              </span>
             )}
-          </Box>
+          </div>
         )}
-      </Box>
+      </div>
 
       {!hasResults ? (
-        // No Results State
-        <Paper
-          sx={{
-            p: 6,
-            textAlign: "center",
-            backgroundColor: "#f8f9fa",
-            border: "2px dashed #e0e0e0",
-            borderRadius: 3,
-          }}
-        >
-          <Search sx={{ fontSize: 64, color: "#c0c0c0", mb: 2 }} />
-          <Typography variant="h6" sx={{ color: "#666", mb: 2 }}>
-            No products or categories found
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{ color: "#999", mb: 3, maxWidth: 400, mx: "auto" }}
-          >
-            Try adjusting your search terms or browse our categories to find
-            what you're looking for.
-          </Typography>
-          <Button
-            variant="outlined"
+        /* No Results */
+        <div className="p-12 text-center bg-[#f8f9fa] border-2 border-dashed border-[#e0e0e0] rounded-xl">
+          <Search className="w-16 h-16 text-[#c0c0c0] mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-[#666] mb-3">No products or categories found</h3>
+          <p className="text-sm text-[#999] mb-6 max-w-sm mx-auto">
+            Try adjusting your search terms or browse our categories to find what you're looking for.
+          </p>
+          <button
             onClick={() => router.push("/product")}
-            sx={{
-              borderColor: "#ff6b35",
-              color: "#ff6b35",
-              "&:hover": {
-                borderColor: "#e55a2b",
-                backgroundColor: "rgba(255, 107, 53, 0.04)",
-              },
-              textTransform: "none",
-            }}
+            className="border border-[#F9A922] text-[#F9A922] px-6 py-2 rounded-lg text-sm font-medium hover:bg-[rgba(249,169,34,0.04)] hover:border-[#E8981F] transition-colors"
           >
             Browse All Products
-          </Button>
-        </Paper>
+          </button>
+        </div>
       ) : (
         <>
           {/* Categories Section */}
           {categories.length > 0 && (
-            <Box sx={{ mb: 5 }}>
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: 600, color: "#333", mb: 3 }}
-              >
-                Categories
-              </Typography>
-              <Grid container spacing={2}>
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-[#333] mb-4">Categories</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {categories.map((category) => (
-                  <Grid item xs={12} sm={6} md={4} key={category._id}>
-                    <Card
-                      sx={{
-                        cursor: "pointer",
-                        transition: "all 0.2s ease",
-                        border: "1px solid #e0e0e0",
-                        "&:hover": {
-                          boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-                          transform: "translateY(-2px)",
-                          borderColor: "#ff6b35",
-                        },
-                        borderRadius: 2,
-                      }}
-                      onClick={() => handleCategoryClick(category.slug)}
-                    >
-                      <CardContent sx={{ p: 3 }}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 2,
-                            mb: 2,
-                          }}
-                        >
-                          <Avatar
-                            sx={{
-                              backgroundColor: "#ff6b35",
-                              width: 40,
-                              height: 40,
-                            }}
-                          >
-                            <Category sx={{ color: "white" }} />
-                          </Avatar>
-                          <Typography
-                            variant="h6"
-                            sx={{ fontWeight: 600, color: "#333" }}
-                          >
-                            {category.name}
-                          </Typography>
-                        </Box>
-                        <Typography variant="body2" sx={{ color: "#666" }}>
-                          {category.description}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
+                  <div
+                    key={category._id}
+                    onClick={() => handleCategoryClick(category.slug)}
+                    className="cursor-pointer border border-[#e0e0e0] rounded-lg p-4 hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 hover:border-[#F9A922] transition-all"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 rounded-full bg-[#F9A922] flex items-center justify-center flex-shrink-0">
+                        <LayoutGrid className="w-5 h-5 text-white" />
+                      </div>
+                      <h4 className="text-base font-semibold text-[#333]">{category.name}</h4>
+                    </div>
+                    <p className="text-sm text-[#666]">{category.description}</p>
+                  </div>
                 ))}
-              </Grid>
-              <Divider sx={{ my: 4 }} />
-            </Box>
+              </div>
+              <hr className="border-[#e0e0e0] mt-8 mb-8" />
+            </div>
           )}
 
           {/* Products Section */}
           {products.length > 0 && (
-            <Box>
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: 600, color: "#333", mb: 3 }}
-              >
-                Products
-              </Typography>
-
-              <Grid container spacing={3}>
+            <div>
+              <h3 className="text-lg font-semibold text-[#333] mb-4">Products</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {products.map((product) => (
                   <ProductCard
                     key={product._id}
@@ -286,20 +151,12 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                     handleAddToCart={handleAddToCart}
                   />
                 ))}
-              </Grid>
-            </Box>
+              </div>
+            </div>
           )}
         </>
       )}
-    </Box>
-     <Snackbar
-     open={snackbarOpen}
-     autoHideDuration={4000}
-     onClose={() => setSnackbarOpen(false)}
-     message={snackbarMessage}
-     anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-   />
-    </>
+    </div>
   );
 };
 

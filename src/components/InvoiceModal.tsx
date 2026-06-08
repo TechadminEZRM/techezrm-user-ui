@@ -1,322 +1,130 @@
 "use client";
 
 import React from "react";
-import {
-  Box,
-  Typography,
-  Modal,
-  IconButton,
-  Button,
-  Divider,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-} from "@mui/material";
-import { Close, Receipt, Download, Print } from "@mui/icons-material";
+import { X, Printer } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { formatDate } from "@/utils/dateUtils";
-
-interface OrderItem {
-  product: {
-    _id: string;
-    name: string;
-    price: number;
-  };
-  quantity: number;
-  totalPrice: number;
-}
 
 interface InvoiceModalProps {
   open: boolean;
   onClose: () => void;
-  order?: any; // Using any to match the CustomerOrder type from the API
+  order?: any;
 }
 
-const InvoiceModal: React.FC<InvoiceModalProps> = ({
-  open,
-  onClose,
-  order,
-}) => {
-  const formatCurrency = (amount: number) => {
-    return `$${amount.toFixed(2)}`;
-  };
-
-  const handlePrintInvoice = () => {
-    if (typeof window === "undefined") return;
-    window.print();
-  };
+const InvoiceModal: React.FC<InvoiceModalProps> = ({ open, onClose, order }) => {
+  const fmt = (amount: number) => `$${amount.toFixed(2)}`;
 
   if (!order) return null;
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        p: 2,
-      }}
-    >
-      <Box
-        className="invoice-print"
-        sx={{
-          width: "100%",
-          maxWidth: "210mm", // A4 width
-          height: "297mm", // A4 height
-          maxHeight: "90vh",
-          backgroundColor: "white",
-          borderRadius: 2,
-          boxShadow: 24,
-          overflow: "auto",
-          position: "relative",
-        }}
-      >
-        {/* Invoice Header */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            p: 4,
-            borderBottom: "2px solid #e0e0e0",
-          }}
-        >
-          <Box>
-            <Typography
-              variant="h4"
-              fontWeight="700"
-              color="#1a365d"
-              sx={{ mb: 1 }}
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-[210mm] p-0 overflow-hidden max-h-[90vh]">
+        <div className="invoice-print overflow-auto max-h-[90vh] relative">
+          {/* Action Buttons */}
+          <div className="no-print absolute top-4 right-4 flex gap-2 z-50">
+            <button onClick={onClose} className="text-[#666] hover:text-[#333] p-1 rounded-full hover:bg-black/5 transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+            <button onClick={onClose} className="text-sm border border-[#666] text-[#666] px-4 py-1.5 rounded-lg hover:bg-black/5 transition-colors">Close</button>
+            <button
+              onClick={() => typeof window !== "undefined" && window.print()}
+              className="flex items-center gap-2 text-sm bg-[#F9A922] text-white px-4 py-1.5 rounded-lg hover:bg-[#E8981F] transition-colors"
             >
-              INVOICE
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Invoice #: {order?.uniqueId || "N/A"}
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Date: {formatDate(order?.createdAt)}
-            </Typography>
-          </Box>
-          <Box sx={{ textAlign: "right" }}>
-            <Typography variant="h6" fontWeight="600" color="#1a365d">
-              EZRM
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Your Trusted Partner
-            </Typography>
-          </Box>
-        </Box>
+              <Printer className="w-4 h-4" /> Print
+            </button>
+          </div>
 
-        {/* Customer & Order Info */}
-        <Box sx={{ p: 4 }}>
-          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 4 }}>
-            {/* Customer Info */}
-            <Box>
-              <Typography variant="h6" fontWeight="600" sx={{ mb: 2 }}>
-                Bill To:
-              </Typography>
-              <Typography variant="body1" fontWeight="500">
-                {order?.customer?.name || "N/A"}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {order?.customer?.email || "N/A"}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {order?.customer?.phone || "N/A"}
-              </Typography>
-            </Box>
+          {/* Invoice Header */}
+          <div className="flex justify-between items-start p-8 border-b-2 border-[#e0e0e0]">
+            <div>
+              <h1 className="text-3xl font-bold text-[#1a365d] mb-1">INVOICE</h1>
+              <p className="text-[#737791]">Invoice #: {order?.uniqueId || "N/A"}</p>
+              <p className="text-[#737791]">Date: {formatDate(order?.createdAt)}</p>
+            </div>
+            <div className="text-right">
+              <h3 className="text-xl font-semibold text-[#1a365d]">EZRM</h3>
+              <p className="text-sm text-[#737791]">Your Trusted Partner</p>
+            </div>
+          </div>
 
-            {/* Shipping Address */}
-            <Box>
-              <Typography variant="h6" fontWeight="600" sx={{ mb: 2 }}>
-                Ship To:
-              </Typography>
-              <Typography variant="body1" fontWeight="500">
-                {order?.shippingAddress?.fullName || "N/A"}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {order?.shippingAddress?.address || "N/A"}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {order?.shippingAddress?.city || "N/A"},{" "}
-                {order?.shippingAddress?.state || "N/A"}{" "}
-                {order?.shippingAddress?.zipCode || "N/A"}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {order?.shippingAddress?.country || "N/A"}
-              </Typography>
-            </Box>
-          </Box>
+          {/* Body */}
+          <div className="p-8">
+            {/* Bill/Ship Info */}
+            <div className="flex justify-between mb-8">
+              <div>
+                <h4 className="font-semibold text-base mb-3">Bill To:</h4>
+                <p className="font-medium">{order?.customer?.name || "N/A"}</p>
+                <p className="text-sm text-[#737791]">{order?.customer?.email || "N/A"}</p>
+                <p className="text-sm text-[#737791]">{order?.customer?.phone || "N/A"}</p>
+              </div>
+              <div>
+                <h4 className="font-semibold text-base mb-3">Ship To:</h4>
+                <p className="font-medium">{order?.shippingAddress?.fullName || "N/A"}</p>
+                <p className="text-sm text-[#737791]">{order?.shippingAddress?.address || "N/A"}</p>
+                <p className="text-sm text-[#737791]">
+                  {order?.shippingAddress?.city || "N/A"}, {order?.shippingAddress?.state || "N/A"} {order?.shippingAddress?.zipCode || "N/A"}
+                </p>
+                <p className="text-sm text-[#737791]">{order?.shippingAddress?.country || "N/A"}</p>
+              </div>
+            </div>
 
-          {/* Order Status */}
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="body2" color="text.secondary">
-              Order Status: {order?.orderStatus || "N/A"}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Payment Status: {order?.paymentStatus || "N/A"}
-            </Typography>
-          </Box>
+            {/* Status */}
+            <div className="mb-6">
+              <p className="text-sm text-[#737791]">Order Status: {order?.orderStatus || "N/A"}</p>
+              <p className="text-sm text-[#737791]">Payment Status: {order?.paymentStatus || "N/A"}</p>
+            </div>
 
-          {/* Items Table */}
-          <TableContainer component={Paper} sx={{ mb: 3 }}>
-            <Table>
-              <TableHead>
-                <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
-                  <TableCell sx={{ fontWeight: 600 }}>Item</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }} align="center">
-                    Quantity
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 600 }} align="right">
-                    Unit Price
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 600 }} align="right">
-                    Total
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {order.items?.map((item: any, index: number) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <Typography variant="body1" fontWeight="500">
-                        {item?.product?.name || "N/A"}
-                      </Typography>
-                    </TableCell>
-                    <TableCell align="center">{item?.quantity || 0}</TableCell>
-                    <TableCell align="right">
-                      {formatCurrency(item?.product?.price || 0)}
-                    </TableCell>
-                    <TableCell align="right">
-                      {formatCurrency(item?.totalPrice || 0)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+            {/* Items Table */}
+            <div className="border border-[#e0e0e0] rounded-lg overflow-hidden mb-6">
+              <table className="w-full text-sm">
+                <thead className="bg-[#f5f5f5]">
+                  <tr>
+                    <th className="text-left px-4 py-3 font-semibold text-[#1F2A44]">Item</th>
+                    <th className="text-center px-4 py-3 font-semibold text-[#1F2A44]">Quantity</th>
+                    <th className="text-right px-4 py-3 font-semibold text-[#1F2A44]">Unit Price</th>
+                    <th className="text-right px-4 py-3 font-semibold text-[#1F2A44]">Total</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#e0e0e0]">
+                  {order.items?.map((item: any, i: number) => (
+                    <tr key={i}>
+                      <td className="px-4 py-3 font-medium">{item?.product?.name || "N/A"}</td>
+                      <td className="px-4 py-3 text-center">{item?.quantity || 0}</td>
+                      <td className="px-4 py-3 text-right">{fmt(item?.product?.price || 0)}</td>
+                      <td className="px-4 py-3 text-right">{fmt(item?.totalPrice || 0)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-          {/* Total */}
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}>
-            <Box sx={{ minWidth: 200 }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  py: 1,
-                  borderBottom: "1px solid #e0e0e0",
-                }}
-              >
-                <Typography variant="body1" fontWeight="600">
-                  Subtotal:
-                </Typography>
-                <Typography variant="body1" fontWeight="600">
-                  {formatCurrency(order?.totalAmount || 0)}
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  py: 1,
-                  borderBottom: "1px solid #e0e0e0",
-                }}
-              >
-                <Typography variant="body1" fontWeight="600">
-                  Shipping:
-                </Typography>
-                <Typography variant="body1" fontWeight="600">
-                  Free
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  py: 2,
-                  borderTop: "2px solid #1a365d",
-                }}
-              >
-                <Typography variant="h6" fontWeight="700" color="#1a365d">
-                  Total:
-                </Typography>
-                <Typography variant="h6" fontWeight="700" color="#1a365d">
-                  {formatCurrency(order?.totalAmount || 0)}
-                </Typography>
-              </Box>
-            </Box>
-          </Box>
+            {/* Totals */}
+            <div className="flex justify-end mb-6">
+              <div className="min-w-[200px]">
+                <div className="flex justify-between py-2 border-b border-[#e0e0e0]">
+                  <span className="font-semibold">Subtotal:</span>
+                  <span className="font-semibold">{fmt(order?.totalAmount || 0)}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-[#e0e0e0]">
+                  <span className="font-semibold">Shipping:</span>
+                  <span className="font-semibold">Free</span>
+                </div>
+                <div className="flex justify-between py-3 border-t-2 border-[#1a365d]">
+                  <span className="text-lg font-bold text-[#1a365d]">Total:</span>
+                  <span className="text-lg font-bold text-[#1a365d]">{fmt(order?.totalAmount || 0)}</span>
+                </div>
+              </div>
+            </div>
 
-          {/* Footer */}
-          <Box
-            sx={{
-              textAlign: "center",
-              mt: 4,
-              pt: 3,
-              borderTop: "1px solid #e0e0e0",
-            }}
-          >
-            <Typography variant="body2" color="text.secondary">
-              Thank you for your business!
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              For any questions, please contact our support team.
-            </Typography>
-          </Box>
-        </Box>
-
-        {/* Action Buttons */}
-        <Box
-          className="no-print"
-          sx={{
-            position: "absolute",
-            top: 16,
-            right: 16,
-            display: "flex",
-            gap: 1,
-            zIndex: 1000,
-          }}
-        >
-          <IconButton onClick={onClose} sx={{ color: "#666" }}>
-            <Close />
-          </IconButton>
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <Button
-              variant="outlined"
-              onClick={onClose}
-              sx={{
-                borderColor: "#666",
-                color: "#666",
-                "&:hover": {
-                  borderColor: "#333",
-                  backgroundColor: "rgba(0,0,0,0.04)",
-                },
-              }}
-            >
-              Close
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<Print />}
-              onClick={handlePrintInvoice}
-              sx={{
-                backgroundColor: "#ff6b35",
-                "&:hover": {
-                  backgroundColor: "#e55a2b",
-                },
-              }}
-            >
-              Print
-            </Button>
-          </Box>
-        </Box>
-      </Box>
-    </Modal>
+            {/* Footer */}
+            <div className="text-center mt-8 pt-6 border-t border-[#e0e0e0]">
+              <p className="text-sm text-[#737791]">Thank you for your business!</p>
+              <p className="text-sm text-[#737791]">For any questions, please contact our support team.</p>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

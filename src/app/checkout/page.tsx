@@ -1,61 +1,18 @@
 "use client";
 import type React from "react";
 import { useState, useEffect } from "react";
-import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  Container,
-  Paper,
-  Alert,
-  CircularProgress,
-  Divider,
-  Chip,
-  Modal,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  IconButton,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormControlLabel,
-  Switch,
-  Grid,
-  Autocomplete,
-} from "@mui/material";
 import Image from "next/image";
+import { Home, Building2, Store, Globe, Tag } from "lucide-react";
 import { useAppStore } from "@/store/use-app-store";
-import { customerAddressHandler } from "@/api/handlers/customerAddressHandler";
 import { customerProfileHandler } from "@/api/handlers/customerProfileHandler";
 import { useCart } from "@/api/handlers/cartHandler";
 import { checkoutSessionsService } from "@/api/services/checkoutSessions";
-// import type { CustomerAddress } from "@/api/services/customerAddress";
 import type { CustomerProfile } from "@/api/services/customerProfile";
 import { loadStripe, Stripe } from "@stripe/stripe-js";
-import MapSelector from "@/components/MapSelector";
 import AddressModal from "@/components/AddressModal";
 import { useCustomerAddresses } from "@/hooks/use-customer-addresses";
+import { Spinner } from "@/components/ui/spinner";
 import { toast } from "react-toastify";
-
-import {
-  LocalShipping,
-  Payment,
-  Security,
-  Discount,
-  Close,
-  Add,
-  Save,
-  Map,
-  LocationOn,
-  Business,
-  Home,
-  Store,
-  Public,
-} from "@mui/icons-material";
 
 interface FormData {
   firstName: string;
@@ -73,48 +30,33 @@ interface FormData {
   postalCode: string;
 }
 
-interface AddressFormData {
-  companyName: string;
-  receiverName: string;
-  receiverPhone: string;
-  receiverEmail: string;
-  receiverPhoneCountryCode: string;
-  type: "home" | "work" | "other" | "warehouse";
-  street: string;
-  city: string;
-  state: string;
-  country: string;
-  zipCode: string;
-  isDefault: boolean;
-  isActive: boolean;
-  coordinates: {
-    latitude: string;
-    longitude: string;
-  };
-}
+const inputClass = "w-full border border-[#e0e0e0] rounded bg-white px-3 py-2 text-sm text-[#333] placeholder:text-[#999] focus:outline-none focus:border-[#F9A922] hover:border-[#ccc] transition-colors";
+
+const paymentMethods = [
+  { name: "Visa", src: "/visa2.png?height=25&width=44&text=VISA" },
+  { name: "Stripe", src: "/stripe.png?height=24&width=40&text=stripe" },
+  { name: "PayPal", src: "/pp.png?height=24&width=40&text=PayPal" },
+  { name: "Mastercard", src: "/mastercard.png?height=24&width=40&text=MC" },
+  { name: "Google Pay", src: "/gpay.png?height=24&width=40&text=GPay" },
+];
+
+const AddressTypeIcon: React.FC<{ type: string }> = ({ type }) => {
+  const cls = "w-4 h-4 text-[#F9A922]";
+  if (type === "home") return <Home className={cls} />;
+  if (type === "work") return <Building2 className={cls} />;
+  if (type === "warehouse") return <Store className={cls} />;
+  return <Globe className={cls} />;
+};
 
 const CheckoutForm: React.FC = () => {
   const { customer } = useAppStore();
   const [formData, setFormData] = useState<FormData>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phoneNumber: "",
-    cardHolderName: "",
-    cardNumber: "",
-    cvv: "",
-    expirationDate: "",
-    addressLine1: "",
-    city: "",
-    state: "",
-    landmark: "",
-    postalCode: "",
+    firstName: "", lastName: "", email: "", phoneNumber: "", cardHolderName: "",
+    cardNumber: "", cvv: "", expirationDate: "", addressLine1: "", city: "", state: "", landmark: "", postalCode: "",
   });
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
-  const [customerProfile, setCustomerProfile] =
-    useState<CustomerProfile | null>(null);
+  const [customerProfile, setCustomerProfile] = useState<CustomerProfile | null>(null);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState<string>("");
   const [paymentSuccess, setPaymentSuccess] = useState<string>("");
@@ -122,1289 +64,280 @@ const CheckoutForm: React.FC = () => {
   const [orderId, setOrderId] = useState<string>("");
   const [discount, setDiscount] = useState("");
   const [addressModalOpen, setAddressModalOpen] = useState(false);
-  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
-    null
-  );
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
 
-  // Customer addresses hook
-  const {
-    addresses,
-    defaultAddress,
-    isLoading: addressesLoading,
-    error: addressesError,
-    addAddress,
-    refetch: refetchAddresses,
-  } = useCustomerAddresses(customer?.id);
-
-  // Fetch cart data
-  const {
-    data: cartResponse,
-    isLoading: cartLoading,
-    error: cartError,
-  } = useCart(customer?.id || "", { enabled: !!customer?.id });
-
-  // Extract cart data
+  const { addresses, defaultAddress, isLoading: addressesLoading, addAddress, refetch: refetchAddresses } = useCustomerAddresses(customer?.id);
+  const { data: cartResponse, isLoading: cartLoading } = useCart(customer?.id || "", { enabled: !!customer?.id });
   const cartData = cartResponse?.data?.cart;
   const cartItems = cartData?.items || [];
   const subtotal = cartData?.totalAmount || 0;
-  const total = subtotal;
 
-  // Fetch customer profile and default address
   useEffect(() => {
     const fetchCustomerData = async () => {
       if (!customer?.id) return;
-
-      setLoading(true);
-      setError("");
-
+      setLoading(true); setError("");
       try {
-        // Fetch customer profile
         const profile = await customerProfileHandler.getProfile(customer.id);
         setCustomerProfile(profile);
-
-        // Auto-fill form with customer data
         if (profile) {
           const nameParts = profile.name?.split(" ") || [];
-          const firstName = nameParts[0] || "";
-          const lastName = nameParts.slice(1).join(" ") || "";
-
-          setFormData((prev) => ({
-            ...prev,
-            firstName,
-            lastName,
-            email: profile.email || "",
-            phoneNumber: profile.phone || "",
-            cardHolderName: profile.name || "",
-          }));
+          setFormData((p) => ({ ...p, firstName: nameParts[0] || "", lastName: nameParts.slice(1).join(" ") || "", email: profile.email || "", phoneNumber: profile.phone || "", cardHolderName: profile.name || "" }));
         }
-
-        // Auto-fill address if default address exists
         if (defaultAddress) {
           setSelectedAddressId(defaultAddress._id);
-          setFormData((prev) => ({
-            ...prev,
-            addressLine1: defaultAddress.street || "",
-            city: defaultAddress.city || "",
-            state: defaultAddress.state || "",
-            postalCode: defaultAddress.zipCode || "",
-          }));
+          setFormData((p) => ({ ...p, addressLine1: defaultAddress.street || "", city: defaultAddress.city || "", state: defaultAddress.state || "", postalCode: defaultAddress.zipCode || "" }));
         }
       } catch (error) {
         console.error("Error fetching customer data:", error);
-        setError(
-          "Failed to load customer information. Please fill the form manually."
-        );
-      } finally {
-        setLoading(false);
-      }
+        setError("Failed to load customer information. Please fill the form manually.");
+      } finally { setLoading(false); }
     };
-
     fetchCustomerData();
   }, [customer?.id]);
 
-  // Initialize Stripe
   useEffect(() => {
-    const initializeStripe = async () => {
-      const stripeInstance = await loadStripe(
-        process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
-      );
-      setStripe(stripeInstance);
-    };
-
-    initializeStripe();
+    loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!).then(setStripe);
   }, []);
 
-  const handleInputChange =
-    (field: keyof FormData) => (event: React.ChangeEvent<HTMLInputElement>) => {
-      setFormData((prev) => ({
-        ...prev,
-        [field]: event.target.value,
-      }));
-    };
+  const handleInputChange = (field: keyof FormData) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((p) => ({ ...p, [field]: event.target.value }));
+  };
 
   const handleAddressSave = async (addressData: any) => {
-    try {
-      await addAddress(addressData);
-      await refetchAddresses(); // Refresh the addresses list
-      console.log("Address saved successfully");
-    } catch (error) {
-      console.error("Error saving address:", error);
-    }
+    try { await addAddress(addressData); await refetchAddresses(); } catch (error) { console.error("Error saving address:", error); }
   };
 
   const handleCompletePurchase = async () => {
-    if (!customer?.id) {
-      toast.warning("Please log in to complete your purchase.");
-      return;
-    }
-
-    if (!stripe) {
-      toast.error("Payment system is not ready. Please try again.");
-      return;
-    }
-
-    // Validate required fields
-    const requiredFields = {
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      email: formData.email,
-      addressLine1: formData.addressLine1,
-      city: formData.city,
-      state: formData.state,
-    };
-
-    const missingFields = Object.entries(requiredFields)
-      .filter(([_, value]) => !value?.trim())
-      .map(([field]) => field);
-
-    if (missingFields.length > 0) {
-      const fieldNames = missingFields.map((field) => {
-        switch (field) {
-          case "firstName":
-            return "First Name";
-          case "lastName":
-            return "Last Name";
-          case "email":
-            return "Email";
-          case "addressLine1":
-            return "Address";
-          case "city":
-            return "City";
-          case "state":
-            return "State";
-          default:
-            return field;
-        }
-      });
-
-      toast.warning(
-        `Please fill in the following required fields: ${fieldNames.join(", ")}`
-      );
-      return;
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      toast.warning("Please enter a valid email address.");
-      return;
-    }
-
-    setPaymentProcessing(true);
-    setPaymentError("");
-
+    if (!customer?.id) { toast.warning("Please log in to complete your purchase."); return; }
+    if (!stripe) { toast.error("Payment system is not ready. Please try again."); return; }
+    const requiredFields = { firstName: formData.firstName, lastName: formData.lastName, email: formData.email, addressLine1: formData.addressLine1, city: formData.city, state: formData.state };
+    const missingFields = Object.entries(requiredFields).filter(([_, v]) => !v?.trim()).map(([field]) => ({ firstName: "First Name", lastName: "Last Name", email: "Email", addressLine1: "Address", city: "City", state: "State" }[field] || field));
+    if (missingFields.length > 0) { toast.warning(`Please fill in the following required fields: ${missingFields.join(", ")}`); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) { toast.warning("Please enter a valid email address."); return; }
+    setPaymentProcessing(true); setPaymentError("");
     try {
-      // Generate a unique order ID
-      const orderId = `order_${Date.now()}_${Math.random()
-        .toString(36)
-        .substr(2, 9)}`;
+      const orderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       setOrderId(orderId);
-
-      // Calculate total amount including shipping and tax
-      const shipping = 5.99;
-      const tax = subtotal * 0.08;
-      const totalAmount = subtotal + shipping + tax;
-
-      // Get selected address details for billing
-      const selectedAddress = selectedAddressId
-        ? addresses.find((addr) => addr._id === selectedAddressId)
-        : null;
-
-      // Create checkout session data
+      const shipping = 5.99; const tax = subtotal * 0.08; const totalAmount = subtotal + shipping + tax;
+      const selectedAddress = selectedAddressId ? addresses.find((a) => a._id === selectedAddressId) : null;
       const checkoutData = {
-        customerId: customer.id,
-        customerName: `${formData.firstName} ${formData.lastName}`,
-        customerEmail: formData.email,
-        shippingAddress: {
-          addressLine1: formData.addressLine1,
-          city: formData.city,
-          state: formData.state,
-          postalCode: formData.postalCode,
-          country: "India",
-        },
-        billingAddress: selectedAddress
-          ? {
-              addressLine1: selectedAddress.street,
-              city: selectedAddress.city,
-              state: selectedAddress.state,
-              postalCode: selectedAddress.zipCode,
-              country: selectedAddress.country,
-            }
-          : {
-              addressLine1: formData.addressLine1,
-              city: formData.city,
-              state: formData.state,
-              postalCode: formData.postalCode,
-              country: "India",
-            },
-        orderItems: cartItems.map((item) => ({
-          productId: item.product._id,
-          productName: item.productName || "Product",
-          quantity: item.quantity,
-          unitPrice: item.productPrice || 0,
-          totalPrice: (item.productPrice || 0) * item.quantity,
-        })),
-        subTotal: subtotal,
-        tax: tax,
-        shippingCost: shipping,
-        discount: 0, // No discount applied yet
-        totalAmount: totalAmount,
-        currency: "usd",
-        lineItems: cartItems.map((item) => ({
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: item.productName || "Product",
-              description: `Product ID: ${item.product._id}`,
-              images: ["/product.png"], // Default product image
-            },
-            unit_amount: Math.round((item.productPrice || 0) * 100), // Convert to cents
-          },
-          quantity: item.quantity,
-        })),
+        customerId: customer.id, customerName: `${formData.firstName} ${formData.lastName}`, customerEmail: formData.email,
+        shippingAddress: { addressLine1: formData.addressLine1, city: formData.city, state: formData.state, postalCode: formData.postalCode, country: "India" },
+        billingAddress: selectedAddress ? { addressLine1: selectedAddress.street, city: selectedAddress.city, state: selectedAddress.state, postalCode: selectedAddress.zipCode, country: selectedAddress.country } : { addressLine1: formData.addressLine1, city: formData.city, state: formData.state, postalCode: formData.postalCode, country: "India" },
+        orderItems: cartItems.map((item) => ({ productId: item.product._id, productName: item.productName || "Product", quantity: item.quantity, unitPrice: item.productPrice || 0, totalPrice: (item.productPrice || 0) * item.quantity })),
+        subTotal: subtotal, tax, shippingCost: shipping, discount: 0, totalAmount, currency: "usd",
+        lineItems: cartItems.map((item) => ({ price_data: { currency: "usd", product_data: { name: item.productName || "Product", description: `Product ID: ${item.product._id}`, images: ["/product.png"] }, unit_amount: Math.round((item.productPrice || 0) * 100) }, quantity: item.quantity })),
         mode: "payment" as "payment",
         successUrl: `${window.location.origin}/payment-success?orderId=${orderId}`,
         cancelUrl: `${window.location.origin}/checkout`,
       };
-
-      // Create checkout session
-      const checkoutSession: any =
-        await checkoutSessionsService.createCheckoutSession(checkoutData);
-      console.log("Checkout session created:", checkoutSession);
-
-      // Redirect to Stripe checkout
+      const checkoutSession: any = await checkoutSessionsService.createCheckoutSession(checkoutData);
       if (stripe) {
-        const { error } = await stripe.redirectToCheckout({
-          sessionId: checkoutSession?.data?.sessionId,
-        });
-
-        if (error) {
-          throw new Error(error.message);
-        }
-      } else {
-        throw new Error("Stripe is not initialized");
-      }
+        const { error } = await stripe.redirectToCheckout({ sessionId: checkoutSession?.data?.sessionId });
+        if (error) throw new Error(error.message);
+      } else throw new Error("Stripe is not initialized");
     } catch (error) {
       console.error("Payment error:", error);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Payment failed. Please try again."
-      );
-    } finally {
-      setPaymentProcessing(false);
-    }
+      toast.error(error instanceof Error ? error.message : "Payment failed. Please try again.");
+    } finally { setPaymentProcessing(false); }
   };
 
-  // Function to handle address selection
-  const handleAddressSelect = (address: CustomerAddress) => {
+  const handleAddressSelect = (address: any) => {
     setSelectedAddressId(address._id);
-    setFormData((prev) => ({
-      ...prev,
-      addressLine1: address.street || "",
-      city: address.city || "",
-      state: address.state || "",
-      postalCode: address.zipCode || "",
-    }));
-
-    console.log("use this address")
-
-
-  };
-
-  const paymentMethods = [
-    { name: "Visa", src: "/visa2.png?height=25&width=44&text=VISA" },
-    { name: "Stripe", src: "/stripe.png?height=24&width=40&text=stripe" },
-    { name: "PayPal", src: "/pp.png?height=24&width=40&text=PayPal" },
-    { name: "Mastercard", src: "/mastercard.png?height=24&width=40&text=MC" },
-    { name: "Google Pay", src: "/gpay.png?height=24&width=40&text=GPay" },
-  ];
-
-  // Common TextField styles
-  const textFieldStyles = {
-    width: "300px", // Fixed width for all input fields
-    "& .MuiOutlinedInput-root": {
-      backgroundColor: "white",
-      fontSize: "0.875rem",
-      "& fieldset": {
-        borderColor: "#e0e0e0",
-      },
-      "&:hover fieldset": {
-        borderColor: "#ccc",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#ff6b35",
-      },
-    },
-    "& .MuiInputBase-input::placeholder": {
-      color: "#999",
-      opacity: 1,
-    },
-  };
-
-  // Address field styles (full width)
-  const addressFieldStyles = {
-    width: "100%", // Full width for address field
-    "& .MuiOutlinedInput-root": {
-      backgroundColor: "white",
-      fontSize: "0.875rem",
-      "& fieldset": {
-        borderColor: "#e0e0e0",
-      },
-      "&:hover fieldset": {
-        borderColor: "#ccc",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#ff6b35",
-      },
-    },
-    "& .MuiInputBase-input::placeholder": {
-      color: "#999",
-      opacity: 1,
-    },
+    setFormData((p) => ({ ...p, addressLine1: address.street || "", city: address.city || "", state: address.state || "", postalCode: address.zipCode || "" }));
+    console.log("use this address");
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 3 }}>
-      <Typography
-        variant="h5"
-        sx={{
-          fontWeight: 600,
-          color: "#333",
-          fontSize: { xs: "1.25rem", md: "1.5rem" },
-          mb: 3,
-        }}
-      >
-        Complete your Order
-      </Typography>
+    <div className="max-w-7xl mx-auto px-4 py-6">
+      <h1 className="text-xl md:text-2xl font-semibold text-[#333] mb-6">Complete your Order</h1>
 
-      {/* Loading State */}
       {loading && (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            py: 4,
-          }}
-        >
-          <CircularProgress sx={{ color: "#ff6b35" }} />
-          <Typography sx={{ ml: 2, color: "#666" }}>
-            Loading your information...
-          </Typography>
-        </Box>
+        <div className="flex items-center justify-center py-8 gap-3">
+          <Spinner size="sm" className="border-[#F9A922] border-t-transparent" />
+          <span className="text-[#666]">Loading your information...</span>
+        </div>
       )}
+      {error && <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg p-3 mb-6 text-sm">{error}</div>}
+      {paymentError && <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 mb-6 text-sm">{paymentError}</div>}
+      {paymentSuccess && <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg p-3 mb-6 text-sm">{paymentSuccess}</div>}
 
-      {/* Error State */}
-      {error && (
-        <Alert severity="warning" sx={{ mb: 3, borderRadius: 2 }}>
-          {error}
-        </Alert>
-      )}
-
-      {/* Payment Error Message */}
-      {paymentError && (
-        <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
-          {paymentError}
-        </Alert>
-      )}
-
-      {/* Payment Success Message */}
-      {paymentSuccess && (
-        <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }}>
-          {paymentSuccess}
-        </Alert>
-      )}
-
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", lg: "row" },
-          gap: 4,
-        }}
-      >
-        {/* Left Section - Cart Items & Address Management */}
-        <Box sx={{ flex: "1" }}>
-          {/* Cart Items Section */}
-          <Paper
-            elevation={0}
-            sx={{
-              p: 4,
-              backgroundColor: "white",
-              borderRadius: 3,
-              border: "1px solid #e2e8f0",
-              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
-              mb: 4,
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{
-                color: "#1e293b",
-                fontWeight: 700,
-                mb: 3,
-                fontSize: "1.25rem",
-              }}
-            >
-              Cart Items ({cartItems.length})
-            </Typography>
-
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Left section */}
+        <div className="flex-1">
+          {/* Cart Items */}
+          <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-[0_4px_20px_rgba(0,0,0,0.08)] p-8 mb-8">
+            <h2 className="text-[#1e293b] font-bold text-xl mb-6">Cart Items ({cartItems.length})</h2>
             {cartLoading ? (
-              <Box sx={{ textAlign: "center", py: 4 }}>
-                <CircularProgress sx={{ color: "#ff6b35" }} />
-                <Typography sx={{ color: "#666", mt: 2 }}>
-                  Loading cart items...
-                </Typography>
-              </Box>
+              <div className="text-center py-8 flex flex-col items-center gap-2">
+                <Spinner size="sm" className="border-[#F9A922] border-t-transparent" />
+                <span className="text-[#666]">Loading cart items...</span>
+              </div>
             ) : cartItems.length > 0 ? (
-              <Box sx={{ maxHeight: "400px", overflowY: "auto" }}>
+              <div className="max-h-[400px] overflow-y-auto flex flex-col gap-3">
                 {cartItems.map((item, index) => (
-                  <Box
-                    key={index}
-                    sx={{
-                      p: 2,
-                      mb: 2,
-                      background:
-                        "linear-gradient(135deg, #ffffff 0%, #fafbfc 100%)",
-                      borderRadius: "12px",
-                      border: "1px solid rgba(255, 107, 53, 0.1)",
-                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
-                      transition: "all 0.3s ease",
-                      "&:hover": {
-                        boxShadow: "0 4px 16px rgba(255, 107, 53, 0.1)",
-                        transform: "translateY(-1px)",
-                        borderColor: "rgba(255, 107, 53, 0.2)",
-                      },
-                      "&:last-child": { mb: 0 },
-                    }}
-                  >
-                    <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                      <Box
-                        sx={{
-                          width: 60,
-                          height: 60,
-                          borderRadius: "10px",
-                          overflow: "hidden",
-                          flexShrink: 0,
-                          border: "2px solid rgba(255, 107, 53, 0.1)",
-                          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-                        }}
-                      >
-                        <img
-                          src="/product.png"
-                          alt={item.productName || "Product"}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                          }}
-                        />
-                      </Box>
-                      <Box sx={{ flex: "1", minWidth: 0 }}>
-                        <Typography
-                          sx={{
-                            color: "#1e293b",
-                            fontSize: "0.95rem",
-                            fontWeight: 600,
-                            mb: 0.5,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                            lineHeight: 1.3,
-                          }}
-                        >
-                          {item.productName || "Product"}
-                        </Typography>
-                        <Typography
-                          sx={{
-                            color: "#64748b",
-                            fontSize: "0.75rem",
-                            mb: 1,
-                            fontFamily: "monospace",
-                          }}
-                        >
-                          ID: {item?.product?._id?.slice(-8) || "N/A"}
-                        </Typography>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            gap: 2,
-                          }}
-                        >
-                          <Typography
-                            sx={{
-                              color: "#ff6b35",
-                              fontSize: "1rem",
-                              fontWeight: 700,
-                              background:
-                                "linear-gradient(135deg, #ff6b35 0%, #e55a2b 100%)",
-                              backgroundClip: "text",
-                              WebkitBackgroundClip: "text",
-                              WebkitTextFillColor: "transparent",
-                            }}
-                          >
-                            ${item.productPrice*item.quantity || 0}
-                          </Typography>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1,
-                            }}
-                          >
-                            <Typography
-                              sx={{
-                                color: "#64748b",
-                                fontSize: "0.75rem",
-                                fontWeight: 500,
-                              }}
-                            >
-                              Qty:
-                            </Typography>
-                            <Box
-                              sx={{
-                                backgroundColor: "rgba(255, 107, 53, 0.1)",
-                                color: "#ff6b35",
-                                px: 1.5,
-                                py: 0.5,
-                                borderRadius: "6px",
-                                fontSize: "0.75rem",
-                                fontWeight: 600,
-                                minWidth: "32px",
-                                textAlign: "center",
-                                border: "1px solid rgba(255, 107, 53, 0.2)",
-                              }}
-                            >
-                              {item.quantity}
-                            </Box>
-                          </Box>
-                        </Box>
-                      </Box>
-                    </Box>
-                  </Box>
+                  <div key={index} className="p-4 rounded-[12px] border border-[rgba(255,107,53,0.1)] shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(255,107,53,0.1)] hover:-translate-y-px hover:border-[rgba(255,107,53,0.2)] transition-all bg-gradient-to-br from-white to-[#fafbfc]">
+                    <div className="flex gap-4 items-center">
+                      <div className="w-[60px] h-[60px] rounded-[10px] overflow-hidden flex-shrink-0 border-2 border-[rgba(255,107,53,0.1)] shadow-[0_2px_8px_rgba(0,0,0,0.1)]">
+                        <img src="/product.png" alt={item.productName || "Product"} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[#1e293b] text-sm font-semibold mb-0.5 truncate">{item.productName || "Product"}</p>
+                        <p className="text-[#64748b] text-xs mb-2 font-mono">ID: {item?.product?._id?.slice(-8) || "N/A"}</p>
+                        <div className="flex items-center justify-between gap-4">
+                          <span className="text-sm font-bold" style={{ background: "linear-gradient(135deg, #F9A922 0%, #E8981F 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                            ${(item.productPrice || 0) * item.quantity}
+                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[#64748b] text-xs font-medium">Qty:</span>
+                            <span className="bg-[rgba(255,107,53,0.1)] text-[#F9A922] px-2.5 py-1 rounded-[6px] text-xs font-semibold border border-[rgba(255,107,53,0.2)] min-w-[32px] text-center">{item.quantity}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </Box>
+              </div>
             ) : (
-              <Box sx={{ textAlign: "center", py: 4 }}>
-                <Typography sx={{ color: "#64748b", fontSize: "1rem" }}>
-                  No items in cart
-                </Typography>
-              </Box>
+              <p className="text-[#64748b] text-center py-8">No items in cart</p>
             )}
-          </Paper>
+          </div>
 
-          {/* Address Management Section */}
-          <Paper
-            elevation={0}
-            sx={{
-              p: 4,
-              backgroundColor: "white",
-              borderRadius: 3,
-              border: "1px solid #e2e8f0",
-              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 3,
-              }}
-            >
-              <Typography
-                variant="h6"
-                sx={{
-                  color: "#1e293b",
-                  fontWeight: 700,
-                  fontSize: "1.25rem",
-                }}
-              >
-                Shipping Address
-              </Typography>
-              <Box sx={{ display: "flex", gap: 2 }}>
-                <Button
-                  onClick={() => setAddressModalOpen(true)}
-                  variant="contained"
-                  size="small"
-                  sx={{
-                    backgroundColor: "#ff6b35",
-                    color: "white",
-                    textTransform: "none",
-                    fontWeight: 600,
-                    "&:hover": {
-                      backgroundColor: "#e55a2b",
-                    },
-                  }}
-                >
-                  Add New Address
-                </Button>
-              </Box>
-            </Box>
+          {/* Address Management */}
+          <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-[0_4px_20px_rgba(0,0,0,0.08)] p-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-[#1e293b] font-bold text-xl">Shipping Address</h2>
+              <button onClick={() => setAddressModalOpen(true)} className="bg-[#F9A922] hover:bg-[#E8981F] text-white text-sm font-semibold px-4 py-2 rounded transition-colors">
+                Add New Address
+              </button>
+            </div>
 
-            {/* Address Selection */}
             {!addressesLoading && addresses.length > 0 && (
-              <Box sx={{ mb: 4 }}>
-                <Typography
-                  sx={{
-                    color: "#64748b",
-                    fontWeight: 600,
-                    fontSize: "0.95rem",
-                    mb: 2,
-                  }}
-                >
-                  Saved Addresses ({addresses.length})
-                </Typography>
-                <Box
-                  sx={{
-                    display: "grid",
-                    gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
-                    gap: 1.5,
-                  }}
-                >
-                  {addresses.map((address, index) => {
+              <div className="mb-8">
+                <p className="text-[#64748b] font-semibold text-sm mb-3">Saved Addresses ({addresses.length})</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {addresses.map((address) => {
                     const isSelected = selectedAddressId === address._id;
                     const isDefault = address.isDefault;
-
                     return (
-                      <Box
+                      <div
                         key={address._id}
-                        sx={{
-                          p: 2.5,
-                          border: isSelected
-                            ? "2px solid #ff6b35"
-                            : "1px solid #e0e0e0",
-                          borderRadius: 2,
-                          backgroundColor: isSelected
-                            ? "rgba(255, 107, 53, 0.08)"
-                            : isDefault
-                            ? "rgba(255, 107, 53, 0.03)"
-                            : "white",
-                          cursor: "pointer",
-                          position: "relative",
-                          "&:hover": {
-                            backgroundColor: isSelected
-                              ? "rgba(255, 107, 53, 0.12)"
-                              : isDefault
-                              ? "rgba(255, 107, 53, 0.06)"
-                              : "#f8f9fa",
-                            borderColor: "#ff6b35",
-                            transform: "translateY(-1px)",
-                            boxShadow: "0 4px 12px rgba(255, 107, 53, 0.15)",
-                          },
-                          transition: "all 0.2s ease",
-                        }}
                         onClick={() => handleAddressSelect(address)}
+                        className={`p-5 rounded-lg cursor-pointer relative transition-all hover:-translate-y-px ${isSelected ? "border-2 border-[#F9A922] bg-[rgba(255,107,53,0.08)]" : isDefault ? "border border-[#e0e0e0] bg-[rgba(255,107,53,0.03)]" : "border border-[#e0e0e0] bg-white"} hover:shadow-[0_4px_12px_rgba(255,107,53,0.15)] hover:border-[#F9A922]`}
                       >
-                        {/* Default Badge */}
-                        {isDefault && (
-                          <Chip
-                            label="DEFAULT"
-                            size="small"
-                            sx={{
-                              position: "absolute",
-                              top: 8,
-                              right: 8,
-                              backgroundColor: "#ff6b35",
-                              color: "white",
-                              fontSize: "0.65rem",
-                              fontWeight: 700,
-                              height: 20,
-                              "& .MuiChip-label": {
-                                px: 1,
-                              },
-                            }}
-                          />
-                        )}
-
-                        {/* Selected Indicator */}
-                        {isSelected && (
-                          <Box
-                            sx={{
-                              position: "absolute",
-                              top: 8,
-                              left: 8,
-                              width: 16,
-                              height: 16,
-                              borderRadius: "50%",
-                              backgroundColor: "#ff6b35",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              "&::after": {
-                                content: '"✓"',
-                                color: "white",
-                                fontSize: "0.7rem",
-                                fontWeight: "bold",
-                              },
-                            }}
-                          />
-                        )}
-
-                        <Box sx={{ pr: isDefault ? 6 : 0 }}>
-                          {/* Address Type and Name */}
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1,
-                              mb: 1.5,
-                            }}
-                          >
-                            {address.type === "home" && (
-                              <Home sx={{ fontSize: 16, color: "#ff6b35" }} />
-                            )}
-                            {address.type === "work" && (
-                              <Business
-                                sx={{ fontSize: 16, color: "#ff6b35" }}
-                              />
-                            )}
-                            {address.type === "warehouse" && (
-                              <Store sx={{ fontSize: 16, color: "#ff6b35" }} />
-                            )}
-                            {address.type === "other" && (
-                              <Public sx={{ fontSize: 16, color: "#ff6b35" }} />
-                            )}
-                            <Typography
-                              sx={{
-                                fontSize: "0.8rem",
-                                fontWeight: 700,
-                                color: isSelected ? "#ff6b35" : "#333",
-                                textTransform: "uppercase",
-                                letterSpacing: "0.5px",
-                              }}
-                            >
-                              {address.type} Address
-                            </Typography>
-                          </Box>
-
-                          {/* Address Details */}
-                          <Box sx={{ ml: 3 }}>
-                            {address.companyName && (
-                              <Typography
-                                sx={{
-                                  fontSize: "0.8rem",
-                                  fontWeight: 600,
-                                  color: "#1e293b",
-                                  mb: 0.5,
-                                }}
-                              >
-                                {address.companyName}
-                              </Typography>
-                            )}
-                            <Typography
-                              sx={{
-                                fontSize: "0.8rem",
-                                fontWeight: 600,
-                                color: "#1e293b",
-                                mb: 0.5,
-                              }}
-                            >
-                              {address.receiverName}
-                            </Typography>
-                            <Typography
-                              sx={{
-                                fontSize: "0.75rem",
-                                color: "#64748b",
-                                lineHeight: 1.4,
-                                mb: 0.5,
-                              }}
-                            >
-                              {address.street}
-                            </Typography>
-                            <Typography
-                              sx={{
-                                fontSize: "0.75rem",
-                                color: "#64748b",
-                                lineHeight: 1.4,
-                                mb: 0.5,
-                              }}
-                            >
-                              {address.city}, {address.state} {address.zipCode}
-                            </Typography>
-                            <Typography
-                              sx={{
-                                fontSize: "0.75rem",
-                                color: "#64748b",
-                                lineHeight: 1.4,
-                                mb: 0.5,
-                              }}
-                            >
-                              {address.country}
-                            </Typography>
-                            <Typography
-                              sx={{
-                                fontSize: "0.7rem",
-                                color: "#94a3b8",
-                                lineHeight: 1.3,
-                              }}
-                            >
-                              📞 {address.receiverPhone} • ✉️{" "}
-                              {address.receiverEmail}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </Box>
+                        {isDefault && <span className="absolute top-2 right-2 text-[0.65rem] font-bold bg-[#F9A922] text-white px-2 py-0.5 rounded-full">DEFAULT</span>}
+                        {isSelected && <div className="absolute top-2 left-2 w-4 h-4 rounded-full bg-[#F9A922] flex items-center justify-center text-white text-[0.7rem] font-bold">✓</div>}
+                        <div className={isDefault ? "pr-16" : ""}>
+                          <div className="flex items-center gap-2 mb-3">
+                            <AddressTypeIcon type={address.type} />
+                            <span className={`text-xs font-bold uppercase tracking-wide ${isSelected ? "text-[#F9A922]" : "text-[#333]"}`}>{address.type} Address</span>
+                          </div>
+                          <div className="ml-6">
+                            {address.companyName && <p className="text-xs font-semibold text-[#1e293b] mb-0.5">{address.companyName}</p>}
+                            <p className="text-xs font-semibold text-[#1e293b] mb-0.5">{address.receiverName}</p>
+                            <p className="text-xs text-[#64748b] leading-snug mb-0.5">{address.street}</p>
+                            <p className="text-xs text-[#64748b] leading-snug mb-0.5">{address.city}, {address.state} {address.zipCode}</p>
+                            <p className="text-xs text-[#64748b] leading-snug mb-0.5">{address.country}</p>
+                            <p className="text-[0.7rem] text-[#94a3b8]">📞 {address.receiverPhone} • ✉️ {address.receiverEmail}</p>
+                          </div>
+                        </div>
+                      </div>
                     );
                   })}
-                </Box>
-              </Box>
+                </div>
+              </div>
             )}
+          </div>
 
-            {/* Manual Address Input */}
-            {/* <Box sx={{ mt: 3, textAlign: "center" }}>
-              <Button
-                variant="outlined"
-                onClick={() => setAddressModalOpen(true)}
-                startIcon={<Add />}
-                sx={{
-                  borderColor: "#ff6b35",
-                  color: "#ff6b35",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  py: 1.5,
-                  px: 3,
-                  "&:hover": {
-                    borderColor: "#e55a2b",
-                    backgroundColor: "rgba(255, 107, 53, 0.04)",
-                  },
-                }}
-              >
-                Enter Address Manually
-              </Button>
-            </Box> */}
-          </Paper>
+          {/* Personal Details */}
+          <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-[0_4px_20px_rgba(0,0,0,0.08)] p-8 mt-8">
+            <p className="text-[#F9A922] font-semibold mb-6">Personal Details</p>
+            <div className="flex flex-wrap gap-4 mb-4">
+              <div>
+                <label className="text-sm font-medium text-[#333] mb-2 block">First name</label>
+                <input className={inputClass} style={{ width: "300px" }} placeholder="Enter Your First Name" value={formData.firstName} onChange={handleInputChange("firstName")} />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-[#333] mb-2 block">Last name</label>
+                <input className={inputClass} style={{ width: "300px" }} placeholder="Enter Your Last Name" value={formData.lastName} onChange={handleInputChange("lastName")} />
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              <div>
+                <label className="text-sm font-medium text-[#333] mb-2 block">Email</label>
+                <input type="email" className={inputClass} style={{ width: "300px" }} placeholder="Enter Your Email" value={formData.email} onChange={handleInputChange("email")} />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-[#333] mb-2 block">Phone number</label>
+                <input className={inputClass} style={{ width: "300px" }} placeholder="Enter Your Phone Number" value={formData.phoneNumber} onChange={handleInputChange("phoneNumber")} />
+              </div>
+            </div>
+          </div>
+        </div>
 
-          {/* Personal Details Section */}
-          <Paper
-            elevation={0}
-            sx={{
-              p: 4,
-              backgroundColor: "white",
-              borderRadius: 3,
-              border: "1px solid #e2e8f0",
-              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
-              mt: 4,
-            }}
-          >
-            <Typography
-              sx={{
-                color: "#ff6b35",
-                fontWeight: 600,
-                fontSize: "1rem",
-                mb: 3,
-              }}
-            >
-              Personal Details
-            </Typography>
-            <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
-              <Box>
-                <Typography
-                  sx={{
-                    color: "#333",
-                    fontSize: "0.875rem",
-                    fontWeight: 500,
-                    mb: 1,
-                  }}
-                >
-                  First name
-                </Typography>
-                <TextField
-                  placeholder="Enter Your First Name"
-                  variant="outlined"
-                  size="small"
-                  value={formData.firstName}
-                  onChange={handleInputChange("firstName")}
-                  sx={textFieldStyles}
-                />
-              </Box>
-              <Box>
-                <Typography
-                  sx={{
-                    color: "#333",
-                    fontSize: "0.875rem",
-                    fontWeight: 500,
-                    mb: 1,
-                  }}
-                >
-                  Last name
-                </Typography>
-                <TextField
-                  placeholder="Enter Your Last Name"
-                  variant="outlined"
-                  size="small"
-                  value={formData.lastName}
-                  onChange={handleInputChange("lastName")}
-                  sx={textFieldStyles}
-                />
-              </Box>
-            </Box>
-            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-              <Box>
-                <Typography
-                  sx={{
-                    color: "#333",
-                    fontSize: "0.875rem",
-                    fontWeight: 500,
-                    mb: 1,
-                  }}
-                >
-                  Email
-                </Typography>
-                <TextField
-                  placeholder="Enter Your Email"
-                  variant="outlined"
-                  size="small"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange("email")}
-                  sx={textFieldStyles}
-                />
-              </Box>
-              <Box>
-                <Typography
-                  sx={{
-                    color: "#333",
-                    fontSize: "0.875rem",
-                    fontWeight: 500,
-                    mb: 1,
-                  }}
-                >
-                  Phone number
-                </Typography>
-                <TextField
-                  placeholder="Enter Your Phone Number"
-                  variant="outlined"
-                  size="small"
-                  value={formData.phoneNumber}
-                  onChange={handleInputChange("phoneNumber")}
-                  sx={textFieldStyles}
-                />
-              </Box>
-            </Box>
-          </Paper>
-        </Box>
+        {/* Right section — Order Summary */}
+        <div className="w-full lg:w-[400px] flex-shrink-0">
+          <div className="p-8 rounded-xl border border-[#475569] shadow-[0_8px_30px_rgba(0,0,0,0.15)] sticky top-6" style={{ background: "linear-gradient(135deg, #1e293b 0%, #334155 100%)" }}>
+            <h2 className="text-white font-bold text-xl text-center mb-6">Order Summary</h2>
 
-        {/* Right Section - Coupon & Pricing */}
-        <Box sx={{ width: { xs: "100%", lg: "400px" }, flexShrink: 0 }}>
-          <Paper
-            elevation={0}
-            sx={{
-              p: 4,
-              background: "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
-              borderRadius: 3,
-              border: "1px solid #475569",
-              boxShadow: "0 8px 30px rgba(0, 0, 0, 0.15)",
-              position: "sticky",
-              top: 24,
-            }}
-          >
-            <Typography
-              variant="h5"
-              sx={{
-                color: "white",
-                mb: 3,
-                fontWeight: 700,
-                textAlign: "center",
-              }}
-            >
-              Order Summary
-            </Typography>
-
-            {/* Coupon Section */}
-            <Box sx={{ mb: 4 }}>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
-              >
-                <Discount sx={{ color: "#10b981", fontSize: 18 }} />
-                <Typography
-                  sx={{
-                    color: "#e2e8f0",
-                    fontWeight: 600,
-                    fontSize: "0.9rem",
-                  }}
-                >
-                  Apply Coupon
-                </Typography>
-              </Box>
-              <TextField
-                fullWidth
+            {/* Coupon */}
+            <div className="mb-8">
+              <div className="flex items-center gap-2 mb-3">
+                <Tag className="w-[18px] h-[18px] text-[#10b981]" />
+                <span className="text-[#e2e8f0] font-semibold text-sm">Apply Coupon</span>
+              </div>
+              <input
+                className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/60 focus:outline-none focus:border-[#F9A922] transition-colors"
                 placeholder="Enter coupon code"
-                variant="outlined"
-                size="small"
                 value={discount}
                 onChange={(e) => setDiscount(e.target.value)}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    fontSize: "0.875rem",
-                    backgroundColor: "rgba(255, 255, 255, 0.05)",
-                    color: "white",
-                    "& fieldset": {
-                      border: "1px solid rgba(255, 255, 255, 0.2)",
-                      borderRadius: 2,
-                    },
-                    "&:hover fieldset": {
-                      border: "1px solid rgba(255, 255, 255, 0.3)",
-                    },
-                    "&.Mui-focused fieldset": {
-                      border: "2px solid #ff6b35",
-                    },
-                    "& input": {
-                      color: "white",
-                      "&::placeholder": {
-                        color: "rgba(255, 255, 255, 0.6)",
-                        opacity: 1,
-                      },
-                    },
-                  },
-                }}
               />
-              <Button
-                variant="contained"
-                size="small"
-                sx={{
-                  backgroundColor: "#10b981",
-                  color: "white",
-                  mt: 2,
-                  textTransform: "none",
-                  fontWeight: 600,
-                  "&:hover": {
-                    backgroundColor: "#059669",
-                  },
-                }}
-              >
+              <button className="mt-3 bg-[#10b981] hover:bg-[#059669] text-white text-sm font-semibold px-4 py-1.5 rounded transition-colors">
                 Apply Coupon
-              </Button>
-            </Box>
+              </button>
+            </div>
 
-            {/* Price Breakdown */}
-            <Box sx={{ mb: 4 }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  mb: 2,
-                }}
-              >
-                <Typography
-                  sx={{
-                    color: "#cbd5e1",
-                    fontSize: "0.95rem",
-                    fontWeight: 500,
-                  }}
-                >
-                  Subtotal
-                </Typography>
-                <Typography
-                  sx={{ color: "white", fontSize: "1.1rem", fontWeight: 700 }}
-                >
-                  ${subtotal.toFixed(2)}
-                </Typography>
-              </Box>
+            {/* Price rows */}
+            {[["Subtotal", `$${subtotal.toFixed(2)}`, "white"], ["Shipping", "$5.99", "white"], ["Tax", `$${(subtotal * 0.08).toFixed(2)}`, "white"], ["Discount", "-$0.00", "#10b981"]].map(([label, value, color]) => (
+              <div key={label} className="flex justify-between items-center mb-4">
+                <span className="text-[#cbd5e1] text-sm font-medium">{label}</span>
+                <span className="font-bold text-[1.1rem]" style={{ color }}>{value}</span>
+              </div>
+            ))}
+            <hr className="border-white/20 my-6" />
+            <div className="flex justify-between items-center mb-8">
+              <span className="text-white text-[1.2rem] font-bold">Total</span>
+              <span className="text-[#F9A922] text-[1.4rem] font-extrabold">${(subtotal + 5.99 + subtotal * 0.08).toFixed(2)}</span>
+            </div>
 
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  mb: 2,
-                }}
-              >
-                <Typography
-                  sx={{
-                    color: "#cbd5e1",
-                    fontSize: "0.95rem",
-                    fontWeight: 500,
-                  }}
-                >
-                  Shipping
-                </Typography>
-                <Typography
-                  sx={{ color: "white", fontSize: "1.1rem", fontWeight: 700 }}
-                >
-                  $5.99
-                </Typography>
-              </Box>
+            {/* Trust */}
+            <p className="text-[#94a3b8] text-xs text-center mb-3">🔒 Secure Payment • 🚚 Fast Delivery • 💯 Quality Guarantee</p>
 
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  mb: 2,
-                }}
-              >
-                <Typography
-                  sx={{
-                    color: "#cbd5e1",
-                    fontSize: "0.95rem",
-                    fontWeight: 500,
-                  }}
-                >
-                  Tax
-                </Typography>
-                <Typography
-                  sx={{ color: "white", fontSize: "1.1rem", fontWeight: 700 }}
-                >
-                  ${(subtotal * 0.08).toFixed(2)}
-                </Typography>
-              </Box>
+            {/* Payment methods */}
+            <p className="text-[#94a3b8] text-xs text-center mb-3">Accepted Payment Methods</p>
+            <div className="flex justify-center gap-2 flex-wrap mb-6">
+              {paymentMethods.map((m) => (
+                <div key={m.name} className="w-10 h-6 rounded overflow-hidden border border-white/20">
+                  <img src={m.src} alt={m.name} className="w-full h-full object-contain bg-white" />
+                </div>
+              ))}
+            </div>
 
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  mb: 2,
-                }}
-              >
-                <Typography
-                  sx={{
-                    color: "#cbd5e1",
-                    fontSize: "0.95rem",
-                    fontWeight: 500,
-                  }}
-                >
-                  Discount
-                </Typography>
-                <Typography
-                  sx={{ color: "#10b981", fontSize: "1.1rem", fontWeight: 700 }}
-                >
-                  -$0.00
-                </Typography>
-              </Box>
+            {/* CTA */}
+            <button
+              onClick={handleCompletePurchase}
+              disabled={loading || paymentProcessing}
+              className="w-full bg-[#F9A922] hover:bg-[#E8981F] disabled:bg-[#ccc] text-white py-4 text-base font-bold rounded-lg shadow-[0_8px_25px_rgba(255,107,53,0.3)] hover:shadow-[0_12px_35px_rgba(255,107,53,0.4)] flex items-center justify-center gap-2 transition-all"
+            >
+              {(loading || paymentProcessing) && <Spinner size="sm" className="border-white border-t-transparent" />}
+              {loading ? "Loading..." : paymentProcessing ? "Creating Checkout Session..." : "Proceed to Checkout"}
+            </button>
+          </div>
+        </div>
+      </div>
 
-              <Divider
-                sx={{ my: 3, borderColor: "rgba(255, 255, 255, 0.2)" }}
-              />
-
-              {/* Total */}
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  mb: 4,
-                }}
-              >
-                <Typography
-                  sx={{ color: "white", fontSize: "1.2rem", fontWeight: 700 }}
-                >
-                  Total
-                </Typography>
-                <Typography
-                  sx={{ color: "#ff6b35", fontSize: "1.4rem", fontWeight: 800 }}
-                >
-                  ${(subtotal + 5.99 + subtotal * 0.08).toFixed(2)}
-                </Typography>
-              </Box>
-
-              {/* Trust Indicators */}
-              <Box sx={{ mt: 3, textAlign: "center" }}>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "#94a3b8", fontSize: "0.75rem", mb: 1 }}
-                >
-                  🔒 Secure Payment • 🚚 Fast Delivery • 💯 Quality Guarantee
-                </Typography>
-              </Box>
-
-              {/* Payment Methods */}
-              <Box sx={{ mt: 3, textAlign: "center" }}>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "#94a3b8", fontSize: "0.75rem", mb: 2 }}
-                >
-                  Accepted Payment Methods
-                </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    gap: 1,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  {paymentMethods.map((method, index) => (
-                    <Box
-                      key={index}
-                      sx={{
-                        width: 40,
-                        height: 25,
-                        borderRadius: 1,
-                        overflow: "hidden",
-                        border: "1px solid rgba(255, 255, 255, 0.2)",
-                      }}
-                    >
-                      <img
-                        src={method.src}
-                        alt={method.name}
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "contain",
-                          backgroundColor: "white",
-                        }}
-                      />
-                    </Box>
-                  ))}
-                </Box>
-              </Box>
-            </Box>
-
-            {/* Continue to Payment Button */}
-            <Box sx={{ mt: 4 }}>
-              <Button
-                variant="contained"
-                onClick={handleCompletePurchase}
-                disabled={loading || paymentProcessing}
-                startIcon={
-                  loading || paymentProcessing ? (
-                    <CircularProgress size={20} color="inherit" />
-                  ) : null
-                }
-                fullWidth
-                sx={{
-                  backgroundColor: "#ff6b35",
-                  color: "white",
-                  py: 2,
-                  fontSize: "1rem",
-                  fontWeight: 700,
-                  textTransform: "none",
-                  borderRadius: 2,
-                  boxShadow: "0 8px 25px rgba(255, 107, 53, 0.3)",
-                  "&:hover": {
-                    backgroundColor: "#e55a2b",
-                    boxShadow: "0 12px 35px rgba(255, 107, 53, 0.4)",
-                  },
-                  "&:disabled": {
-                    backgroundColor: "#ccc",
-                    boxShadow: "none",
-                  },
-                }}
-              >
-                {loading
-                  ? "Loading..."
-                  : paymentProcessing
-                  ? "Creating Checkout Session..."
-                  : "Proceed to Checkout"}
-              </Button>
-            </Box>
-          </Paper>
-        </Box>
-      </Box>
-
-      {/* Address Modal */}
-      <AddressModal
-        open={addressModalOpen}
-        onClose={() => setAddressModalOpen(false)}
-        onSave={handleAddressSave}
-        customerId={customer?.id}
-      />
-    </Container>
+      <AddressModal open={addressModalOpen} onClose={() => setAddressModalOpen(false)} onSave={handleAddressSave} customerId={customer?.id} />
+    </div>
   );
 };
 

@@ -1,62 +1,31 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Grid,
-  Button,
-  IconButton,
-  Menu,
-  MenuItem,
-  Alert,
-  CircularProgress,
-  Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Divider,
-  Link,
-} from "@mui/material";
-import {
-  Add,
-  LocationOn,
-  Edit,
-  Delete,
-  MoreVert,
-  Home,
-  Work,
-  Star,
-  ExpandMore,
-  Map,
-  Phone,
-  Email,
-  Business,
-  Person,
-} from "@mui/icons-material";
+import React, { useState, useRef, useEffect } from "react";
+import { Plus, MapPin, Pencil, Trash2, MoreVertical, Home, Briefcase, Star, ChevronDown, Map, Phone, Mail, Building2, User } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ProfileLayoutWrapper from "@/components/ProfileLayoutWrapper";
 import AddressModal from "@/components/AddressModal";
 import { useAppStore } from "@/store/use-app-store";
 import { useCustomerAddresses } from "@/hooks/use-customer-addresses";
 import type { CustomerAddress } from "@/api/services/customerAddress";
+import { Spinner } from "@/components/ui/spinner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const AddressManagementPage: React.FC = () => {
   const { customer } = useAppStore();
   const [addressModalOpen, setAddressModalOpen] = useState<boolean>(false);
-  const [editingAddress, setEditingAddress] = useState<CustomerAddress | null>(
-    null
-  );
-  const [addressMenuAnchor, setAddressMenuAnchor] =
-    useState<null | HTMLElement>(null);
+  const [editingAddress, setEditingAddress] = useState<CustomerAddress | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<string>("");
   const [selectedAddressId, setSelectedAddressId] = useState<string>("");
   const [detailsModalOpen, setDetailsModalOpen] = useState<boolean>(false);
-  const [selectedAddress, setSelectedAddress] =
-    useState<CustomerAddress | null>(null);
+  const [selectedAddress, setSelectedAddress] = useState<CustomerAddress | null>(null);
   const [successMessage, setSuccessMessage] = useState<string>("");
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const {
     addresses,
@@ -66,8 +35,18 @@ const AddressManagementPage: React.FC = () => {
     updateAddress,
     deleteAddress,
     updateDefaultAddress,
-    refetch: refetchAddresses,
   } = useCustomerAddresses(customer?.id);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpenMenuId("");
+        setSelectedAddressId("");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleAddAddress = () => {
     setEditingAddress(null);
@@ -77,14 +56,14 @@ const AddressManagementPage: React.FC = () => {
   const handleEditAddress = (address: CustomerAddress) => {
     setEditingAddress(address);
     setAddressModalOpen(true);
-    setAddressMenuAnchor(null);
+    setOpenMenuId("");
   };
 
   const handleDeleteAddress = async (addressId: string) => {
     if (window.confirm("Are you sure you want to delete this address?")) {
       try {
         await deleteAddress(addressId);
-        setAddressMenuAnchor(null);
+        setOpenMenuId("");
       } catch (error) {
         console.error("Error deleting address:", error);
       }
@@ -94,9 +73,7 @@ const AddressManagementPage: React.FC = () => {
   const handleSetDefaultAddress = async (addressId: string) => {
     try {
       const result = await updateDefaultAddress(addressId);
-      setAddressMenuAnchor(null);
-
-      // Show success message
+      setOpenMenuId("");
       if (result) {
         setSuccessMessage("Default address updated successfully!");
         setTimeout(() => setSuccessMessage(""), 3000);
@@ -106,20 +83,6 @@ const AddressManagementPage: React.FC = () => {
       setSuccessMessage("Failed to set default address. Please try again.");
       setTimeout(() => setSuccessMessage(""), 5000);
     }
-  };
-
-  const handleAddressMenuClick = (
-    event: React.MouseEvent<HTMLElement>,
-    addressId: string
-  ) => {
-    setAddressMenuAnchor(event.currentTarget);
-    setSelectedAddressId(addressId);
-  };
-
-  const handleAddressMenuClose = () => {
-    setAddressMenuAnchor(null);
-    setSelectedAddressId("");
-    setEditingAddress(null)
   };
 
   const handleShowDetails = (address: CustomerAddress) => {
@@ -140,11 +103,11 @@ const AddressManagementPage: React.FC = () => {
   const getAddressIcon = (type: string) => {
     switch (type?.toLowerCase()) {
       case "home":
-        return <Home sx={{ color: "#ff6b35", fontSize: 20 }} />;
+        return <Home className="w-5 h-5 text-[#F9A922]" />;
       case "work":
-        return <Work sx={{ color: "#ff6b35", fontSize: 20 }} />;
+        return <Briefcase className="w-5 h-5 text-[#F9A922]" />;
       default:
-        return <LocationOn sx={{ color: "#ff6b35", fontSize: 20 }} />;
+        return <MapPin className="w-5 h-5 text-[#F9A922]" />;
     }
   };
 
@@ -152,9 +115,9 @@ const AddressManagementPage: React.FC = () => {
     return (
       <ProtectedRoute>
         <ProfileLayoutWrapper title="Address Management">
-          <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-            <CircularProgress />
-          </Box>
+          <div className="flex justify-center py-8">
+            <Spinner />
+          </div>
         </ProfileLayoutWrapper>
       </ProtectedRoute>
     );
@@ -163,362 +126,146 @@ const AddressManagementPage: React.FC = () => {
   return (
     <ProtectedRoute>
       <ProfileLayoutWrapper title="Address Management">
-        <Box>
+        <div>
           {/* Header with Add Button */}
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 3,
-            }}
-          >
-            <Typography
-              variant="body1"
-              sx={{
-                color: "#7f8c8d",
-                fontSize: "0.875rem",
-              }}
-            >
-              Manage your delivery addresses
-            </Typography>
-            <Button
-              variant="contained"
-              startIcon={<Add />}
+          <div className="flex justify-between items-center mb-6">
+            <p className="text-[#7f8c8d] text-sm">Manage your delivery addresses</p>
+            <button
               onClick={handleAddAddress}
-              sx={{
-                background: "linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)",
-                "&:hover": {
-                  background:
-                    "linear-gradient(135deg, #e55a2b 0%, #ff6b35 100%)",
-                },
-                textTransform: "none",
-                borderRadius: 2,
-                px: 3,
-                py: 1.5,
-                fontWeight: 500,
-                fontSize: "0.9rem",
-              }}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-white font-medium text-sm transition-opacity hover:opacity-90"
+              style={{ background: "linear-gradient(135deg, #F9A922 0%, #ff8c42 100%)" }}
             >
+              <Plus className="w-4 h-4" />
               Add New Address
-            </Button>
-          </Box>
+            </button>
+          </div>
 
           {/* Error Message */}
           {addressError && (
-            <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+            <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
               {addressError}
-            </Alert>
+            </div>
           )}
 
           {/* Success Message */}
           {successMessage && (
-            <Alert
-              severity={successMessage.includes("Failed") ? "error" : "success"}
-              sx={{ mb: 3, borderRadius: 2 }}
-            >
+            <div className={`mb-4 p-3 rounded-lg text-sm border ${successMessage.includes("Failed") ? "bg-red-50 border-red-200 text-red-700" : "bg-green-50 border-green-200 text-green-700"}`}>
               {successMessage}
-            </Alert>
+            </div>
           )}
 
           {/* Addresses Grid */}
           {addresses && addresses.length > 0 ? (
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  md: "repeat(2, 1fr)",
-                },
-                gap: 3,
-                width: "100%",
-              }}
-            >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {addresses.map((address) => (
-                <Card
+                <div
                   key={address._id}
-                  sx={{
-                    borderRadius: 2,
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                    border: address.isDefault
-                      ? "2px solid #ff6b35"
-                      : "1px solid #f0f0f0",
-                    position: "relative",
-                    width: "100%",
-                    minHeight: "280px",
-                    display: "flex",
-                    flexDirection: "column",
-                    transition: "all 0.2s ease",
-                    "&:hover": {
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
-                      transform: "translateY(-2px)",
-                    },
-                  }}
+                  className={`relative rounded-xl bg-white flex flex-col min-h-[280px] transition-all duration-200 hover:-translate-y-0.5 ${
+                    address.isDefault
+                      ? "border-2 border-[#F9A922] shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+                      : "border border-[#f0f0f0] shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+                  }`}
                 >
-                  <CardContent
-                    sx={{
-                      p: 3,
-                      flex: 1,
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
-                  >
+                  <div className="p-6 flex flex-col flex-1">
                     {/* Address Header */}
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
-                        mb: 2.5,
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1.5,
-                        }}
-                      >
+                    <div className="flex justify-between items-start mb-5">
+                      <div className="flex items-center gap-3">
                         {getAddressIcon(address.type)}
-                        <Box>
-                          <Typography
-                            variant="subtitle1"
-                            sx={{
-                              fontWeight: 600,
-                              color: "#2c3e50",
-                              fontSize: "1rem",
-                              textTransform: "capitalize",
-                            }}
-                          >
-                            {address.type}
-                          </Typography>
+                        <div>
+                          <p className="font-semibold text-[#2c3e50] capitalize">{address.type}</p>
                           {address.isDefault && (
-                            <Chip
-                              label="Default"
-                              size="small"
-                              sx={{
-                                backgroundColor: "#fff5f2",
-                                color: "#ff6b35",
-                                fontSize: "0.75rem",
-                                height: 20,
-                                mt: 0.5,
-                              }}
-                              icon={<Star sx={{ fontSize: 14 }} />}
-                            />
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#fff5f2] text-[#F9A922] text-xs font-medium mt-1">
+                              <Star className="w-3 h-3" /> Default
+                            </span>
                           )}
-                        </Box>
-                      </Box>
-                      <IconButton
-                        size="small"
-                        onClick={(e) => handleAddressMenuClick(e, address._id)}
-                        sx={{
-                          color: "#7f8c8d",
-                          "&:hover": {
-                            backgroundColor: "#f8f9fa",
-                            color: "#2c3e50",
-                          },
-                        }}
-                      >
-                        <MoreVert />
-                      </IconButton>
-                    </Box>
+                        </div>
+                      </div>
 
-                    {/* Address Details - Simplified View */}
-                    <Box sx={{ flex: 1, space: 1.5 }}>
-                      {/* Main Address Line */}
-                      <Box sx={{ mb: 1.5 }}>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: "#5a6c7d",
-                            fontSize: "0.875rem",
-                            lineHeight: 1.5,
-                            fontWeight: 500,
+                      {/* Dropdown Menu */}
+                      <div className="relative" ref={openMenuId === address._id ? menuRef : null}>
+                        <button
+                          onClick={() => {
+                            setOpenMenuId(openMenuId === address._id ? "" : address._id);
+                            setSelectedAddressId(address._id);
                           }}
+                          className="p-1.5 rounded-full text-[#7f8c8d] hover:bg-[#f8f9fa] hover:text-[#2c3e50] transition-colors"
                         >
-                          {address.street || "Street address not provided"}
-                        </Typography>
-                      </Box>
+                          <MoreVertical className="w-4 h-4" />
+                        </button>
+                        {openMenuId === address._id && (
+                          <div className="absolute right-0 top-8 z-10 w-44 bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.15)] border border-gray-100 py-1">
+                            <button
+                              onClick={() => handleEditAddress(address)}
+                              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#333] hover:bg-gray-50 transition-colors"
+                            >
+                              <Pencil className="w-4 h-4" /> Edit
+                            </button>
+                            <button
+                              onClick={() => handleSetDefaultAddress(address._id)}
+                              disabled={address.isDefault}
+                              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#333] hover:bg-gray-50 transition-colors disabled:opacity-50"
+                            >
+                              <Star className="w-4 h-4" />
+                              {address.isDefault ? "Already Default" : "Set as Default"}
+                            </button>
+                            <button
+                              onClick={() => handleDeleteAddress(address._id)}
+                              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" /> Delete
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
-                      {/* City, State, Zip Code */}
-                      <Box sx={{ mb: 1.5 }}>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: "#5a6c7d",
-                            fontSize: "0.875rem",
-                            lineHeight: 1.5,
-                          }}
-                        >
-                          {address.city && address.state && address.zipCode
-                            ? `${address.city}, ${address.state} ${address.zipCode}`
-                            : address.city ||
-                              address.state ||
-                              address.zipCode ||
-                              "City, State, Zip Code not provided"}
-                        </Typography>
-                      </Box>
-
-                      {/* Country */}
-                      <Box sx={{ mb: 2 }}>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: "#5a6c7d",
-                            fontSize: "0.875rem",
-                            lineHeight: 1.5,
-                          }}
-                        >
-                          {address.country || "Country not provided"}
-                        </Typography>
-                      </Box>
+                    {/* Address Details */}
+                    <div className="flex-1 space-y-2">
+                      <p className="text-[#5a6c7d] text-sm font-medium leading-relaxed">
+                        {address.street || "Street address not provided"}
+                      </p>
+                      <p className="text-[#5a6c7d] text-sm leading-relaxed">
+                        {address.city && address.state && address.zipCode
+                          ? `${address.city}, ${address.state} ${address.zipCode}`
+                          : address.city || address.state || address.zipCode || "City, State, Zip Code not provided"}
+                      </p>
+                      <p className="text-[#5a6c7d] text-sm leading-relaxed">
+                        {address.country || "Country not provided"}
+                      </p>
 
                       {/* Show More Button */}
-                      <Box sx={{ mt: "auto" }}>
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          startIcon={<ExpandMore />}
+                      <div className="mt-auto pt-3">
+                        <button
                           onClick={() => handleShowDetails(address)}
-                          sx={{
-                            borderColor: "#e0e0e0",
-                            color: "#7f8c8d",
-                            fontSize: "0.75rem",
-                            textTransform: "none",
-                            borderRadius: 2,
-                            px: 2,
-                            py: 0.5,
-                            "&:hover": {
-                              borderColor: "#ff6b35",
-                              color: "#ff6b35",
-                              backgroundColor: "#fff5f2",
-                            },
-                          }}
+                          className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-[#e0e0e0] text-[#7f8c8d] text-xs hover:border-[#F9A922] hover:text-[#F9A922] hover:bg-[#fff5f2] transition-colors"
                         >
-                          Show More
-                        </Button>
-                      </Box>
-                    </Box>
-                  </CardContent>
-                </Card>
+                          <ChevronDown className="w-3 h-3" /> Show More
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               ))}
-            </Box>
+            </div>
           ) : (
-            <Card
-              sx={{
-                borderRadius: 2,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                border: "1px solid #f0f0f0",
-                textAlign: "center",
-                py: 6,
-              }}
-            >
-              <CardContent>
-                <LocationOn sx={{ color: "#bdc3c7", fontSize: 48, mb: 2 }} />
-                <Typography
-                  variant="h6"
-                  sx={{
-                    color: "#7f8c8d",
-                    fontSize: "1.1rem",
-                    mb: 1,
-                  }}
-                >
-                  No addresses found
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: "#95a5a6",
-                    fontSize: "0.875rem",
-                    mb: 3,
-                  }}
-                >
-                  Add your first address to get started
-                </Typography>
-                <Button
-                  variant="contained"
-                  startIcon={<Add />}
-                  onClick={handleAddAddress}
-                  sx={{
-                    background:
-                      "linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)",
-                    "&:hover": {
-                      background:
-                        "linear-gradient(135deg, #e55a2b 0%, #ff6b35 100%)",
-                    },
-                    textTransform: "none",
-                    borderRadius: 2,
-                    px: 3,
-                    py: 1.5,
-                    fontWeight: 500,
-                    fontSize: "0.9rem",
-                  }}
-                >
-                  Add Address
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="rounded-xl border border-[#f0f0f0] shadow-[0_2px_8px_rgba(0,0,0,0.08)] text-center py-12 bg-white">
+              <MapPin className="w-12 h-12 text-[#bdc3c7] mx-auto mb-3" />
+              <h3 className="text-[#7f8c8d] text-lg font-medium mb-1">No addresses found</h3>
+              <p className="text-[#95a5a6] text-sm mb-6">Add your first address to get started</p>
+              <button
+                onClick={handleAddAddress}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-white font-medium text-sm transition-opacity hover:opacity-90"
+                style={{ background: "linear-gradient(135deg, #F9A922 0%, #ff8c42 100%)" }}
+              >
+                <Plus className="w-4 h-4" /> Add Address
+              </button>
+            </div>
           )}
-
-          {/* Address Menu */}
-          <Menu
-            anchorEl={addressMenuAnchor}
-            open={Boolean(addressMenuAnchor)}
-            onClose={handleAddressMenuClose}
-            PaperProps={{
-              sx: {
-                borderRadius: 2,
-                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                minWidth: 160,
-              },
-            }}
-          >
-            <MenuItem
-              onClick={() => {
-                const address = addresses?.find(
-                  (addr) => addr._id === selectedAddressId
-                );
-                if (address) handleEditAddress(address);
-              }}
-              sx={{ fontSize: "0.875rem", py: 1.5 }}
-            >
-              <Edit sx={{ mr: 1.5, fontSize: 18 }} />
-              Edit
-            </MenuItem>
-            <MenuItem
-              onClick={() => handleSetDefaultAddress(selectedAddressId)}
-              disabled={
-                addresses?.find((addr) => addr._id === selectedAddressId)
-                  ?.isDefault
-              }
-              sx={{
-                fontSize: "0.875rem",
-                py: 1.5,
-                "&:disabled": {
-                  opacity: 0.5,
-                },
-              }}
-            >
-              <Star sx={{ mr: 1.5, fontSize: 18 }} />
-              {addresses?.find((addr) => addr._id === selectedAddressId)
-                ?.isDefault
-                ? "Already Default"
-                : "Set as Default"}
-            </MenuItem>
-            <MenuItem
-              onClick={() => handleDeleteAddress(selectedAddressId)}
-              sx={{ fontSize: "0.875rem", py: 1.5, color: "#e74c3c" }}
-            >
-              <Delete sx={{ mr: 1.5, fontSize: 18 }} />
-              Delete
-            </MenuItem>
-          </Menu>
 
           {/* Address Modal */}
           <AddressModal
             open={addressModalOpen}
             onClose={() => {
-              console.log("close")
               setAddressModalOpen(false);
               setEditingAddress(null);
             }}
@@ -538,586 +285,139 @@ const AddressManagementPage: React.FC = () => {
             initialData={editingAddress || undefined}
           />
 
-          {/* Address Details Modal */}
-          <Dialog
-            open={detailsModalOpen}
-            onClose={handleCloseDetailsModal}
-            maxWidth="sm"
-            fullWidth
-            PaperProps={{
-              sx: {
-                borderRadius: 2,
-                boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-                maxHeight: "90vh",
-                overflow: "hidden",
-              },
-            }}
-          >
-            <DialogTitle
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                pb: 2,
-                borderBottom: "1px solid #e8e8e8",
-                backgroundColor: "#fafafa",
-                px: 3,
-                py: 2.5,
-              }}
-            >
-              {selectedAddress && getAddressIcon(selectedAddress.type)}
-              <Box sx={{ flex: 1 }}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{
-                    fontWeight: 600,
-                    color: "#2c3e50",
-                    fontSize: "1rem",
-                    textTransform: "capitalize",
-                    mb: 0.5,
-                  }}
-                >
-                  {selectedAddress?.type} Address Details
-                </Typography>
-                {selectedAddress?.isDefault && (
-                  <Chip
-                    label="Default"
-                    size="small"
-                    sx={{
-                      backgroundColor: "#fff5f2",
-                      color: "#ff6b35",
-                      fontSize: "0.7rem",
-                      height: 18,
-                      fontWeight: 500,
-                    }}
-                    icon={<Star sx={{ fontSize: 12 }} />}
-                  />
-                )}
-              </Box>
-            </DialogTitle>
+          {/* Address Details Dialog */}
+          <Dialog open={detailsModalOpen} onOpenChange={(open) => !open && handleCloseDetailsModal()}>
+            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto p-0">
+              <DialogHeader className="px-6 py-4 border-b border-[#e8e8e8] bg-[#fafafa]">
+                <div className="flex items-center gap-3">
+                  {selectedAddress && getAddressIcon(selectedAddress.type)}
+                  <div>
+                    <DialogTitle className="text-base font-semibold text-[#2c3e50] capitalize">
+                      {selectedAddress?.type} Address Details
+                    </DialogTitle>
+                    {selectedAddress?.isDefault && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#fff5f2] text-[#F9A922] text-xs font-medium mt-1">
+                        <Star className="w-3 h-3" /> Default
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </DialogHeader>
 
-            <DialogContent sx={{ p: 0, overflow: "auto" }}>
               {selectedAddress && (
-                <Box sx={{ p: 3 }}>
+                <div className="p-6 space-y-5">
                   {/* Address Information */}
-                  <Box sx={{ mb: 2.5 }}>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: "#7f8c8d",
-                        fontSize: "0.7rem",
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.8px",
-                        mb: 1.5,
-                        display: "block",
-                      }}
-                    >
-                      Address Information
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "flex-start",
-                        gap: 1.5,
-                        p: 2,
-                        backgroundColor: "#f8f9fa",
-                        borderRadius: 1.5,
-                        border: "1px solid #e8e8e8",
-                      }}
-                    >
-                      <LocationOn
-                        sx={{
-                          color: "#ff6b35",
-                          fontSize: 16,
-                          mt: 0.5,
-                          flexShrink: 0,
-                        }}
-                      />
-                      <Box sx={{ flex: 1 }}>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: "#2c3e50",
-                            fontSize: "0.8rem",
-                            lineHeight: 1.4,
-                            fontWeight: 500,
-                            mb: 0.5,
-                          }}
-                        >
-                          {selectedAddress.street}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: "#5a6c7d",
-                            fontSize: "0.75rem",
-                            lineHeight: 1.4,
-                            mb: 0.5,
-                          }}
-                        >
-                          {selectedAddress.city}, {selectedAddress.state}{" "}
-                          {selectedAddress.zipCode}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: "#5a6c7d",
-                            fontSize: "0.75rem",
-                            lineHeight: 1.4,
-                          }}
-                        >
-                          {selectedAddress.country}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Box>
+                  <div>
+                    <p className="text-[#7f8c8d] text-[0.7rem] font-semibold uppercase tracking-wider mb-3">Address Information</p>
+                    <div className="flex items-start gap-3 p-3 bg-[#f8f9fa] rounded-xl border border-[#e8e8e8]">
+                      <MapPin className="w-4 h-4 text-[#F9A922] mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-[#2c3e50] text-sm font-medium leading-snug mb-1">{selectedAddress.street}</p>
+                        <p className="text-[#5a6c7d] text-xs leading-snug mb-1">{selectedAddress.city}, {selectedAddress.state} {selectedAddress.zipCode}</p>
+                        <p className="text-[#5a6c7d] text-xs leading-snug">{selectedAddress.country}</p>
+                      </div>
+                    </div>
+                  </div>
 
                   {/* Company Information */}
                   {selectedAddress.companyName && (
-                    <Box sx={{ mb: 2.5 }}>
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          color: "#7f8c8d",
-                          fontSize: "0.7rem",
-                          fontWeight: 600,
-                          textTransform: "uppercase",
-                          letterSpacing: "0.8px",
-                          mb: 1.5,
-                          display: "block",
-                        }}
-                      >
-                        Company Information
-                      </Typography>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1.5,
-                          p: 2,
-                          backgroundColor: "#f8f9fa",
-                          borderRadius: 1.5,
-                          border: "1px solid #e8e8e8",
-                        }}
-                      >
-                        <Business
-                          sx={{ color: "#ff6b35", fontSize: 16, flexShrink: 0 }}
-                        />
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: "#2c3e50",
-                            fontSize: "0.8rem",
-                            lineHeight: 1.4,
-                            fontWeight: 500,
-                          }}
-                        >
-                          {selectedAddress.companyName}
-                        </Typography>
-                      </Box>
-                    </Box>
+                    <div>
+                      <p className="text-[#7f8c8d] text-[0.7rem] font-semibold uppercase tracking-wider mb-3">Company Information</p>
+                      <div className="flex items-center gap-3 p-3 bg-[#f8f9fa] rounded-xl border border-[#e8e8e8]">
+                        <Building2 className="w-4 h-4 text-[#F9A922] flex-shrink-0" />
+                        <p className="text-[#2c3e50] text-sm font-medium">{selectedAddress.companyName}</p>
+                      </div>
+                    </div>
                   )}
 
                   {/* Receiver Information */}
-                  <Box sx={{ mb: 2.5 }}>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: "#7f8c8d",
-                        fontSize: "0.7rem",
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.8px",
-                        mb: 1.5,
-                        display: "block",
-                      }}
-                    >
-                      Receiver Information
-                    </Typography>
-                    <Box
-                      sx={{
-                        p: 2,
-                        backgroundColor: "#f8f9fa",
-                        borderRadius: 1.5,
-                        border: "1px solid #e8e8e8",
-                        space: 1.5,
-                      }}
-                    >
+                  <div>
+                    <p className="text-[#7f8c8d] text-[0.7rem] font-semibold uppercase tracking-wider mb-3">Receiver Information</p>
+                    <div className="p-3 bg-[#f8f9fa] rounded-xl border border-[#e8e8e8] space-y-3">
                       {selectedAddress.receiverName && (
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1.5,
-                            mb: 1.5,
-                          }}
-                        >
-                          <Person
-                            sx={{
-                              color: "#ff6b35",
-                              fontSize: 16,
-                              flexShrink: 0,
-                            }}
-                          />
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              color: "#2c3e50",
-                              fontSize: "0.8rem",
-                              lineHeight: 1.4,
-                              fontWeight: 500,
-                            }}
-                          >
-                            {selectedAddress.receiverName}
-                          </Typography>
-                        </Box>
+                        <div className="flex items-center gap-3">
+                          <User className="w-4 h-4 text-[#F9A922] flex-shrink-0" />
+                          <p className="text-[#2c3e50] text-sm font-medium">{selectedAddress.receiverName}</p>
+                        </div>
                       )}
-
                       {selectedAddress.receiverPhone && (
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1.5,
-                            mb: 1.5,
-                          }}
-                        >
-                          <Phone
-                            sx={{
-                              color: "#ff6b35",
-                              fontSize: 16,
-                              flexShrink: 0,
-                            }}
-                          />
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              color: "#2c3e50",
-                              fontSize: "0.8rem",
-                              lineHeight: 1.4,
-                              fontWeight: 500,
-                            }}
-                          >
-                            {selectedAddress.receiverPhoneCountryCode}{" "}
-                            {selectedAddress.receiverPhone}
-                          </Typography>
-                        </Box>
+                        <div className="flex items-center gap-3">
+                          <Phone className="w-4 h-4 text-[#F9A922] flex-shrink-0" />
+                          <p className="text-[#2c3e50] text-sm font-medium">
+                            {selectedAddress.receiverPhoneCountryCode} {selectedAddress.receiverPhone}
+                          </p>
+                        </div>
                       )}
-
                       {selectedAddress.receiverEmail && (
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1.5,
-                          }}
-                        >
-                          <Email
-                            sx={{
-                              color: "#ff6b35",
-                              fontSize: 16,
-                              flexShrink: 0,
-                            }}
-                          />
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              color: "#2c3e50",
-                              fontSize: "0.8rem",
-                              lineHeight: 1.4,
-                              fontWeight: 500,
-                            }}
-                          >
-                            {selectedAddress.receiverEmail}
-                          </Typography>
-                        </Box>
+                        <div className="flex items-center gap-3">
+                          <Mail className="w-4 h-4 text-[#F9A922] flex-shrink-0" />
+                          <p className="text-[#2c3e50] text-sm font-medium">{selectedAddress.receiverEmail}</p>
+                        </div>
                       )}
-                    </Box>
-                  </Box>
+                    </div>
+                  </div>
 
                   {/* Location & Coordinates */}
                   {selectedAddress.coordinates && (
-                    <Box sx={{ mb: 2.5 }}>
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          color: "#7f8c8d",
-                          fontSize: "0.7rem",
-                          fontWeight: 600,
-                          textTransform: "uppercase",
-                          letterSpacing: "0.8px",
-                          mb: 1.5,
-                          display: "block",
-                        }}
-                      >
-                        Location & Coordinates
-                      </Typography>
-                      <Box
-                        sx={{
-                          p: 2,
-                          backgroundColor: "#f8f9fa",
-                          borderRadius: 1.5,
-                          border: "1px solid #e8e8e8",
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "flex-start",
-                            gap: 1.5,
-                            mb: 2,
-                          }}
+                    <div>
+                      <p className="text-[#7f8c8d] text-[0.7rem] font-semibold uppercase tracking-wider mb-3">Location & Coordinates</p>
+                      <div className="p-3 bg-[#f8f9fa] rounded-xl border border-[#e8e8e8]">
+                        <div className="flex items-start gap-3 mb-3">
+                          <Map className="w-4 h-4 text-[#F9A922] mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-[#2c3e50] text-xs font-medium mb-1">Latitude: {selectedAddress.coordinates.latitude}</p>
+                            <p className="text-[#2c3e50] text-xs font-medium">Longitude: {selectedAddress.coordinates.longitude}</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => openGoogleMaps(selectedAddress.coordinates.latitude, selectedAddress.coordinates.longitude)}
+                          className="flex items-center gap-2 px-4 py-1.5 rounded-xl text-white text-xs font-medium transition-opacity hover:opacity-90"
+                          style={{ background: "linear-gradient(135deg, #F9A922 0%, #ff8c42 100%)" }}
                         >
-                          <Map
-                            sx={{
-                              color: "#ff6b35",
-                              fontSize: 16,
-                              mt: 0.5,
-                              flexShrink: 0,
-                            }}
-                          />
-                          <Box sx={{ flex: 1 }}>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                color: "#2c3e50",
-                                fontSize: "0.75rem",
-                                lineHeight: 1.4,
-                                fontWeight: 500,
-                                mb: 0.5,
-                              }}
-                            >
-                              Latitude: {selectedAddress.coordinates.latitude}
-                            </Typography>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                color: "#2c3e50",
-                                fontSize: "0.75rem",
-                                lineHeight: 1.4,
-                                fontWeight: 500,
-                              }}
-                            >
-                              Longitude: {selectedAddress.coordinates.longitude}
-                            </Typography>
-                          </Box>
-                        </Box>
-                        <Button
-                          variant="contained"
-                          startIcon={<Map sx={{ fontSize: 14 }} />}
-                          onClick={() =>
-                            openGoogleMaps(
-                              selectedAddress.coordinates.latitude,
-                              selectedAddress.coordinates.longitude
-                            )
-                          }
-                          sx={{
-                            background:
-                              "linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)",
-                            "&:hover": {
-                              background:
-                                "linear-gradient(135deg, #e55a2b 0%, #ff6b35 100%)",
-                            },
-                            textTransform: "none",
-                            borderRadius: 1.5,
-                            px: 2.5,
-                            py: 0.75,
-                            fontWeight: 500,
-                            fontSize: "0.75rem",
-                            minHeight: 32,
-                          }}
-                        >
-                          Open in Google Maps
-                        </Button>
-                      </Box>
-                    </Box>
+                          <Map className="w-3.5 h-3.5" /> Open in Google Maps
+                        </button>
+                      </div>
+                    </div>
                   )}
 
                   {/* Additional Information */}
-                  <Box>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: "#7f8c8d",
-                        fontSize: "0.7rem",
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.8px",
-                        mb: 1.5,
-                        display: "block",
-                      }}
-                    >
-                      Additional Information
-                    </Typography>
-                    <Box
-                      sx={{
-                        p: 2,
-                        backgroundColor: "#f8f9fa",
-                        borderRadius: 1.5,
-                        border: "1px solid #e8e8e8",
-                      }}
-                    >
-                      <Box sx={{ space: 1.5 }}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              color: "#7f8c8d",
-                              fontSize: "0.75rem",
-                              fontWeight: 500,
-                            }}
-                          >
-                            Unique ID:
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              color: "#2c3e50",
-                              fontSize: "0.75rem",
-                              fontWeight: 500,
-                            }}
-                          >
-                            {selectedAddress.uniqueId}
-                          </Typography>
-                        </Box>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              color: "#7f8c8d",
-                              fontSize: "0.75rem",
-                              fontWeight: 500,
-                            }}
-                          >
-                            Status:
-                          </Typography>
-                          <Chip
-                            label={
-                              selectedAddress.isActive ? "Active" : "Inactive"
-                            }
-                            size="small"
-                            sx={{
-                              backgroundColor: selectedAddress.isActive
-                                ? "#e8f5e8"
-                                : "#ffeaea",
-                              color: selectedAddress.isActive
-                                ? "#2e7d32"
-                                : "#d32f2f",
-                              fontSize: "0.7rem",
-                              height: 18,
-                              fontWeight: 500,
-                            }}
-                          />
-                        </Box>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              color: "#7f8c8d",
-                              fontSize: "0.75rem",
-                              fontWeight: 500,
-                            }}
-                          >
-                            Created:
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              color: "#2c3e50",
-                              fontSize: "0.75rem",
-                              fontWeight: 500,
-                            }}
-                          >
-                            {new Date(
-                              selectedAddress.createdAt
-                            ).toLocaleDateString()}
-                          </Typography>
-                        </Box>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              color: "#7f8c8d",
-                              fontSize: "0.75rem",
-                              fontWeight: 500,
-                            }}
-                          >
-                            Last Updated:
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              color: "#2c3e50",
-                              fontSize: "0.75rem",
-                              fontWeight: 500,
-                            }}
-                          >
-                            {new Date(
-                              selectedAddress.updatedAt
-                            ).toLocaleDateString()}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Box>
-                  </Box>
-                </Box>
+                  <div>
+                    <p className="text-[#7f8c8d] text-[0.7rem] font-semibold uppercase tracking-wider mb-3">Additional Information</p>
+                    <div className="p-3 bg-[#f8f9fa] rounded-xl border border-[#e8e8e8] space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[#7f8c8d] text-xs font-medium">Unique ID:</span>
+                        <span className="text-[#2c3e50] text-xs font-medium">{selectedAddress.uniqueId}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[#7f8c8d] text-xs font-medium">Status:</span>
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${selectedAddress.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+                          {selectedAddress.isActive ? "Active" : "Inactive"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[#7f8c8d] text-xs font-medium">Created:</span>
+                        <span className="text-[#2c3e50] text-xs font-medium">{new Date(selectedAddress.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[#7f8c8d] text-xs font-medium">Last Updated:</span>
+                        <span className="text-[#2c3e50] text-xs font-medium">{new Date(selectedAddress.updatedAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               )}
-            </DialogContent>
 
-            <DialogActions
-              sx={{
-                p: 2.5,
-                pt: 0,
-                borderTop: "1px solid #e8e8e8",
-                backgroundColor: "#fafafa",
-              }}
-            >
-              <Button
-                onClick={handleCloseDetailsModal}
-                sx={{
-                  color: "#7f8c8d",
-                  textTransform: "none",
-                  fontSize: "0.8rem",
-                  fontWeight: 500,
-                  px: 3,
-                  py: 1,
-                  borderRadius: 1.5,
-                  "&:hover": {
-                    backgroundColor: "#f0f0f0",
-                    color: "#2c3e50",
-                  },
-                }}
-              >
-                Close
-              </Button>
-            </DialogActions>
+              <div className="px-6 py-3 border-t border-[#e8e8e8] bg-[#fafafa] flex justify-end">
+                <button
+                  onClick={handleCloseDetailsModal}
+                  className="px-5 py-2 rounded-xl text-[#7f8c8d] text-sm font-medium hover:bg-[#f0f0f0] hover:text-[#2c3e50] transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </DialogContent>
           </Dialog>
-        </Box>
+        </div>
       </ProfileLayoutWrapper>
     </ProtectedRoute>
   );

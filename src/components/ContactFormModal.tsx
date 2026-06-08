@@ -1,12 +1,6 @@
 import React from "react";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  IconButton,
-  Box,
-} from "@mui/material";
-import { Close } from "@mui/icons-material";
+import { X } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import ContactForm from "./ContactForm";
 
 interface ContactFormModalProps {
@@ -26,54 +20,21 @@ const ContactFormModal: React.FC<ContactFormModalProps> = ({
 }) => {
   const handleSuccess = () => {
     onSuccess?.();
-    // Close modal after successful submission
-    setTimeout(() => {
-      onClose();
-    }, 2000);
-  };
-
-  const handleError = (error: string) => {
-    onError?.(error);
+    setTimeout(() => { onClose(); }, 2000);
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="sm"
-      fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: "16px",
-          backgroundColor: "transparent",
-          boxShadow: "none",
-        },
-      }}
-    >
-      <DialogContent sx={{ p: 0, backgroundColor: "transparent" }}>
-        <Box sx={{ position: "relative" }}>
-          <IconButton
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="p-0 bg-transparent border-none shadow-none max-w-[520px]">
+        <div className="relative">
+          <button
             onClick={onClose}
-            sx={{
-              position: "absolute",
-              top: 16,
-              right: 16,
-              zIndex: 10,
-              backgroundColor: "rgba(255, 255, 255, 0.9)",
-              color: "#8B3E2F",
-              "&:hover": {
-                backgroundColor: "white",
-              },
-            }}
+            className="absolute top-4 right-4 z-10 bg-white/90 text-[#8B3E2F] rounded-full p-1.5 hover:bg-white transition-colors"
           >
-            <Close />
-          </IconButton>
-          <ContactForm
-            source={source}
-            onSuccess={handleSuccess}
-            onError={handleError}
-          />
-        </Box>
+            <X className="w-4 h-4" />
+          </button>
+          <ContactForm source={source} onSuccess={handleSuccess} onError={onError} />
+        </div>
       </DialogContent>
     </Dialog>
   );

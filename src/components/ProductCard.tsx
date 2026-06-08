@@ -1,21 +1,10 @@
 "use client";
 
 import React from "react";
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  CardMedia,
-  Chip,
-  Grid,
-  IconButton,
-  Typography,
-} from "@mui/material";
+import { ShoppingCart, Eye, CheckCircle2, AlertCircle } from "lucide-react";
 import { useProductVariants } from "@/api/handlers/productVariantsHandler";
-import { ShoppingCart, Visibility, CheckCircle, ErrorOutline } from "@mui/icons-material";
+import { Badge } from "@/components/ui/badge";
 
-// Product type
 interface Product {
   _id: string;
   name: string;
@@ -31,207 +20,116 @@ interface Product {
 interface ProductCardProps {
   product: Product;
   handleProductClick: (id: string) => void;
-  handleAddToCart: (product: Product) => void;
+  handleAddToCart: (product: Product, minUnitSize?: number) => void;
 }
 
 const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(price);
-  };
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(price);
+};
 
-const ProductCard: React.FC<ProductCardProps> = ({
-  product,
-  handleProductClick,
-  handleAddToCart
-}) => {
-  // hook call
+const ProductCard: React.FC<ProductCardProps> = ({ product, handleProductClick, handleAddToCart }) => {
   const { data: variantsResponse, isLoading } = useProductVariants(product._id);
-  const hasVariants = Array.isArray(variantsResponse?.data) && variantsResponse.data.length > 0;4
+  const hasVariants = Array.isArray(variantsResponse?.data) && variantsResponse.data.length > 0;
   const variants = variantsResponse?.data ?? [];
-  const minUnitSize =
-  variants.length > 0 ? Math.min(...variants.map((v) => v.unitSize)) : 1;
+  const minUnitSize = variants.length > 0 ? Math.min(...variants.map((v: any) => v.unitSize)) : 1;
+
   return (
-    <Grid item xs={12} sm={6} md={4} lg={3} key={product._id}>
-      <Card
-        sx={{
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          cursor: "pointer",
-          transition: "all 0.2s ease",
-          border: "1px solid #e0e0e0",
-          "&:hover": {
-            boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-            transform: "translateY(-4px)",
-          },
-          borderRadius: 2,
-          position: "relative",
-          overflow: "hidden",
-        }}
-        onClick={() => handleProductClick(product._id)}
-      >
-        {/* Stock chip */}
-        <Chip
-          icon={product.inStock ? <CheckCircle /> : <ErrorOutline />}
-          label={product.inStock ? "In Stock" : "Out of Stock"}
-          size="small"
-          sx={{
-            position: "absolute",
-            top: 12,
-            right: 12,
-            zIndex: 1,
-            backgroundColor: product.inStock ? "#4caf50" : "#f44336",
-            color: "white",
-            fontSize: "0.75rem",
-            height: 24,
-            "& .MuiChip-icon": {
-              color: "white",
-              fontSize: 16,
-            },
-          }}
-        />
-
-        {/* Product Image */}
-        <CardMedia
-          component="img"
-          sx={{
-            height: 200,
-            objectFit: "cover",
-            backgroundColor: "#f5f5f5",
-          }}
-          image={
-            product.bannerImage ||
-            product.images?.[0] ||
-            "/placeholder-product.png"
-          }
-          alt={product.name}
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = "/placeholder-product.png";
-          }}
-        />
-
-        <CardContent sx={{ flexGrow: 1, p: 3 }}>
-          {/* Unique ID */}
-          {product.uniqueId && (
-            <Typography
-              variant="caption"
-              sx={{
-                color: "#999",
-                fontWeight: 500,
-                fontSize: "0.75rem",
-                letterSpacing: "0.5px",
-              }}
-            >
-              {product.uniqueId}
-            </Typography>
+    <div
+      className="h-full flex flex-col cursor-pointer transition-all border border-[#e0e0e0] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] hover:-translate-y-1 rounded-xl relative overflow-hidden bg-white"
+      onClick={() => handleProductClick(product._id)}
+    >
+      {/* Stock badge */}
+      <div className="absolute top-3 right-3 z-10">
+        <span
+          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold text-white ${
+            product.inStock ? "bg-green-500" : "bg-red-500"
+          }`}
+        >
+          {product.inStock ? (
+            <CheckCircle2 className="w-3.5 h-3.5" />
+          ) : (
+            <AlertCircle className="w-3.5 h-3.5" />
           )}
+          {product.inStock ? "In Stock" : "Out of Stock"}
+        </span>
+      </div>
 
-          {/* Name */}
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 600,
-              color: "#333",
-              mb: 1,
-              fontSize: "1rem",
-              lineHeight: 1.3,
+      {/* Product Image */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={product.bannerImage || product.images?.[0] || "/placeholder-product.png"}
+        alt={product.name}
+        className="h-[200px] w-full object-cover bg-gray-100"
+        onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder-product.png"; }}
+      />
+
+      <div className="flex-1 flex flex-col p-6">
+        {/* Unique ID */}
+        {product.uniqueId && (
+          <span className="text-[#999] text-xs font-medium tracking-[0.5px] mb-1">{product.uniqueId}</span>
+        )}
+
+        {/* Name */}
+        <h3
+          className="font-semibold text-[#333] mb-2 text-base leading-tight"
+          style={{
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+          }}
+        >
+          {product.name}
+        </h3>
+
+        {/* Description */}
+        {product.description && (
+          <p
+            className="text-sm text-[#666] mb-4 leading-relaxed"
+            style={{
               display: "-webkit-box",
-              WebkitLineClamp: 2,
+              WebkitLineClamp: 3,
               WebkitBoxOrient: "vertical",
               overflow: "hidden",
             }}
           >
-            {product.name}
-          </Typography>
+            {product.description}
+          </p>
+        )}
 
-          {/* Description */}
-          {product.description && (
-            <Typography
-              variant="body2"
-              sx={{
-                color: "#666",
-                mb: 2,
-                display: "-webkit-box",
-                WebkitLineClamp: 3,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-                lineHeight: 1.4,
-              }}
-            >
-              {product.description}
-            </Typography>
-          )}
+        {/* Appearance */}
+        {product.appearance && (
+          <span className="text-xs text-[#999] italic mb-4 block">{product.appearance}</span>
+        )}
 
-          {/* Appearance */}
-          {product.appearance && (
-            <Typography
-              variant="caption"
-              sx={{
-                color: "#999",
-                fontStyle: "italic",
-                mb: 2,
-                display: "block",
-              }}
-            >
-              {product.appearance}
-            </Typography>
-          )}
+        {/* Price */}
+        <p className="text-lg font-bold text-[#F9A922] mb-4">{formatPrice(product.price)}</p>
 
-          {/* Price */}
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 700,
-              color: "#ff6b35",
-              mb: 2,
+        {/* Action Buttons */}
+        <div className="flex gap-2 mt-auto">
+          <button
+            className="flex-1 flex items-center justify-center gap-2 bg-[#F9A922] text-white font-semibold text-sm py-2 px-4 rounded-[30px] hover:bg-[#E8981F] transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleProductClick(product._id);
             }}
           >
-            {formatPrice(product.price)}
-          </Typography>
-
-          {/* Action Buttons */}
-          <Box sx={{ display: "flex", gap: 1, mt: "auto" }}>
-            <Button
-              variant="contained"
-              startIcon={<Visibility />}
-              fullWidth
-              onClick={(e) => {
-                e.stopPropagation();
-                handleProductClick(product._id);
-              }}
-              sx={{
-                backgroundColor: "#ff6b35",
-                "&:hover": { backgroundColor: "#e55a2b" },
-                textTransform: "none",
-                fontWeight: 600,
-              }}
-            >
-              View Details
-            </Button>
-            <IconButton
-              sx={{
-                border: "1px solid #e0e0e0",
-                color: "#666",
-                "&:hover": {
-                  backgroundColor: "#f5f5f5",
-                  borderColor: "#ff6b35",
-                  color: "#ff6b35",
-                },
-              }}
-              disabled={!hasVariants || isLoading}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleAddToCart(product, minUnitSize);
-              }}
-            >
-              <ShoppingCart />
-            </IconButton>
-          </Box>
-        </CardContent>
-      </Card>
-    </Grid>
+            <Eye className="w-4 h-4" />
+            View Details
+          </button>
+          <button
+            className="border border-[#e0e0e0] text-[#666] p-2 rounded-lg hover:bg-gray-50 hover:border-[#F9A922] hover:text-[#F9A922] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!hasVariants || isLoading}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAddToCart(product, minUnitSize);
+            }}
+          >
+            <ShoppingCart className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 

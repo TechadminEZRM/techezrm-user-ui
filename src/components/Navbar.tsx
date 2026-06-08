@@ -1,37 +1,8 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useState } from "react";
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Box,
-  IconButton,
-  useMediaQuery,
-  useTheme,
-  Menu,
-  MenuItem,
-  Avatar,
-  Divider,
-  TextField,
-  InputAdornment,
-  Collapse,
-  Paper,
-  List,
-  ListItem,
-  ListItemText,
-  Chip,
-} from "@mui/material";
-import {
-  Search as SearchIcon,
-  FavoriteBorder as HeartIcon,
-  ShoppingCartOutlined as CartIcon,
-  Person as PersonIcon,
-  ExitToApp as LogoutIcon,
-  KeyboardArrowDown as ArrowDownIcon,
-  Clear as ClearIcon,
-} from "@mui/icons-material";
+import { useEffect, useState, useRef } from "react";
+import { Search, Heart, ShoppingCart, User, LogOut, ChevronDown, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/store/use-app-store";
@@ -44,52 +15,50 @@ import { searchSuggestionService } from "@/api/services/searchSuggestionService"
 interface SearchResult {
   id: string;
   title: string;
-  type:string;
+  type: string;
 }
 
 const Navbar: React.FC = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 900);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
   const router = useRouter();
   const { customer, isAuthenticated } = useAppStore();
   const logoutMutation = useCustomerLogout();
   const { companyDetails } = useCompanyDetails();
 
-  // Search expansion state
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  
-  interface SuggestionItem {
-    suggestions: string[];
-    type: "product" | "category";
-  }
+
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isToolsOpen, setIsToolsOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+  const toolsMenuRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (!searchQuery.trim()) {
         setSearchResults([]);
         return;
       }
-  
       try {
         const res = await searchSuggestionService.getSuggestions({ q: searchQuery });
-  
         if (res.success && Array.isArray(res.data)) {
           const formatted: SearchResult[] = [];
-  
           res.data.forEach((item: any) => {
             if (Array.isArray(item.suggestions) && item.suggestions.length > 0) {
               item.suggestions.forEach((s: any) => {
-                formatted.push({
-                  id: s.id,            // ✅ now includes ID
-                  title: s.title,      // ✅ extract title instead of using the whole string
-                  type: item.type,     // ✅ preserve type (product/category/tag)
-                });
+                formatted.push({ id: s.id, title: s.title, type: item.type });
               });
             }
           });
-  
           setSearchResults(formatted);
         } else {
           setSearchResults([]);
@@ -99,45 +68,37 @@ const Navbar: React.FC = () => {
         setSearchResults([]);
       }
     };
-  
     fetchSuggestions();
   }, [searchQuery]);
-  
-  
 
-  // Fetch cart and wishlist counts when authenticated
+  // Close menus on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+      if (toolsMenuRef.current && !toolsMenuRef.current.contains(e.target as Node)) {
+        setIsToolsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const { data: cartSummary } = useCartSummary(customer?.id || "", {
     enabled: isAuthenticated && !!customer?.id,
   });
-
   const { data: wishlistData } = useWishlist(
     { customerId: customer?.id || "" },
     { enabled: isAuthenticated && !!customer?.id }
   );
 
-  // Extract counts
   const cartCount = cartSummary?.data?.itemCount || 0;
   const wishlistCount = wishlistData?.data?.products?.length || 0;
 
-  const [profileMenuAnchor, setProfileMenuAnchor] =
-    useState<null | HTMLElement>(null);
-  const isProfileMenuOpen = Boolean(profileMenuAnchor);
-
-  // Tools dropdown state
-  const [toolsAnchor, setToolsAnchor] = useState<null | HTMLElement>(null);
-  const isToolsOpen = Boolean(toolsAnchor);
-
-  const handleSignInClick = () => {
-    router.push("/sign_in");
-  };
-
-  const handleFavouriteClick = () => {
-    router.push("/favourite");
-  };
-
-  const handleCartClick = () => {
-    router.push("/cart");
-  };
+  const handleSignInClick = () => router.push("/sign_in");
+  const handleFavouriteClick = () => router.push("/favourite");
+  const handleCartClick = () => router.push("/cart");
 
   const handleSearchToggle = () => {
     setIsSearchExpanded(!isSearchExpanded);
@@ -150,8 +111,6 @@ const Navbar: React.FC = () => {
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     setIsSearching(true);
-
-    // Simulate search delay
     setTimeout(() => {
       if (query.trim()) {
         const filtered = searchResults.filter(
@@ -170,9 +129,6 @@ const Navbar: React.FC = () => {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // Handle search logic here
-      console.log("Searching for:", searchQuery);
-      // You can navigate to search results page or trigger search
       router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
       setIsSearchExpanded(false);
       setSearchQuery("");
@@ -186,8 +142,6 @@ const Navbar: React.FC = () => {
   };
 
   const handleResultClick = (result: SearchResult) => {
-    console.log("Selected:", result);
-    // Handle navigation based on result type
     if (result.type === "product") {
       router.push(`/product/detail/${result.id}`);
     } else {
@@ -198,29 +152,13 @@ const Navbar: React.FC = () => {
     setSearchResults([]);
   };
 
-  const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setProfileMenuAnchor(event.currentTarget);
-  };
-
-  const handleProfileMenuClose = () => {
-    setProfileMenuAnchor(null);
-  };
-
-  const handleToolsMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setToolsAnchor(event.currentTarget);
-  };
-
-  const handleToolsMenuClose = () => {
-    setToolsAnchor(null);
-  };
-
   const handleProfileClick = () => {
-    handleProfileMenuClose();
+    setIsProfileMenuOpen(false);
     router.push("/profile");
   };
 
   const handleLogout = async () => {
-    handleProfileMenuClose();
+    setIsProfileMenuOpen(false);
     try {
       await logoutMutation.mutateAsync();
       router.push("/");
@@ -230,769 +168,246 @@ const Navbar: React.FC = () => {
   };
 
   const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+    return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
   };
 
+  const toolsLinks = [
+    { label: "E Numbers", href: "/tools/e-numbers" },
+    { label: "Capsule Sizes", href: "/tools/capsule-sizes" },
+    { label: "Dietary Reference Values (NRV RDA)", href: "/tools/dietary-reference-values" },
+    { label: "Enzyme Applications, Units and Info", href: "/tools/enzyme-applications" },
+    { label: "Health Claims - EFSA", href: "/tools/health-claims" },
+    { label: "Mineral Activity and Solubility in Water", href: "/tools/mineral-activity" },
+    { label: "Scoville Heat Units", href: "/tools/scoville-heat-units" },
+    { label: "Vitamin Activity", href: "/tools/vitamin-activity" },
+  ];
+
   return (
-    <AppBar
-      position="static"
-      elevation={0}
-      sx={{
-        py: 1,
-        background: "linear-gradient(90deg, #F58A4E 0%, #F16A3C 100%)",
-      }}
-    >
-      <Toolbar
-        sx={{
-          justifyContent: "space-between",
-          px: { xs: 2, md: 3 },
-          minHeight: { xs: 64, md: 70 },
-        }}
-      >
+    <header className="py-2 bg-[#F9A922] w-full">
+      <div className="flex items-center justify-between px-4 md:px-6 min-h-[64px] md:min-h-[70px]">
         {/* Logo */}
         <Link href="/" passHref>
-          <Box
-            component="img"
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="/ezrm-logo.png"
-            alt={`${
-              companyDetails?.fullName || "EZRM"
-            } - Raw Materials Simplified`}
-            sx={{
-              height: { xs: 32, md: 40 },
-              width: "auto",
-              filter: "brightness(0) invert(1)", // Makes the logo white
-              cursor: "pointer",
-            }}
+            alt={`${companyDetails?.fullName || "EZRM"} - Raw Materials Simplified`}
+            className="h-8 md:h-10 w-auto cursor-pointer"
           />
         </Link>
 
-        <Box display={"flex"} alignItems={"center"} gap={4}>
+        <div className="flex items-center gap-4 md:gap-8">
           {/* Navigation Links - Hidden on mobile */}
           {!isMobile && (
-            <Box
-              sx={{
-                display: "flex",
-                gap: 3,
-                alignItems: "center",
-                position: "relative",
-              }}
-            >
+            <div className="flex gap-6 items-center relative">
               {/* About */}
               <Link href="/about" passHref>
-                <Typography
-                  sx={{
-                    color: "white",
-                    textDecoration: "none",
-                    fontSize: "16px",
-                    fontWeight: 500,
-                    cursor: "pointer",
-                    whiteSpace: "nowrap",
-                    transition: "all 0.3s ease",
-                    "&:hover": {
-                      fontWeight: 700,
-                      transform: "translateY(-1px)",
-                      textShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                    },
-                  }}
-                >
+                <span className="text-white text-base font-medium cursor-pointer whitespace-nowrap transition-all hover:font-bold hover:-translate-y-px hover:[text-shadow:0_2px_4px_rgba(0,0,0,0.2)]">
                   About
-                </Typography>
+                </span>
               </Link>
 
               {/* Product */}
               <Link href="/product" passHref>
-                <Typography
-                  sx={{
-                    color: "white",
-                    textDecoration: "none",
-                    fontSize: "16px",
-                    fontWeight: 500,
-                    cursor: "pointer",
-                    whiteSpace: "nowrap",
-                    transition: "all 0.3s ease",
-                    "&:hover": {
-                      fontWeight: 700,
-                      transform: "translateY(-1px)",
-                      textShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                    },
-                  }}
-                >
+                <span className="text-white text-base font-medium cursor-pointer whitespace-nowrap transition-all hover:font-bold hover:-translate-y-px hover:[text-shadow:0_2px_4px_rgba(0,0,0,0.2)]">
                   Product
-                </Typography>
+                </span>
               </Link>
 
               {/* Tools with Dropdown */}
-              <Box
-                onMouseEnter={handleToolsMenuOpen}
-                onMouseLeave={handleToolsMenuClose}
-                sx={{ position: "relative" }}
+              <div
+                ref={toolsMenuRef}
+                className="relative"
+                onMouseEnter={() => setIsToolsOpen(true)}
+                onMouseLeave={() => setIsToolsOpen(false)}
               >
-                <Typography
-                  sx={{
-                    color: "white",
-                    textDecoration: "none",
-                    fontSize: "16px",
-                    fontWeight: 500,
-                    cursor: "pointer",
-                    whiteSpace: "nowrap",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 0.5,
-                    transition: "all 0.3s ease",
-                    "&:hover": {
-                      fontWeight: 700,
-                      transform: "translateY(-1px)",
-                      textShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                    },
-                  }}
-                >
+                <span className="text-white text-base font-medium cursor-pointer whitespace-nowrap flex items-center gap-1 transition-all hover:font-bold hover:-translate-y-px hover:[text-shadow:0_2px_4px_rgba(0,0,0,0.2)]">
                   Tools
-                  <ArrowDownIcon sx={{ fontSize: 16 }} />
-                </Typography>
+                  <ChevronDown className="w-4 h-4" />
+                </span>
 
-                {/* Tools Dropdown Menu */}
-                <Menu
-                  anchorEl={toolsAnchor}
-                  open={isToolsOpen}
-                  onClose={handleToolsMenuClose}
-                  MenuListProps={{
-                    onMouseLeave: handleToolsMenuClose,
-                  }}
-                  PaperProps={{
-                    sx: {
-                      mt: 1,
-                      borderRadius: "12px",
-                      boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
-                      border: "1px solid #e0e0e0",
-                      minWidth: 280,
-                      py: 1,
-                    },
-                  }}
-                  transformOrigin={{ horizontal: "left", vertical: "top" }}
-                  anchorOrigin={{ horizontal: "left", vertical: "bottom" }}
-                >
-                  <MenuItem
-                    onClick={() => {
-                      handleToolsMenuClose();
-                      router.push("/tools/e-numbers");
-                    }}
-                    sx={{
-                      py: 1.5,
-                      px: 2,
-                      "&:hover": {
-                        backgroundColor: "#f8f9fa",
-                      },
-                    }}
-                  >
-                    <Typography sx={{ fontSize: "14px", fontWeight: 500 }}>
-                      E Numbers
-                    </Typography>
-                  </MenuItem>
-                  <MenuItem
-                    onClick={() => {
-                      handleToolsMenuClose();
-                      router.push("/tools/capsule-sizes");
-                    }}
-                    sx={{
-                      py: 1.5,
-                      px: 2,
-                      "&:hover": {
-                        backgroundColor: "#f8f9fa",
-                      },
-                    }}
-                  >
-                    <Typography sx={{ fontSize: "14px", fontWeight: 500 }}>
-                      Capsule Sizes
-                    </Typography>
-                  </MenuItem>
-                  <MenuItem
-                    onClick={() => {
-                      handleToolsMenuClose();
-                      router.push("/tools/dietary-reference-values");
-                    }}
-                    sx={{
-                      py: 1.5,
-                      px: 2,
-                      "&:hover": {
-                        backgroundColor: "#f8f9fa",
-                      },
-                    }}
-                  >
-                    <Typography sx={{ fontSize: "14px", fontWeight: 500 }}>
-                      Dietary Reference Values (NRV RDA)
-                    </Typography>
-                  </MenuItem>
-                  <MenuItem
-                    onClick={() => {
-                      handleToolsMenuClose();
-                      router.push("/tools/enzyme-applications");
-                    }}
-                    sx={{
-                      py: 1.5,
-                      px: 2,
-                      "&:hover": {
-                        backgroundColor: "#f8f9fa",
-                      },
-                    }}
-                  >
-                    <Typography sx={{ fontSize: "14px", fontWeight: 500 }}>
-                      Enzyme Applications, Units and Info
-                    </Typography>
-                  </MenuItem>
-                  <MenuItem
-                    onClick={() => {
-                      handleToolsMenuClose();
-                      router.push("/tools/health-claims");
-                    }}
-                    sx={{
-                      py: 1.5,
-                      px: 2,
-                      "&:hover": {
-                        backgroundColor: "#f8f9fa",
-                      },
-                    }}
-                  >
-                    <Typography sx={{ fontSize: "14px", fontWeight: 500 }}>
-                      Health Claims - EFSA
-                    </Typography>
-                  </MenuItem>
-                  <MenuItem
-                    onClick={() => {
-                      handleToolsMenuClose();
-                      router.push("/tools/mineral-activity");
-                    }}
-                    sx={{
-                      py: 1.5,
-                      px: 2,
-                      "&:hover": {
-                        backgroundColor: "#f8f9fa",
-                      },
-                    }}
-                  >
-                    <Typography sx={{ fontSize: "14px", fontWeight: 500 }}>
-                      Mineral Activity and Solubility in Water
-                    </Typography>
-                  </MenuItem>
-                  <MenuItem
-                    onClick={() => {
-                      handleToolsMenuClose();
-                      router.push("/tools/scoville-heat-units");
-                    }}
-                    sx={{
-                      py: 1.5,
-                      px: 2,
-                      "&:hover": {
-                        backgroundColor: "#f8f9fa",
-                      },
-                    }}
-                  >
-                    <Typography sx={{ fontSize: "14px", fontWeight: 500 }}>
-                      Scoville Heat Units
-                    </Typography>
-                  </MenuItem>
-                  <MenuItem
-                    onClick={() => {
-                      handleToolsMenuClose();
-                      router.push("/tools/vitamin-activity");
-                    }}
-                    sx={{
-                      py: 1.5,
-                      px: 2,
-                      "&:hover": {
-                        backgroundColor: "#f8f9fa",
-                      },
-                    }}
-                  >
-                    <Typography sx={{ fontSize: "14px", fontWeight: 500 }}>
-                      Vitamin Activity
-                    </Typography>
-                  </MenuItem>
-                </Menu>
-              </Box>
+                {isToolsOpen && (
+                  <div className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-[#e0e0e0] min-w-[280px] py-1 z-50">
+                    {toolsLinks.map((tool) => (
+                      <button
+                        key={tool.href}
+                        onClick={() => { setIsToolsOpen(false); router.push(tool.href); }}
+                        className="w-full text-left py-3 px-4 text-sm font-medium text-[#1F2A44] hover:bg-gray-50 transition-colors"
+                      >
+                        {tool.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {/* Certifications */}
               <Link href="/certifications" passHref>
-                <Typography
-                  sx={{
-                    color: "white",
-                    textDecoration: "none",
-                    fontSize: "16px",
-                    fontWeight: 500,
-                    cursor: "pointer",
-                    whiteSpace: "nowrap",
-                    transition: "all 0.3s ease",
-                    "&:hover": {
-                      fontWeight: 700,
-                      transform: "translateY(-1px)",
-                      textShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                    },
-                  }}
-                >
+                <span className="text-white text-base font-medium cursor-pointer whitespace-nowrap transition-all hover:font-bold hover:-translate-y-px hover:[text-shadow:0_2px_4px_rgba(0,0,0,0.2)]">
                   Certifications
-                </Typography>
+                </span>
               </Link>
 
               {/* Inline Search Bar */}
-              <Collapse
-                in={isSearchExpanded}
-                orientation="horizontal"
-                timeout={300}
-              >
-                <Box
-                  sx={{
-                    ml: 3,
-                    position: "relative",
-                  }}
-                >
-                  <Box component="form" onSubmit={handleSearchSubmit}>
-                    <TextField
-                      value={searchQuery}
-                      onChange={(e) => handleSearch(e.target.value)}
-                      placeholder="Search for products, categories..."
-                      variant="outlined"
-                      size="small"
-                      autoFocus
-                      sx={{
-                        width: 320,
-                        "& .MuiOutlinedInput-root": {
-                          backgroundColor: "white",
-                          borderRadius: "12px",
-                          fontSize: "14px",
-                          height: "36px",
-                          "& fieldset": {
-                            borderColor: "#e0e0e0",
-                          },
-                          "&:hover fieldset": {
-                            borderColor: "#ff6b35",
-                          },
-                          "&.Mui-focused fieldset": {
-                            borderColor: "#ff6b35",
-                            borderWidth: "2px",
-                          },
-                        },
-                        "& .MuiOutlinedInput-input": {
-                          padding: "8px 14px",
-                          color: "#333",
-                          "&::placeholder": {
-                            color: "#666",
-                            opacity: 1,
-                          },
-                        },
-                      }}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <SearchIcon sx={{ color: "#666", fontSize: 18 }} />
-                          </InputAdornment>
-                        ),
-                        endAdornment: searchQuery && (
-                          <InputAdornment position="end">
-                            <IconButton
-                              onClick={handleSearchClear}
-                              size="small"
-                              sx={{
-                                color: "#666",
-                                "&:hover": {
-                                  backgroundColor: "rgba(0,0,0,0.04)",
-                                },
-                              }}
-                            >
-                              <ClearIcon fontSize="small" />
-                            </IconButton>
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </Box>
+              {isSearchExpanded && (
+                <div className="ml-3 relative">
+                  <form onSubmit={handleSearchSubmit}>
+                    <div className="relative flex items-center">
+                      <Search className="absolute left-3 w-4 h-4 text-gray-500" />
+                      <input
+                        value={searchQuery}
+                        onChange={(e) => handleSearch(e.target.value)}
+                        placeholder="Search for products, categories..."
+                        autoFocus
+                        className="w-[320px] h-9 bg-white rounded-xl border border-[#e0e0e0] pl-9 pr-9 text-sm text-[#333] placeholder:text-[#666] focus:outline-none focus:ring-2 focus:ring-[#F9A922] focus:border-[#F9A922]"
+                      />
+                      {searchQuery && (
+                        <button
+                          type="button"
+                          onClick={handleSearchClear}
+                          className="absolute right-3 text-gray-500 hover:text-gray-700"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </form>
 
                   {/* Search Results Dropdown */}
                   {(searchResults.length > 0 || isSearching) && (
-                    <Paper
-                      elevation={8}
-                      sx={{
-                        position: "absolute",
-                        top: "100%",
-                        left: 0,
-                        right: 0,
-                        mt: 1,
-                        borderRadius: "12px",
-                        maxHeight: "300px",
-                        overflow: "auto",
-                        zIndex: 1000,
-                        border: "1px solid #e0e0e0",
-                      }}
-                    >
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.12)] border border-[#e0e0e0] max-h-[300px] overflow-auto z-[1000]">
                       {isSearching ? (
-                        <Box sx={{ p: 2, textAlign: "center" }}>
-                          <Typography variant="body2" color="text.secondary">
-                            Searching...
-                          </Typography>
-                        </Box>
+                        <div className="p-4 text-center text-sm text-gray-500">Searching...</div>
                       ) : (
-                        <List sx={{ py: 0 }}>
+                        <ul className="py-0">
                           {searchResults.map((result) => (
-                            <ListItem
+                            <li
                               key={result.id}
-                              // button
                               onClick={() => handleResultClick(result)}
-                              sx={{
-                                "&:hover": {
-                                  backgroundColor: "#f5f5f5",
-                                  cursor:"pointer"
-                                },
-                                
-                                borderBottom: "1px solid #f0f0f0",
-                                "&:last-child": {
-                                  borderBottom: "none",
-                                },
-                              }}
+                              className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 flex items-center gap-2"
                             >
-                              <ListItemText
-                                primary={
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      gap: 1,
-                                    }}
-                                  >
-                                    <Typography
-                                      variant="body1"
-                                      sx={{ fontWeight: 500 }}
-                                    >
-                                      {result.title}
-                                    </Typography>
-                                    <Chip
-                                      label={result.type}
-                                      size="small"
-                                      variant="outlined"
-                                      sx={{
-                                        fontSize: "10px",
-                                        height: "20px",
-                                        color:
-                                          result.type === "product"
-                                            ? "#ff6b35"
-                                            : "#4a90e2",
-                                        borderColor:
-                                          result.type === "product"
-                                            ? "#ff6b35"
-                                            : "#4a90e2",
-                                      }}
-                                    />
-                                  </Box>
-                                }
-                                secondary={result.category}
-                              />
-                            </ListItem>
+                              <span className="text-sm font-medium text-[#1F2A44]">{result.title}</span>
+                              <span
+                                className={`text-[10px] px-2 py-0.5 rounded border ${
+                                  result.type === "product"
+                                    ? "text-[#F9A922] border-[#F9A922]"
+                                    : "text-blue-500 border-blue-400"
+                                }`}
+                              >
+                                {result.type}
+                              </span>
+                            </li>
                           ))}
-                        </List>
+                        </ul>
                       )}
-                    </Paper>
+                    </div>
                   )}
-                </Box>
-              </Collapse>
-            </Box>
+                </div>
+              )}
+            </div>
           )}
 
           {/* Right Side Icons */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
-            <IconButton
+          <div className="flex items-center gap-3">
+            {/* Search toggle */}
+            <button
               onClick={handleSearchToggle}
-              sx={{
-                bgcolor: "white",
-                width: 40,
-                height: 40,
-                "&:hover": {
-                  bgcolor: "#f5f5f5",
-                },
-              }}
+              className="bg-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
             >
-              <SearchIcon sx={{ color: "#666", fontSize: 20 }} />
-            </IconButton>
+              <Search className="w-5 h-5 text-gray-600" />
+            </button>
 
-            <Box sx={{ position: "relative" }}>
-              <IconButton
+            {/* Wishlist */}
+            <div className="relative">
+              <button
                 onClick={handleFavouriteClick}
-                sx={{
-                  bgcolor: "white",
-                  width: 40,
-                  height: 40,
-                  "&:hover": {
-                    bgcolor: "#f5f5f5",
-                  },
-                }}
+                className="bg-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
               >
-                <HeartIcon sx={{ color: "#666", fontSize: 20 }} />
-              </IconButton>
-
-              {/* Custom Wishlist Badge */}
+                <Heart className="w-5 h-5 text-gray-600" />
+              </button>
               {isAuthenticated && wishlistCount > 0 && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: "15%",
-                    right: "15%",
-                    transform: "translate(50%, -50%)",
-                    backgroundColor: "#d14d20",
-                    color: "white",
-                    fontSize: "10px",
-                    fontWeight: 700,
-                    minWidth: "18px",
-                    height: "18px",
-                    borderRadius: "9px",
-                    border: "2px solid white",
-                    boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-                    background:
-                      "linear-gradient(135deg, #d14d20 0%, #b8431c 100%)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    transition: "all 0.2s ease-in-out",
-                    "&:hover": {
-                      transform: "translate(50%, -50%) scale(1.1)",
-                    },
-                    zIndex: 1,
-                  }}
-                >
+                <span className="absolute top-[15%] right-[15%] translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-[#F9A922] to-[#E8981F] text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full border-2 border-white shadow-md flex items-center justify-center z-10">
                   {wishlistCount > 9 ? "9+" : wishlistCount}
-                </Box>
+                </span>
               )}
-            </Box>
+            </div>
 
-            <Box sx={{ position: "relative" }}>
-              <IconButton
+            {/* Cart */}
+            <div className="relative">
+              <button
                 onClick={handleCartClick}
-                sx={{
-                  bgcolor: "white",
-                  width: 40,
-                  height: 40,
-                  "&:hover": {
-                    bgcolor: "#f5f5f5",
-                  },
-                }}
+                className="bg-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
               >
-                <CartIcon sx={{ color: "#666", fontSize: 20 }} />
-              </IconButton>
-
-              {/* Custom Cart Badge */}
+                <ShoppingCart className="w-5 h-5 text-gray-600" />
+              </button>
               {isAuthenticated && cartCount > 0 && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: "15%",
-                    right: "15%",
-                    transform: "translate(50%, -50%)",
-                    backgroundColor: "#e55a2b",
-                    color: "white",
-                    fontSize: "10px",
-                    fontWeight: 700,
-                    minWidth: "18px",
-                    height: "18px",
-                    borderRadius: "9px",
-                    border: "2px solid white",
-                    boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-                    background:
-                      "linear-gradient(135deg, #e55a2b 0%, #d14d20 100%)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    transition: "all 0.2s ease-in-out",
-                    "&:hover": {
-                      transform: "translate(50%, -50%) scale(1.1)",
-                    },
-                    zIndex: 1,
-                  }}
-                >
+                <span className="absolute top-[15%] right-[15%] translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-[#F9A922] to-[#E8981F] text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full border-2 border-white shadow-md flex items-center justify-center z-10">
                   {cartCount > 9 ? "9+" : cartCount}
-                </Box>
+                </span>
               )}
-            </Box>
+            </div>
 
-            {/* Conditional Rendering: Profile Dropdown or Sign In Button */}
+            {/* Profile or Sign In */}
             {isAuthenticated && customer ? (
-              <>
+              <div ref={profileMenuRef} className="relative">
                 {/* Profile Dropdown Button */}
-                <Box
-                  onClick={handleProfileMenuOpen}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    bgcolor: "white",
-                    color: "#ff7849",
-                    fontWeight: 600,
-                    fontSize: "14px",
-                    px: 2,
-                    py: 1,
-                    ml: 1,
-                    cursor: "pointer",
-                    borderRadius: "8px",
-                    minWidth: "120px",
-                    transition: "all 0.3s ease",
-                    "&:hover": {
-                      bgcolor: "#f5f5f5",
-                      transform: "scale(1.02)",
-                    },
-                    "&:active": {
-                      transform: "scale(0.98)",
-                    },
-                  }}
+                <button
+                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                  className="flex items-center gap-2 bg-white text-[#F9A922] font-semibold text-sm px-3 py-2 ml-1 cursor-pointer rounded-lg min-w-[120px] transition-all hover:bg-gray-50 hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  <Avatar
-                    sx={{
-                      width: 24,
-                      height: 24,
-                      bgcolor: "#ff7849",
-                      color: "white",
-                      fontSize: "10px",
-                      fontWeight: 600,
-                    }}
-                  >
+                  <div className="w-6 h-6 rounded-full bg-[#F9A922] text-white text-[10px] font-semibold flex items-center justify-center flex-shrink-0">
                     {getInitials(customer.name)}
-                  </Avatar>
-                  <Typography
-                    sx={{
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      color: "#ff7849",
-                      maxWidth: "80px",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
+                  </div>
+                  <span className="max-w-[80px] overflow-hidden text-ellipsis whitespace-nowrap">
                     {customer.name.split(" ")[0]}
-                  </Typography>
-                  <ArrowDownIcon
-                    sx={{
-                      fontSize: 16,
-                      color: "#ff7849",
-                      transform: isProfileMenuOpen
-                        ? "rotate(180deg)"
-                        : "rotate(0deg)",
-                      transition: "transform 0.3s ease",
-                    }}
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-[#F9A922] transition-transform ${isProfileMenuOpen ? "rotate-180" : ""}`}
                   />
-                </Box>
+                </button>
 
                 {/* Profile Dropdown Menu */}
-                <Menu
-                  anchorEl={profileMenuAnchor}
-                  open={isProfileMenuOpen}
-                  onClose={handleProfileMenuClose}
-                  PaperProps={{
-                    sx: {
-                      mt: 1,
-                      minWidth: 200,
-                      borderRadius: "12px",
-                      boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-                      border: "1px solid #f0f0f0",
-                    },
-                  }}
-                  transformOrigin={{ horizontal: "right", vertical: "top" }}
-                  anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-                >
-                  {/* User Info Header */}
-                  <Box sx={{ px: 3, py: 2, borderBottom: "1px solid #f0f0f0" }}>
-                    <Typography
-                      sx={{
-                        fontSize: "14px",
-                        fontWeight: 600,
-                        color: "#333",
-                        mb: 0.5,
-                      }}
+                {isProfileMenuOpen && (
+                  <div className="absolute right-0 top-full mt-1 min-w-[200px] bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-[#f0f0f0] z-50">
+                    {/* User Info Header */}
+                    <div className="px-4 py-3 border-b border-[#f0f0f0]">
+                      <p className="text-sm font-semibold text-[#333] mb-0.5">{customer.name}</p>
+                      <p className="text-xs text-[#666]">{customer.email}</p>
+                    </div>
+                    <button
+                      onClick={handleProfileClick}
+                      className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-gray-50 transition-colors"
                     >
-                      {customer.name}
-                    </Typography>
-                    <Typography
-                      sx={{
-                        fontSize: "12px",
-                        color: "#666",
-                      }}
-                    >
-                      {customer.email}
-                    </Typography>
-                  </Box>
-
-                  {/* Menu Items */}
-                  <MenuItem
-                    onClick={handleProfileClick}
-                    sx={{
-                      px: 3,
-                      py: 1.5,
-                      "&:hover": {
-                        backgroundColor: "#f8f9fa",
-                      },
-                    }}
-                  >
-                    <PersonIcon sx={{ fontSize: 18, color: "#666", mr: 2 }} />
-                    <Typography sx={{ fontSize: "14px", color: "#333" }}>
+                      <User className="w-4 h-4 text-gray-500" />
                       My Profile
-                    </Typography>
-                  </MenuItem>
-
-                  <Divider sx={{ my: 1 }} />
-
-                  <MenuItem
-                    onClick={handleLogout}
-                    disabled={logoutMutation.isPending}
-                    sx={{
-                      px: 3,
-                      py: 1.5,
-                      "&:hover": {
-                        backgroundColor: "#ffeaea",
-                      },
-                    }}
-                  >
-                    <LogoutIcon
-                      sx={{ fontSize: 18, color: "#d32f2f", mr: 2 }}
-                    />
-                    <Typography sx={{ fontSize: "14px", color: "#d32f2f" }}>
+                    </button>
+                    <hr className="border-[#E5E7EB] my-1" />
+                    <button
+                      onClick={handleLogout}
+                      disabled={logoutMutation.isPending}
+                      className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4 text-red-600" />
                       {logoutMutation.isPending ? "Signing out..." : "Sign Out"}
-                    </Typography>
-                  </MenuItem>
-                </Menu>
-              </>
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               /* Sign In Button */
-              <Box
+              <div
                 onClick={handleSignInClick}
-                sx={{
-                  position: "relative",
-                  bgcolor: "white",
-                  color: "#ff7849",
-                  fontWeight: 700,
-                  fontSize: "14px",
-                  px: 3,
-                  py: 1.2,
-                  ml: 1,
-                  cursor: "pointer",
-                  clipPath:
-                    "polygon(0% 0%, calc(100% - 15px) 0%, 100% 50%, calc(100% - 15px) 100%, 0% 100%, 15px 50%)",
-                  minWidth: "90px",
-                  textAlign: "center",
-                  transition: "all 0.3s ease",
-                  "&:hover": {
-                    bgcolor: "#f5f5f5",
-                    transform: "scale(1.02)",
-                  },
-                  "&:active": {
-                    transform: "scale(0.98)",
-                  },
+                className="relative bg-white text-[#F9A922] font-bold text-sm px-6 py-[4.8px] ml-1 cursor-pointer min-w-[90px] text-center transition-all hover:bg-gray-50 hover:scale-[1.02] active:scale-[0.98]"
+                style={{
+                  clipPath: "polygon(0% 0%, calc(100% - 15px) 0%, 100% 50%, calc(100% - 15px) 100%, 0% 100%, 15px 50%)",
                 }}
               >
                 SIGN IN
-              </Box>
+              </div>
             )}
-          </Box>
-        </Box>
-      </Toolbar>
-    </AppBar>
+          </div>
+        </div>
+      </div>
+    </header>
   );
 };
 

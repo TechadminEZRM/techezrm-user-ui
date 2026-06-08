@@ -1,15 +1,5 @@
 import React, { useState } from "react";
-import {
-  Box,
-  Typography,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Skeleton,
-  Alert,
-  styled,
-} from "@mui/material";
-import { Add, Remove } from "@mui/icons-material";
+import { Plus, Minus } from "lucide-react";
 import { FAQ } from "../api/services/faqs";
 
 interface FAQSectionProps {
@@ -18,220 +8,89 @@ interface FAQSectionProps {
   error: any;
 }
 
-const StyledAccordion = styled(Accordion)(({ theme }) => ({
-  background: "linear-gradient(135deg, #ffffff 0%, #fafafa 100%)",
-  border: "1px solid rgba(255, 107, 53, 0.1)",
-  borderRadius: "12px",
-  marginBottom: "16px",
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
-  transition: "all 0.3s ease",
-  overflow: "hidden",
-
-  "&:before": {
-    display: "none",
-  },
-
-  "&:hover": {
-    borderColor: "rgba(255, 107, 53, 0.3)",
-    boxShadow: "0 8px 24px rgba(255, 107, 53, 0.12)",
-    transform: "translateY(-2px)",
-  },
-
-  "&.Mui-expanded": {
-    background: "linear-gradient(135deg, #fff8f6 0%, #fff5f2 100%)",
-    borderColor: "rgba(255, 107, 53, 0.4)",
-    boxShadow: "0 12px 32px rgba(255, 107, 53, 0.15)",
-  },
-}));
-
-const StyledAccordionSummary = styled(AccordionSummary)(({ theme }) => ({
-  padding: "20px 24px",
-  minHeight: "64px",
-
-  "& .MuiAccordionSummary-content": {
-    margin: "0",
-    alignItems: "center",
-  },
-
-  "& .MuiAccordionSummary-expandIconWrapper": {
-    color: "#ff6b35",
-    transition: "all 0.3s ease",
-    width: "32px",
-    height: "32px",
-    borderRadius: "50%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "rgba(255, 107, 53, 0.1)",
-
-    "&:hover": {
-      background: "rgba(255, 107, 53, 0.2)",
-      transform: "scale(1.1)",
-    },
-  },
-
-  "&.Mui-expanded .MuiAccordionSummary-expandIconWrapper": {
-    background: "rgba(255, 107, 53, 0.2)",
-    transform: "rotate(180deg)",
-  },
-}));
-
-const StyledAccordionDetails = styled(AccordionDetails)(({ theme }) => ({
-  padding: "0 24px 24px",
-  background: "rgba(255, 107, 53, 0.02)",
-  borderTop: "1px solid rgba(255, 107, 53, 0.08)",
-}));
-
 const FAQSection: React.FC<FAQSectionProps> = ({ faqs, isLoading, error }) => {
   const [expanded, setExpanded] = useState<string | false>(false);
 
-  const handleChange =
-    (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
-      setExpanded(isExpanded ? panel : false);
-    };
+  const toggle = (panel: string) => setExpanded(expanded === panel ? false : panel);
 
   if (isLoading) {
     return (
-      <Box sx={{ mt: 4 }}>
-        <Typography
-          variant="h5"
-          fontWeight={600}
-          color="primary"
-          sx={{ mb: 3, textAlign: "center" }}
-        >
-          Frequently Asked Questions
-        </Typography>
-        {[...Array(4)].map((_, index) => (
-          <Box key={index} sx={{ mb: 2 }}>
-            <Skeleton
-              variant="rectangular"
-              height={64}
-              sx={{ borderRadius: 2, mb: 1 }}
-            />
-            <Skeleton variant="text" width="90%" />
-            <Skeleton variant="text" width="70%" />
-          </Box>
+      <div className="mt-8">
+        <h2 className="text-xl md:text-2xl font-semibold text-[#F9A922] text-center mb-6">Frequently Asked Questions</h2>
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="mb-4">
+            <div className="h-16 bg-gray-200 rounded-xl animate-pulse mb-2" />
+            <div className="h-4 bg-gray-200 rounded w-11/12 animate-pulse mb-1" />
+            <div className="h-4 bg-gray-200 rounded w-8/12 animate-pulse" />
+          </div>
         ))}
-      </Box>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Box sx={{ mt: 4 }}>
-        <Alert severity="error" sx={{ borderRadius: 2 }}>
-          Failed to load FAQs. Please try again later.
-        </Alert>
-      </Box>
+      <div className="mt-8">
+        <div className="bg-red-50 text-red-700 p-4 rounded-xl border border-red-200 text-sm">Failed to load FAQs. Please try again later.</div>
+      </div>
     );
   }
 
   if (!faqs || faqs.length === 0) {
     return (
-      <Box sx={{ mt: 4, textAlign: "center" }}>
-        <Typography
-          variant="h5"
-          fontWeight={600}
-          color="primary"
-          sx={{ mb: 2 }}
-        >
-          Frequently Asked Questions
-        </Typography>
-        <Typography
-          variant="body1"
-          color="text.secondary"
-          sx={{ fontStyle: "italic" }}
-        >
-          No FAQs available for this product yet.
-        </Typography>
-      </Box>
+      <div className="mt-8 text-center">
+        <h2 className="text-xl md:text-2xl font-semibold text-[#F9A922] mb-2">Frequently Asked Questions</h2>
+        <p className="text-[#737791] italic">No FAQs available for this product yet.</p>
+      </div>
     );
   }
 
   return (
-    <Box sx={{ mt: 4 }}>
-      <Typography
-        variant="h5"
-        fontWeight={600}
-        color="primary"
-        sx={{
-          mb: 3,
-          // textAlign: "center",
-          background: "linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%)",
-          backgroundClip: "text",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          fontSize: { xs: "1.5rem", md: "1.75rem" },
-        }}
+    <div className="mt-8">
+      <h2
+        className="text-xl md:text-[1.75rem] font-semibold mb-6"
+        style={{ background: "linear-gradient(135deg, #F9A922 0%, #ff8c42 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}
       >
         Frequently Asked Questions
-      </Typography>
+      </h2>
 
-      <Box sx={{ maxWidth: 800}}>
-        {faqs.map((faq, index) => (
-          <StyledAccordion
-            key={faq._id}
-            expanded={expanded === `panel${index}`}
-            onChange={handleChange(`panel${index}`)}
-            sx={{
-              "&:first-of-type": {
-                borderTopLeftRadius: "12px",
-                borderTopRightRadius: "12px",
-              },
-              "&:last-of-type": {
-                borderBottomLeftRadius: "12px",
-                borderBottomRightRadius: "12px",
-              },
-            }}
-          >
-            <StyledAccordionSummary
-              expandIcon={
-                expanded === `panel${index}` ? (
-                  <Remove sx={{ fontSize: 20, color: "#ff6b35" }} />
-                ) : (
-                  <Add sx={{ fontSize: 20, color: "#ff6b35" }} />
-                )
-              }
-              aria-controls={`panel${index}bh-content`}
-              id={`panel${index}bh-header`}
+      <div className="max-w-[800px]">
+        {faqs.map((faq, index) => {
+          const panel = `panel${index}`;
+          const isOpen = expanded === panel;
+          return (
+            <div
+              key={faq._id}
+              className="border border-[rgba(255,107,53,0.1)] rounded-xl mb-4 overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all hover:border-[rgba(255,107,53,0.3)] hover:shadow-[0_8px_24px_rgba(255,107,53,0.12)] hover:-translate-y-0.5"
+              style={{ background: isOpen ? "linear-gradient(135deg, #fff8f6 0%, #fff5f2 100%)" : "linear-gradient(135deg, #ffffff 0%, #fafafa 100%)" }}
             >
-              <Typography
-                variant="h6"
-                fontWeight={600}
-                sx={{
-                  fontSize: { xs: "1rem", md: "1.1rem" },
-                  color: expanded === `panel${index}` ? "#ff6b35" : "#333",
-                  transition: "color 0.3s ease",
-                  lineHeight: 1.4,
-                }}
+              {/* Summary */}
+              <button
+                type="button"
+                onClick={() => toggle(panel)}
+                className="w-full flex items-center justify-between px-6 py-5 text-left"
               >
-                {faq.question}
-              </Typography>
-            </StyledAccordionSummary>
+                <h3 className={`text-base md:text-lg font-semibold leading-snug transition-colors ${isOpen ? "text-[#F9A922]" : "text-[#333]"}`}>
+                  {faq.question}
+                </h3>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ml-4 transition-all ${isOpen ? "bg-[rgba(255,107,53,0.2)]" : "bg-[rgba(255,107,53,0.1)]"}`}>
+                  {isOpen
+                    ? <Minus className="w-5 h-5 text-[#F9A922]" />
+                    : <Plus className="w-5 h-5 text-[#F9A922]" />}
+                </div>
+              </button>
 
-            <StyledAccordionDetails>
-              <Typography
-                variant="body1"
-                sx={{
-                  lineHeight: 1.7,
-                  color: "#555",
-                  fontSize: "0.95rem",
-                  fontWeight: 400,
-                  "& p": {
-                    marginBottom: "12px",
-                    "&:last-child": {
-                      marginBottom: 0,
-                    },
-                  },
-                }}
-              >
-                {faq.answer}
-              </Typography>
-            </StyledAccordionDetails>
-          </StyledAccordion>
-        ))}
-      </Box>
-    </Box>
+              {/* Details */}
+              {isOpen && (
+                <div className="px-6 pb-6 bg-[rgba(255,107,53,0.02)] border-t border-[rgba(255,107,53,0.08)]">
+                  <p className="text-[#555] text-[0.95rem] leading-[1.7] pt-4">{faq.answer}</p>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 };
 

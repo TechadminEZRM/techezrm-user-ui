@@ -1,1196 +1,136 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  InputAdornment,
-  Card,
-  CardContent,
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
+import { Search } from "lucide-react";
 import CompanyContactInfo from "@/components/CompanyContactInfo";
+
+const TH = ({ children }: { children: React.ReactNode }) => (
+  <th className="font-bold text-left p-3 text-sm border-b border-[#e8e8e8] bg-[#f5f5f5]">{children}</th>
+);
+const TD = ({ children }: { children: React.ReactNode }) => (
+  <td className="p-3 text-sm text-[#333]">{children}</td>
+);
 
 export default function MineralActivityPage() {
   return (
-    <Box sx={{ minHeight: "100vh" }}>
-      {/* Hero Section with Background Image */}
-      <Box
-        sx={{
-          width: "100%",
-          backgroundImage:
-            "url('https://nutraceuticalsgroup.com/images/mainImage.webp')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          py: 16,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          position: "relative",
-          "&::before": {
-            content: '""',
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            zIndex: 1,
-          },
-        }}
-      >
-        {/* Main Heading */}
-        <Box
-          sx={{
-            position: "relative",
-            zIndex: 2,
-            textAlign: "center",
-            mb: 6,
-          }}
-        >
-          <Typography
-            variant="h1"
-            component="h1"
-            sx={{
-              fontWeight: "bold",
-              color: "#ffffff",
-              fontSize: { xs: "2.5rem", sm: "3.5rem", md: "4rem" },
-              textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
-              mb: 2,
-              letterSpacing: "0.02em",
-            }}
-          >
-            Mineral Activity
-          </Typography>
-          <Typography
-            variant="h5"
-            sx={{
-              color: "rgba(255, 255, 255, 0.9)",
-              fontWeight: 400,
-              fontSize: { xs: "1.1rem", sm: "1.3rem" },
-              textShadow: "1px 1px 2px rgba(0, 0, 0, 0.3)",
-            }}
-          >
-            Solubility in Water & Elemental Composition Database
-          </Typography>
-        </Box>
+    <div className="min-h-screen">
+      <div className="w-full py-64 flex flex-col justify-center items-center relative"
+        style={{ backgroundImage: "url('https://nutraceuticalsgroup.com/images/mainImage.webp')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}>
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative z-[2] text-center mb-6">
+          <h1 className="font-bold text-white text-[clamp(2.5rem,5vw,4rem)] mb-2 tracking-[0.02em]" style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.5)" }}>Mineral Activity</h1>
+          <p className="text-white/90 font-normal text-lg md:text-xl" style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.3)" }}>Solubility in Water &amp; Elemental Composition Database</p>
+        </div>
+        <div className="relative z-[2] w-[90%] max-w-[700px]">
+          <div className="relative flex items-center bg-white/95 backdrop-blur-[15px] rounded-[50px]" style={{ boxShadow: "0 25px 50px rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.08)" }}>
+            <input placeholder="Search minerals, solubility, elemental composition, or specifications..."
+              className="w-full h-[60px] text-lg px-6 pr-16 rounded-[50px] bg-transparent text-[#2c3e50] font-medium placeholder:text-[#7f8c8d] focus:outline-none" />
+            <div className="absolute right-3 flex items-center justify-center w-10 h-10 rounded-full bg-[#F9A922] transition-transform hover:scale-110" style={{ boxShadow: "0 4px 12px rgba(249,169,34,0.3)" }}>
+              <Search className="w-5 h-5 text-white" />
+            </div>
+          </div>
+          <p className="text-center mt-2 text-white/90 text-sm font-medium">Access comprehensive mineral solubility and elemental composition data</p>
+        </div>
+      </div>
 
-        {/* Search Box */}
-        <Box
-          sx={{
-            position: "relative",
-            zIndex: 2,
-            width: "90%",
-            maxWidth: 700,
-          }}
-        >
-          <TextField
-            placeholder="Search minerals, solubility, elemental composition, or specifications..."
-            variant="outlined"
-            fullWidth
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Box
-                    sx={{
-                      position: "relative",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: 40,
-                      height: 40,
-                      borderRadius: "50%",
-                      background: "linear-gradient(135deg, #ff7849, #ff6b35)",
-                      boxShadow: "0 4px 12px rgba(255, 120, 73, 0.3)",
-                      marginRight: 1,
-                      transition: "all 0.3s ease",
-                      "&:hover": {
-                        transform: "scale(1.1)",
-                        boxShadow: "0 6px 16px rgba(255, 120, 73, 0.4)",
-                      },
-                    }}
-                  >
-                    <SearchIcon
-                      sx={{
-                        color: "#ffffff",
-                        fontSize: 20,
-                        filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))",
-                        transition: "all 0.3s ease",
-                      }}
-                    />
-                  </Box>
-                </InputAdornment>
-              ),
-              sx: {
-                fontSize: "18px",
-                height: 60,
-                "& input": {
-                  paddingRight: 2,
-                },
-              },
-            }}
-            sx={{
-              backgroundColor: "rgba(255, 255, 255, 0.95)",
-              backdropFilter: "blur(15px)",
-              borderRadius: "50px",
-              boxShadow:
-                "0 25px 50px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.08)",
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "50px",
-                background:
-                  "linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))",
-                "& fieldset": {
-                  borderColor: "rgba(255, 255, 255, 0.4)",
-                  borderWidth: 1.5,
-                  borderRadius: "50px",
-                },
-                "&:hover fieldset": {
-                  borderColor: "rgba(255, 255, 255, 0.6)",
-                  borderWidth: 2,
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "rgba(255, 120, 73, 0.8)",
-                  borderWidth: 2.5,
-                },
-                "&:hover": {
-                  background:
-                    "linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85))",
-                  transform: "translateY(-3px) scale(1.02)",
-                  transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                  boxShadow:
-                    "0 35px 70px rgba(0, 0, 0, 0.15), 0 12px 24px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)",
-                },
-                "&.Mui-focused": {
-                  background:
-                    "linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.9))",
-                  boxShadow:
-                    "0 40px 80px rgba(0, 0, 0, 0.18), 0 15px 30px rgba(0, 0, 0, 0.12), 0 0 0 4px rgba(255, 120, 73, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9)",
-                  transform: "translateY(-4px) scale(1.03)",
-                  transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                },
-              },
-              "& .MuiInputBase-input": {
-                color: "#2c3e50",
-                fontWeight: 500,
-                "&::placeholder": {
-                  color: "#7f8c8d",
-                  opacity: 0.8,
-                  fontWeight: 400,
-                },
-              },
-              "& .MuiInputAdornment-root": {
-                marginRight: 1,
-                "& .MuiSvgIcon-root": {
-                  filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))",
-                },
-              },
-            }}
-          />
-          <Typography
-            variant="body2"
-            sx={{
-              textAlign: "center",
-              mt: 2,
-              color: "rgba(255, 255, 255, 0.9)",
-              fontSize: "14px",
-              fontWeight: 500,
-            }}
-          >
-            Access comprehensive mineral solubility and elemental composition
-            data
-          </Typography>
-        </Box>
-      </Box>
+      <div className="px-4 py-6 max-w-[1200px] mx-auto">
+        <h2 className="mb-3 font-bold text-[#333] text-2xl">Mineral Activity and Solubility in Water</h2>
+        <p className="mb-4 text-[#666] leading-relaxed">Elemental composition table for minerals. NB: Data here is lower or average values from calculated or published data and should be used as a guide only. Please contact our friendly and knowledgeable technical sales colleagues to help guide you to the best ingredients to allow you to achieve your desired mineral levels for your products.</p>
 
-      {/* Content Section */}
-      <Box sx={{ px: 4, py: 6, maxWidth: 1200, mx: "auto" }}>
-        {/* Introduction */}
-        <Typography
-          variant="h4"
-          component="h2"
-          sx={{ mb: 3, fontWeight: "bold", color: "#333" }}
-        >
-          Mineral Activity and Solubility in Water
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{ mb: 4, color: "#666", lineHeight: 1.6 }}
-        >
-          Elemental composition table for minerals. NB: Data here is lower or
-          average values from calculated or published data and should be used as
-          a guide only. Please contact our friendly and knowledgeable technical
-          sales colleagues to help guide you to the best ingredients to allow
-          you to achieve your desired mineral levels for your products.
-        </Typography>
+        <h3 className="mt-4 mb-3 font-bold text-[#333] text-xl">Mineral Activity and Solubility Database</h3>
+        <div className="overflow-x-auto mb-6 shadow-md rounded-lg">
+          <table className="w-full border-collapse bg-white">
+            <thead><tr><TH>Item Code</TH><TH>Item Name</TH><TH>Main Activity %</TH><TH>Main Active Ingredient#1</TH><TH>Sub Activity %</TH><TH>Sub Active Ingredient#2</TH><TH>Solubility / Extraction</TH></tr></thead>
+            <tbody>
+              {[
+                ["NIGEMIN000089","Boron 1% Food State On Yeast (Fungus) (Soya) (~1% B)","1.00%","Boron","","",""],
+                ["NIGEMIN000081","Disodium Tetraborate Decahydrate Nutrition Grade (Borax) (Boron) (~11% B)","11.34%","Boron","12.06%","Sodium","Soluble in water"],
+                ["NIGEMIN001073","Calcium 5% Food State On Yeast (Fungus) (Soya) (~5% Ca)","5.00%","Calcium","","",""],
+                ["NIGEMIN000095","Calcium Alpha Ketoglutarate (Oxoglutarate) Nutrition Grade (~19.5% Ca)","19.50%","Calcium","","",""],
+                ["NIGEMIN000101","Calcium Aspartate Chelate Nutrition Grade (~12% Ca)","12.50%","Calcium","","","Soluble in water"],
+                ["NIGEMIN000654","Calcium Bisglycinate Chelate Buffered Nutrition Grade (~30% Ca)","30.00%","Calcium","","",""],
+                ["NIGEMIN000651","Calcium Bisglycinate Chelate Nutrition Grade (~19% Ca)","19.00%","Calcium","","","Soluble in water"],
+                ["NIGEMIN000241","Calcium Caprylate (Calcium Octanoate) Powder Nutrition Grade (~12% Ca)","12.00%","Calcium","","","Insoluble in water"],
+                ["NIGEMIN000211","Calcium Carbonate DC (<5% Maltodextrin) Nutrition Grade (~36% Ca)","36.00%","Calcium","","","Insoluble in water"],
+                ["NIGEMIN000203","Calcium Carbonate Nutrition Grade 1250 Mesh (~40% Ca)","40.00%","Calcium","","","Insoluble in water"],
+                ["NIGEMIN000421","Calcium Chloride Dihydrate Nutrition Grade (~27% Ca)","27.00%","Calcium","48.00%","Chlorine","Soluble in water"],
+                ["NIGEMIN000401","Calcium Citrate Malate Granular Nutrition Grade (~20% Ca)","20.50%","Calcium","","","Insoluble at 1330mg in 200ml water ~266mg Elemental 33% RDA"],
+                ["NIGEMIN000301","Calcium Citrate Tetrahydrate Nutrition Grade (~19% Ca)","19.00%","Calcium","","","Insoluble in water"],
+                ["NIGEMIN000611","Calcium Fructoborate (~5% Ca ~2.5% B)","5.00%","Calcium","2.50%","Boron",""],
+                ["NIGEMIN000601","Calcium Gluconate Nutrition Grade (~8% Ca)","8.94%","Calcium","","","Soluble in water"],
+                ["NIGEMIN000621","Calcium Glycerophosphate Nutrition Grade (~18% Ca)","18.60%","Calcium","","","Soluble in water"],
+                ["NIGEMIN004112","Calcium Hydrogen Phosphate Dihydrate Nutrition Grade (~23% Ca)","23.29%","Calcium","18.00%","Phosphorus",""],
+                ["NIGEMIN000655","Calcium Hydroxide Nutrition Grade (~51% Ca)","51.80%","Calcium","","","Insoluble in water"],
+                ["NIGEMIN000658","Calcium Iodate Nutrition Grade (~61% Iodate)","10.00%","Calcium","61.00%","Iodine",""],
+                ["NIGEMIN000661","Calcium Ketoisocaproate (KIC Calcium) Nutrition Grade (~13% Ca)","13.40%","Calcium","","","Slightly soluble in water"],
+                ["NIGEMIN000705","Calcium Lactate Anhydrous Nutrition Grade (~18% Ca)","18.00%","Calcium","","",""],
+                ["NIGEMIN000701","Calcium Lactate Pentahydrate Nutrition Grade (~13% Ca)","13.40%","Calcium","","","Slightly soluble in water"],
+                ["NIGEMIN000751","Calcium Magnesium Carbonate (Dolomite) Nutrition Grade (21% Ca 13% Mg)","21.70%","Calcium","13.10%","Magnesium",""],
+                ["NIGEMIN000801","Calcium Malate Nutrition Grade (~23% Ca)","23.28%","Calcium","","","Slightly Soluble in water"],
+                ["NIGEMIN000901","Calcium Pyruvate Nutrition Grade (~15% Ca)","15.00%","Calcium","","","Soluble in water"],
+                ["NIGEMIN000951","Calcium Silicate Nutrition Grade (~34% Ca)","34.50%","Calcium","65.60%","Silicon",""],
+                ["NIGEMIN001001","Calcium Succinate Nutrition Grade (~25% Ca)","25.67%","Calcium","","","Insoluble in water"],
+                ["NIGEMIN001010","Calcium Sulphate Anhydrous Nutrition Grade (~29% Ca)","29.44%","Calcium","23.55%","Sulphur","Slightly soluble in water"],
+                ["NIGEMIN001020","Calcium Sulphate Dihydrate (Gypsum) Nutrition Grade (~23% Ca)","23.27%","Calcium","18.62%","Sulphur","Slightly soluble in water"],
+                ["NIGEMIN001110a","Chromium 1% Food State On Buckwheat (~1% Cr)","1.00%","Chromium","2.04%","Chlorine",""],
+                ["NIGEMIN001085","Chromium Chloride Encapsulated Nutrition Grade (~2% Cr)","2.00%","Chromium","34.00%","Calcium",""],
+                ["NIGEMIN001100","Chromium Chloride Hexahydrate Nutrition Grade (~19% Cr)","19.13%","Chromium","39.00%","Chlorine","Soluble in water"],
+                ["NIGEMIN001101","Chromium Picolinate Nutrition Grade (~12% Cr)","12.43%","Chromium","","","Insoluble in water"],
+                ["NIGEMIN001325","Copper 1% Food State On Yeast (Fungus) (Soya) (~1% Cu)","1.00%","Copper","","",""],
+                ["NIGEMIN001111","Copper Aspartate Chelate Nutrition Grade (~12% Cu)","12.00%","Copper","","","Slightly soluble in water"],
+                ["NIGEMIN001201","Copper Bisglycinate Chelate Nutrition Grade (~29% Cu)","29.00%","Copper","","","Slightly soluble in water"],
+                ["NIGEMIN001211","Copper Citrate Hemitrihydrate Powder Nutrition Grade (~36% Cu)","36.00%","Copper","","","Soluble in water"],
+                ["NIGEMIN001301","Copper Gluconate Anhydrous Nutrition Grade (~13% Cu)","13.00%","Copper","","","Soluble in water"],
+                ["NIGEMIN001305","Copper Oxide Nutrition Grade (~78% Cu)","78.70%","Copper","","","Insoluble in water"],
+                ["NIGEMIN001315","Copper Sulphate Anhydrous Nutrition Grade (~39% Cu)","39.81%","Copper","","","Soluble in water"],
+                ["NIGEMIN001311","Copper Sulphate Pentahydrate Nutrition Grade (~25% Cu)","25.45%","Copper","","","Soluble in water"],
+                ["NIGEMIN001636","Carbonyl Iron Powder Nutrition Grade (~99% Fe)","99.50%","Iron","","","Soluble in water"],
+                ["NIGEMIN001631","Ferric (Iron III) Pyrophosphate Nutrition Grade (~25% Fe)","25.00%","Iron","21.00%","Phosphorus","Insoluble in water"],
+                ["NIGEMIN001505","Ferrous (Iron II) Bisglycinate Chelate Liposomal Powder Nutrition Grade (~7% Fe)","7.00%","Iron","","","Soluble in water"],
+                ["NIGEMIN001501","Ferrous (Iron II) Bisglycinate Chelate Nutrition Grade (~18% Fe)","18.00%","Iron","","","Soluble in water"],
+                ["NIGEMIN001551","Ferrous (Iron II) Citrate Nutrition Grade (~20% Fe)","20.00%","Iron","","","Soluble in water"],
+                ["NIGEMIN001611","Ferrous (Iron II) Fumarate Nutrition Grade (~33% Fe)","33.00%","Iron","","","Soluble in water"],
+                ["NIGEMIN001601","Ferrous (Iron II) Gluconate Nutrition Grade (~11% Fe)","11.80%","Iron","","","Slightly soluble in water"],
+                ["NIGEMIN001615","Ferrous (Iron II) Lactate Dihydrate Nutrition Grade (~19% Fe)","19.00%","Iron","","","Soluble in water"],
+                ["NIGEMIN001621","Ferrous (Iron II) Sulphate Dried Nutrition Grade (~32% Fe)","32.50%","Iron","21.00%","Sulphur","Soluble in water"],
+                ["NIGEMIN001624","Ferrous (Iron II) Sulphate Heptahydrate Nutrition Grade (~20% Fe)","20.10%","Iron","11.53%","Sulphur","Soluble in water"],
+                ["NIGEMIN001634","Reduced Iron Powder Nutrition Grade (~97% Fe)","97.00%","Iron","","",""],
+                ["NIGEMIN002850","Magnesium 5% Food State On Yeast (Fungus) (Soya) (~5% Mg)","5.00%","Magnesium","","",""],
+                ["NIGEMIN002424a","Magnesium Acetyl Taurate Nutrition Grade (~6% Mg)","6.00%","Magnesium","","","Soluble in water"],
+                ["NIGEMIN002402","Magnesium Bisglycinate Anhydrous Chelate Fully Reacted Nutrition Grade (~13% Mg)","13.00%","Magnesium","","","Insoluble in water"],
+                ["NIGEMIN002411","Magnesium Bisglycinate Chelate Buffered Nutrition Grade (~20% Mg)","20.00%","Magnesium","","","Insoluble in water"],
+                ["NIGEMIN002001","Magnesium Chloride Anhydrous (~25% Mg)","25.50%","Magnesium","74.40%","Chlorine","Soluble in water"],
+                ["NIGEMIN002000","Magnesium Chloride Hexahydrate Nutrition Grade (~11% Mg)","11.96%","Magnesium","34.80%","Chlorine","Soluble in water"],
+                ["NIGEMIN002210","Magnesium Citrate 30% Buffered Nutrition Grade (~30% Mg)","30.00%","Magnesium","","","Insoluble in water"],
+                ["NIGEMIN002207","Magnesium Citrate Nonahydrate Nutrition Grade (~11% Mg)","11.20%","Magnesium","","","Slightly soluble in water"],
+                ["NIGEMIN002301","Magnesium Gluconate Nutrition Grade (~5% Mg)","5.86%","Magnesium","","","Insoluble in water"],
+                ["NIGEMIN002421","Magnesium Glycerophosphate Nutrition Grade (~10% Mg)","10.50%","Magnesium","","","Soluble in water"],
+                ["NIGEMIN002423","Magnesium Hydroxide Nutrition Grade (~41% Mg)","41.60%","Magnesium","","","Insoluble in water"],
+                ["NIGEMIN002501","Magnesium Lactate Dihydrate Nutrition Grade (~10% Mg)","10.19%","Magnesium","","","Soluble in water"],
+                ["NIGEMIN002601","Magnesium Malate Anhydrous Nutrition Grade (~14% Mg)","14.00%","Magnesium","","","Slightly soluble in water"],
+                ["NIGEMIN002715","Magnesium Oxide DC Granular Nutrition Grade (~60% Mg)","60.30%","Magnesium","","","Insoluble in water"],
+                ["NIGEMIN002811","Magnesium Sulphate Heptahydrate (Epsom Salts) Nutrition Grade (~9% Mg)","9.86%","Magnesium","13.01%","Sulphur","Soluble in water"],
+                ["NIGEMIN002424","Magnesium Taurate Nutrition Grade (~8% Mg)","8.92%","Magnesium","","","Soluble in water"],
+                ["NIGEMIN004405a","Zinc 1.5% Food State On Buckwheat (~1.5% Zn)","1.50%","Zinc","","",""],
+                ["NIGEMIN004505","Zinc 5% Food State On Yeast (Fungus) (Soya) (~5% Zn)","5.00%","Zinc","","",""],
+                ["NIGEMIN004301","Zinc Acetate Nutrition Grade (~29% Zn)","29.70%","Zinc","","","Insoluble in water"],
+                ["NIGEMIN004315","Zinc Bisglycinate Chelate Nutrition Grade (~20% Zn)","20.00%","Zinc","","","Slightly soluble in water"],
+                ["NIGEMIN004401","Zinc Citrate Dihydrate Nutrition Grade (~31% Zn)","31.21%","Zinc","","","Soluble in water"],
+                ["NIGEMIN004501","Zinc Gluconate Powder Nutrition Grade (~13% Zn)","13.40%","Zinc","","","Soluble in water"],
+                ["NIGEMIN004551","Zinc Lactate Dihydrate Nutrition Grade (~22% Zn)","22.00%","Zinc","","","Slightly soluble in water"],
+                ["NIGEMIN004701","Zinc Monomethionine (Zinc Methionate) Nutrition Grade (~18% Zn)","18.00%","Zinc","","","Insoluble in water"],
+                ["NIGEMIN004805","Zinc Orotate Nutrition Grade (~14% Zn)","14.30%","Zinc","","","Slightly soluble in water"],
+                ["NIGEMIN004802","Zinc Oxide Nutrition Grade 30 Mesh (~80% Zn)","80.35%","Zinc","","","Soluble in water"],
+                ["NIGEMIN004811","Zinc Picolinate Nutrition Grade (~20% Zn)","20.00%","Zinc","","","Soluble in water"],
+                ["NIGEMIN004821","Zinc Sulphate Monohydrate Nutrition Grade (~35% Zn)","35.50%","Zinc","","","Soluble in water"],
+              ].map((r, i) => <tr key={i} className="border-b border-[#e8e8e8] hover:bg-gray-50">{r.map((c, j) => <TD key={j}>{c}</TD>)}</tr>)}
+            </tbody>
+          </table>
+        </div>
 
-        {/* Mineral Table */}
-        <Typography
-          variant="h5"
-          component="h3"
-          sx={{ mb: 3, fontWeight: "bold", color: "#333", mt: 4 }}
-        >
-          Mineral Activity and Solubility Database
-        </Typography>
-        <TableContainer
-          component={Paper}
-          sx={{ mb: 6, boxShadow: 2, overflowX: "auto" }}
-        >
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
-                <TableCell sx={{ fontWeight: "bold" }}>Item Code</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Item Name</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>
-                  Main Activity %
-                </TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>
-                  Main Active Ingredient#1
-                </TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>
-                  Sub Activity %
-                </TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>
-                  Sub Active Ingredient#2
-                </TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>
-                  Solubility / Extraction
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {/* Boron */}
-              <TableRow>
-                <TableCell>NIGEMIN000089</TableCell>
-                <TableCell>
-                  Boron 1% Food State On Yeast (Fungus) (Soya) (~1% B)
-                </TableCell>
-                <TableCell>1.00%</TableCell>
-                <TableCell>Boron</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000081</TableCell>
-                <TableCell>
-                  Disodium Tetraborate Decahydrate Nutrition Grade (Borax)
-                  (Boron) (~11% B)
-                </TableCell>
-                <TableCell>11.34%</TableCell>
-                <TableCell>Boron</TableCell>
-                <TableCell>12.06%</TableCell>
-                <TableCell>Sodium</TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-
-              {/* Calcium */}
-              <TableRow>
-                <TableCell>NIGEMIN001073</TableCell>
-                <TableCell>
-                  Calcium 5% Food State On Yeast (Fungus) (Soya) (~5% Ca)
-                </TableCell>
-                <TableCell>5.00%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000095</TableCell>
-                <TableCell>
-                  Calcium Alpha Ketoglutarate (Oxoglutarate) Nutrition Grade
-                  (~19.5% Ca)
-                </TableCell>
-                <TableCell>19.50%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000101</TableCell>
-                <TableCell>
-                  Calcium Aspartate Chelate Nutrition Grade (~12% Ca)
-                </TableCell>
-                <TableCell>12.50%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000654</TableCell>
-                <TableCell>
-                  Calcium Bisglycinate Chelate Buffered Nutrition Grade (~30%
-                  Ca)
-                </TableCell>
-                <TableCell>30.00%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000651</TableCell>
-                <TableCell>
-                  Calcium Bisglycinate Chelate Nutrition Grade (~19% Ca)
-                </TableCell>
-                <TableCell>19.00%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000241</TableCell>
-                <TableCell>
-                  Calcium Caprylate (Calcium Octanoate) Powder Nutrition Grade
-                  (~12% Ca)
-                </TableCell>
-                <TableCell>12.00%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Insoluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000211</TableCell>
-                <TableCell>
-                  Calcium Carbonate DC (&lt;5% Maltodextrin) Nutrition Grade
-                  (~36% Ca)
-                </TableCell>
-                <TableCell>36.00%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Insoluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000203</TableCell>
-                <TableCell>
-                  Calcium Carbonate Nutrition Grade 1250 Mesh (~40% Ca)
-                </TableCell>
-                <TableCell>40.00%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Insoluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000421</TableCell>
-                <TableCell>
-                  Calcium Chloride Dihydrate Nutrition Grade (~27% Ca)
-                </TableCell>
-                <TableCell>27.00%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell>48.00%</TableCell>
-                <TableCell>Chlorine</TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000401</TableCell>
-                <TableCell>
-                  Calcium Citrate Malate Granular Nutrition Grade (~20% Ca)
-                </TableCell>
-                <TableCell>20.50%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>
-                  Insoluble at 1330mg in 200ml water ~266mg Elemental 33% RDA
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000301</TableCell>
-                <TableCell>
-                  Calcium Citrate Tetrahydrate Nutrition Grade (~19% Ca)
-                </TableCell>
-                <TableCell>19.00%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Insoluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000611</TableCell>
-                <TableCell>Calcium Fructoborate (~5% Ca ~2.5% B)</TableCell>
-                <TableCell>5.00%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell>2.50%</TableCell>
-                <TableCell>Boron</TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000601</TableCell>
-                <TableCell>
-                  Calcium Gluconate Nutrition Grade (~8% Ca)
-                </TableCell>
-                <TableCell>8.94%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000621</TableCell>
-                <TableCell>
-                  Calcium Glycerophosphate Nutrition Grade (~18% Ca)
-                </TableCell>
-                <TableCell>18.60%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN004112</TableCell>
-                <TableCell>
-                  Calcium Hydrogen Phosphate Dihydrate Nutrition Grade (~23% Ca)
-                </TableCell>
-                <TableCell>23.29%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell>18.00%</TableCell>
-                <TableCell>Phosphorus</TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000655</TableCell>
-                <TableCell>
-                  Calcium Hydroxide Nutrition Grade (~51% Ca)
-                </TableCell>
-                <TableCell>51.80%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Insoluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000658</TableCell>
-                <TableCell>
-                  Calcium Iodate Nutrition Grade (~61% Iodate)
-                </TableCell>
-                <TableCell>10.00%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell>61.00%</TableCell>
-                <TableCell>Iodine</TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000661</TableCell>
-                <TableCell>
-                  Calcium Ketoisocaproate (KIC Calcium) Nutrition Grade (~13%
-                  Ca)
-                </TableCell>
-                <TableCell>13.40%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Slightly soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000705</TableCell>
-                <TableCell>
-                  Calcium Lactate Anhydrous Nutrition Grade (~18% Ca)
-                </TableCell>
-                <TableCell>18.00%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000701</TableCell>
-                <TableCell>
-                  Calcium Lactate Pentahydrate Nutrition Grade (~13% Ca)
-                </TableCell>
-                <TableCell>13.40%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Slightly soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000751</TableCell>
-                <TableCell>
-                  Calcium Magnesium Carbonate (Dolomite) Nutrition Grade (21% Ca
-                  13% Mg)
-                </TableCell>
-                <TableCell>21.70%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell>13.10%</TableCell>
-                <TableCell>Magnesium</TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000801</TableCell>
-                <TableCell>Calcium Malate Nutrition Grade (~23% Ca)</TableCell>
-                <TableCell>23.28%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Slightly Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000901</TableCell>
-                <TableCell>
-                  Calcium Pyruvate Nutrition Grade (~15% Ca)
-                </TableCell>
-                <TableCell>15.00%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN000951</TableCell>
-                <TableCell>
-                  Calcium Silicate Nutrition Grade (~34% Ca)
-                </TableCell>
-                <TableCell>34.50%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell>65.60%</TableCell>
-                <TableCell>Silicon</TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001001</TableCell>
-                <TableCell>
-                  Calcium Succinate Nutrition Grade (~25% Ca)
-                </TableCell>
-                <TableCell>25.67%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Insoluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001010</TableCell>
-                <TableCell>
-                  Calcium Sulphate Anhydrous Nutrition Grade (~29% Ca)
-                </TableCell>
-                <TableCell>29.44%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell>23.55%</TableCell>
-                <TableCell>Sulphur</TableCell>
-                <TableCell>Slightly soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001020</TableCell>
-                <TableCell>
-                  Calcium Sulphate Dihydrate (Gypsum) Nutrition Grade (~23% Ca)
-                </TableCell>
-                <TableCell>23.27%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell>18.62%</TableCell>
-                <TableCell>Sulphur</TableCell>
-                <TableCell>Slightly soluble in water</TableCell>
-              </TableRow>
-
-              {/* Chromium */}
-              <TableRow>
-                <TableCell>NIGEMIN001110a</TableCell>
-                <TableCell>
-                  Chromium 1% Food State On Buckwheat (~1% Cr)
-                </TableCell>
-                <TableCell>1.00%</TableCell>
-                <TableCell>Chromium</TableCell>
-                <TableCell>2.04%</TableCell>
-                <TableCell>Chlorine</TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001085</TableCell>
-                <TableCell>
-                  Chromium Chloride Encapsulated Nutrition Grade (~2% Cr)
-                </TableCell>
-                <TableCell>2.00%</TableCell>
-                <TableCell>Chromium</TableCell>
-                <TableCell>34.00%</TableCell>
-                <TableCell>Calcium</TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001100</TableCell>
-                <TableCell>
-                  Chromium Chloride Hexahydrate Nutrition Grade (~19% Cr)
-                </TableCell>
-                <TableCell>19.13%</TableCell>
-                <TableCell>Chromium</TableCell>
-                <TableCell>39.00%</TableCell>
-                <TableCell>Chlorine</TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001101</TableCell>
-                <TableCell>
-                  Chromium Picolinate Nutrition Grade (~12% Cr)
-                </TableCell>
-                <TableCell>12.43%</TableCell>
-                <TableCell>Chromium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Insoluble in water</TableCell>
-              </TableRow>
-
-              {/* Copper */}
-              <TableRow>
-                <TableCell>NIGEMIN001325</TableCell>
-                <TableCell>
-                  Copper 1% Food State On Yeast (Fungus) (Soya) (~1% Cu)
-                </TableCell>
-                <TableCell>1.00%</TableCell>
-                <TableCell>Copper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001111</TableCell>
-                <TableCell>
-                  Copper Aspartate Chelate Nutrition Grade (~12% Cu)
-                </TableCell>
-                <TableCell>12.00%</TableCell>
-                <TableCell>Copper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Slightly soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001201</TableCell>
-                <TableCell>
-                  Copper Bisglycinate Chelate Nutrition Grade (~29% Cu)
-                </TableCell>
-                <TableCell>29.00%</TableCell>
-                <TableCell>Copper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Slightly soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001211</TableCell>
-                <TableCell>
-                  Copper Citrate Hemitrihydrate Powder Nutrition Grade (~36% Cu)
-                </TableCell>
-                <TableCell>36.00%</TableCell>
-                <TableCell>Copper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001301</TableCell>
-                <TableCell>
-                  Copper Gluconate Anhydrous Nutrition Grade (~13% Cu)
-                </TableCell>
-                <TableCell>13.00%</TableCell>
-                <TableCell>Copper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001305</TableCell>
-                <TableCell>Copper Oxide Nutrition Grade (~78% Cu)</TableCell>
-                <TableCell>78.70%</TableCell>
-                <TableCell>Copper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Insoluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001315</TableCell>
-                <TableCell>
-                  Copper Sulphate Anhydrous Nutrition Grade (~39% Cu)
-                </TableCell>
-                <TableCell>39.81%</TableCell>
-                <TableCell>Copper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001311</TableCell>
-                <TableCell>
-                  Copper Sulphate Pentahydrate Nutrition Grade (~25% Cu)
-                </TableCell>
-                <TableCell>25.45%</TableCell>
-                <TableCell>Copper</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-
-              {/* Iron */}
-              <TableRow>
-                <TableCell>NIGEMIN001636</TableCell>
-                <TableCell>
-                  Carbonyl Iron Powder Nutrition Grade (~99% Fe)
-                </TableCell>
-                <TableCell>99.50%</TableCell>
-                <TableCell>Iron</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001631</TableCell>
-                <TableCell>
-                  Ferric (Iron III) Pyrophosphate Nutrition Grade (~25% Fe)
-                </TableCell>
-                <TableCell>25.00%</TableCell>
-                <TableCell>Iron</TableCell>
-                <TableCell>21.00%</TableCell>
-                <TableCell>Phosphorus</TableCell>
-                <TableCell>Insoluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001505</TableCell>
-                <TableCell>
-                  Ferrous (Iron II) Bisglycinate Chelate Liposomal Powder
-                  Nutrition Grade (~7% Fe)
-                </TableCell>
-                <TableCell>7.00%</TableCell>
-                <TableCell>Iron</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001501</TableCell>
-                <TableCell>
-                  Ferrous (Iron II) Bisglycinate Chelate Nutrition Grade (~18%
-                  Fe)
-                </TableCell>
-                <TableCell>18.00%</TableCell>
-                <TableCell>Iron</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001551</TableCell>
-                <TableCell>
-                  Ferrous (Iron II) Citrate Nutrition Grade (~20% Fe)
-                </TableCell>
-                <TableCell>20.00%</TableCell>
-                <TableCell>Iron</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001611</TableCell>
-                <TableCell>
-                  Ferrous (Iron II) Fumarate Nutrition Grade (~33% Fe)
-                </TableCell>
-                <TableCell>33.00%</TableCell>
-                <TableCell>Iron</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001601</TableCell>
-                <TableCell>
-                  Ferrous (Iron II) Gluconate Nutrition Grade (~11% Fe)
-                </TableCell>
-                <TableCell>11.80%</TableCell>
-                <TableCell>Iron</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Slightly soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001615</TableCell>
-                <TableCell>
-                  Ferrous (Iron II) Lactate Dihydrate Nutrition Grade (~19% Fe)
-                </TableCell>
-                <TableCell>19.00%</TableCell>
-                <TableCell>Iron</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001621</TableCell>
-                <TableCell>
-                  Ferrous (Iron II) Sulphate Dried Nutrition Grade (~32% Fe)
-                </TableCell>
-                <TableCell>32.50%</TableCell>
-                <TableCell>Iron</TableCell>
-                <TableCell>21.00%</TableCell>
-                <TableCell>Sulphur</TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001624</TableCell>
-                <TableCell>
-                  Ferrous (Iron II) Sulphate Heptahydrate Nutrition Grade (~20%
-                  Fe)
-                </TableCell>
-                <TableCell>20.10%</TableCell>
-                <TableCell>Iron</TableCell>
-                <TableCell>11.53%</TableCell>
-                <TableCell>Sulphur</TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN001634</TableCell>
-                <TableCell>
-                  Reduced Iron Powder Nutrition Grade (~97% Fe)
-                </TableCell>
-                <TableCell>97.00%</TableCell>
-                <TableCell>Iron</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-
-              {/* Magnesium */}
-              <TableRow>
-                <TableCell>NIGEMIN002850</TableCell>
-                <TableCell>
-                  Magnesium 5% Food State On Yeast (Fungus) (Soya) (~5% Mg)
-                </TableCell>
-                <TableCell>5.00%</TableCell>
-                <TableCell>Magnesium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN002424a</TableCell>
-                <TableCell>
-                  Magnesium Acetyl Taurate Nutrition Grade (~6% Mg)
-                </TableCell>
-                <TableCell>6.00%</TableCell>
-                <TableCell>Magnesium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN002402</TableCell>
-                <TableCell>
-                  Magnesium Bisglycinate Anhydrous Chelate Fully Reacted
-                  Nutrition Grade (~13% Mg)
-                </TableCell>
-                <TableCell>13.00%</TableCell>
-                <TableCell>Magnesium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Insoluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN002411</TableCell>
-                <TableCell>
-                  Magnesium Bisglycinate Chelate Buffered Nutrition Grade (~20%
-                  Mg)
-                </TableCell>
-                <TableCell>20.00%</TableCell>
-                <TableCell>Magnesium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Insoluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN002001</TableCell>
-                <TableCell>Magnesium Chloride Anhydrous (~25% Mg)</TableCell>
-                <TableCell>25.50%</TableCell>
-                <TableCell>Magnesium</TableCell>
-                <TableCell>74.40%</TableCell>
-                <TableCell>Chlorine</TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN002000</TableCell>
-                <TableCell>
-                  Magnesium Chloride Hexahydrate Nutrition Grade (~11% Mg)
-                </TableCell>
-                <TableCell>11.96%</TableCell>
-                <TableCell>Magnesium</TableCell>
-                <TableCell>34.80%</TableCell>
-                <TableCell>Chlorine</TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN002210</TableCell>
-                <TableCell>
-                  Magnesium Citrate 30% Buffered Nutrition Grade (~30% Mg)
-                </TableCell>
-                <TableCell>30.00%</TableCell>
-                <TableCell>Magnesium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Insoluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN002207</TableCell>
-                <TableCell>
-                  Magnesium Citrate Nonahydrate Nutrition Grade (~11% Mg)
-                </TableCell>
-                <TableCell>11.20%</TableCell>
-                <TableCell>Magnesium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Slightly soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN002301</TableCell>
-                <TableCell>
-                  Magnesium Gluconate Nutrition Grade (~5% Mg)
-                </TableCell>
-                <TableCell>5.86%</TableCell>
-                <TableCell>Magnesium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Insoluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN002421</TableCell>
-                <TableCell>
-                  Magnesium Glycerophosphate Nutrition Grade (~10% Mg)
-                </TableCell>
-                <TableCell>10.50%</TableCell>
-                <TableCell>Magnesium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN002423</TableCell>
-                <TableCell>
-                  Magnesium Hydroxide Nutrition Grade (~41% Mg)
-                </TableCell>
-                <TableCell>41.60%</TableCell>
-                <TableCell>Magnesium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Insoluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN002501</TableCell>
-                <TableCell>
-                  Magnesium Lactate Dihydrate Nutrition Grade (~10% Mg)
-                </TableCell>
-                <TableCell>10.19%</TableCell>
-                <TableCell>Magnesium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN002601</TableCell>
-                <TableCell>
-                  Magnesium Malate Anhydrous Nutrition Grade (~14% Mg)
-                </TableCell>
-                <TableCell>14.00%</TableCell>
-                <TableCell>Magnesium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Slightly soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN002715</TableCell>
-                <TableCell>
-                  Magnesium Oxide DC Granular Nutrition Grade (~60% Mg)
-                </TableCell>
-                <TableCell>60.30%</TableCell>
-                <TableCell>Magnesium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Insoluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN002811</TableCell>
-                <TableCell>
-                  Magnesium Sulphate Heptahydrate (Epsom Salts) Nutrition Grade
-                  (~9% Mg)
-                </TableCell>
-                <TableCell>9.86%</TableCell>
-                <TableCell>Magnesium</TableCell>
-                <TableCell>13.01%</TableCell>
-                <TableCell>Sulphur</TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN002424</TableCell>
-                <TableCell>
-                  Magnesium Taurate Nutrition Grade (~8% Mg)
-                </TableCell>
-                <TableCell>8.92%</TableCell>
-                <TableCell>Magnesium</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-
-              {/* Zinc */}
-              <TableRow>
-                <TableCell>NIGEMIN004405a</TableCell>
-                <TableCell>
-                  Zinc 1.5% Food State On Buckwheat (~1.5% Zn)
-                </TableCell>
-                <TableCell>1.50%</TableCell>
-                <TableCell>Zinc</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN004505</TableCell>
-                <TableCell>
-                  Zinc 5% Food State On Yeast (Fungus) (Soya) (~5% Zn)
-                </TableCell>
-                <TableCell>5.00%</TableCell>
-                <TableCell>Zinc</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN004301</TableCell>
-                <TableCell>Zinc Acetate Nutrition Grade (~29% Zn)</TableCell>
-                <TableCell>29.70%</TableCell>
-                <TableCell>Zinc</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Insoluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN004315</TableCell>
-                <TableCell>
-                  Zinc Bisglycinate Chelate Nutrition Grade (~20% Zn)
-                </TableCell>
-                <TableCell>20.00%</TableCell>
-                <TableCell>Zinc</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Slightly soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN004401</TableCell>
-                <TableCell>
-                  Zinc Citrate Dihydrate Nutrition Grade (~31% Zn)
-                </TableCell>
-                <TableCell>31.21%</TableCell>
-                <TableCell>Zinc</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN004501</TableCell>
-                <TableCell>
-                  Zinc Gluconate Powder Nutrition Grade (~13% Zn)
-                </TableCell>
-                <TableCell>13.40%</TableCell>
-                <TableCell>Zinc</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN004551</TableCell>
-                <TableCell>
-                  Zinc Lactate Dihydrate Nutrition Grade (~22% Zn)
-                </TableCell>
-                <TableCell>22.00%</TableCell>
-                <TableCell>Zinc</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Slightly soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN004701</TableCell>
-                <TableCell>
-                  Zinc Monomethionine (Zinc Methionate) Nutrition Grade (~18%
-                  Zn)
-                </TableCell>
-                <TableCell>18.00%</TableCell>
-                <TableCell>Zinc</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Insoluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN004805</TableCell>
-                <TableCell>Zinc Orotate Nutrition Grade (~14% Zn)</TableCell>
-                <TableCell>14.30%</TableCell>
-                <TableCell>Zinc</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Slightly soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN004802</TableCell>
-                <TableCell>
-                  Zinc Oxide Nutrition Grade 30 Mesh (~80% Zn)
-                </TableCell>
-                <TableCell>80.35%</TableCell>
-                <TableCell>Zinc</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN004811</TableCell>
-                <TableCell>Zinc Picolinate Nutrition Grade (~20% Zn)</TableCell>
-                <TableCell>20.00%</TableCell>
-                <TableCell>Zinc</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>NIGEMIN004821</TableCell>
-                <TableCell>
-                  Zinc Sulphate Monohydrate Nutrition Grade (~35% Zn)
-                </TableCell>
-                <TableCell>35.50%</TableCell>
-                <TableCell>Zinc</TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
-                <TableCell>Soluble in water</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        {/* Disclaimer */}
-        <Card
-          sx={{
-            mt: 6,
-            mb: 4,
-            backgroundColor: "#f8f9fa",
-            border: "1px solid #e9ecef",
-          }}
-        >
-          <CardContent>
-            <Typography
-              variant="body2"
-              sx={{ color: "#666", lineHeight: 1.6, fontStyle: "italic" }}
-            >
-              All information is correct to the best of our knowledge and
-              Nutraceuticals Group Europe takes no responsibility for any errors
-              or mistakes. Links to other sources and reference material are
-              included for accuracy. Any errors or omissions? Please let us know
-              through our contact form.
-            </Typography>
-          </CardContent>
-        </Card>
-
-        {/* Contact Information */}
+        <div className="mt-6 mb-4 bg-[#f8f9fa] border border-[#e9ecef] rounded-lg p-4">
+          <p className="text-[#666] text-sm leading-relaxed italic">All information is correct to the best of our knowledge and Nutraceuticals Group Europe takes no responsibility for any errors or mistakes. Links to other sources and reference material are included for accuracy. Any errors or omissions? Please let us know through our contact form.</p>
+        </div>
         <CompanyContactInfo />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
