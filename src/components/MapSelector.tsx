@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useCallback, useRef, useState } from "react";
 import { Search, Navigation, MapPin } from "lucide-react";
@@ -135,32 +135,32 @@ const MapSelector: React.FC<MapSelectorProps> = ({
               onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
               disabled={isLoading}
-              className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#F9A922] hover:border-[#ccc] disabled:bg-[#f5f5f5] transition-colors"
+              className="w-full border border-line-light rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand hover:border-line-light disabled:bg-paper transition-colors"
             />
             {/* Suggestions */}
             {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 max-h-[200px] overflow-auto z-[1001] shadow-[0_4px_16px_rgba(0,0,0,0.1)] border border-[#e0e0e0] rounded-xl bg-white">
+              <div className="absolute top-full left-0 right-0 mt-1 max-h-[200px] overflow-auto z-[1001] shadow-[0_4px_16px_rgba(0,0,0,0.1)] border border-line-light rounded-xl bg-white">
                 {suggestions.map((suggestion, index) => (
                   <button
                     key={suggestion.place_id}
                     type="button"
                     onClick={() => handleSuggestionSelect(suggestion.place_id)}
-                    className={`w-full flex items-center gap-3 px-3 py-2 text-left transition-colors ${selectedIndex === index ? "bg-[#F9A922] text-white" : "hover:bg-[#f5f5f5]"}`}
+                    className={`w-full flex items-center gap-3 px-3 py-2 text-left transition-colors ${selectedIndex === index ? "bg-brand text-white" : "hover:bg-paper"}`}
                   >
-                    <MapPin className={`w-4 h-4 flex-shrink-0 ${selectedIndex === index ? "text-white" : "text-[#F9A922]"}`} />
+                    <MapPin className={`w-4 h-4 flex-shrink-0 ${selectedIndex === index ? "text-white" : "text-brand"}`} />
                     <div>
-                      <p className={`text-[0.8rem] font-medium ${selectedIndex === index ? "text-white" : "text-[#333]"}`}>{suggestion.structured_formatting.main_text}</p>
-                      <p className={`text-[0.7rem] ${selectedIndex === index ? "text-white/80" : "text-[#666]"}`}>{suggestion.structured_formatting.secondary_text}</p>
+                      <p className={`text-[0.8rem] font-medium ${selectedIndex === index ? "text-white" : "text-body"}`}>{suggestion.structured_formatting.main_text}</p>
+                      <p className={`text-[0.7rem] ${selectedIndex === index ? "text-white/80" : "text-dim"}`}>{suggestion.structured_formatting.secondary_text}</p>
                     </div>
                   </button>
                 ))}
               </div>
             )}
           </div>
-          <button onClick={handleSearch} disabled={isLoading} className="flex items-center gap-1.5 bg-[#F9A922] hover:bg-[#E8981F] disabled:bg-[#ccc] text-white text-[0.8rem] font-medium px-3 py-2 rounded-lg transition-colors">
+          <button onClick={handleSearch} disabled={isLoading} className="flex items-center gap-1.5 bg-brand hover:bg-brand-hover disabled:bg-line-light text-white text-[0.8rem] font-medium px-3 py-2 rounded-lg transition-colors">
             <Search className="w-4 h-4" /> Search
           </button>
-          <button onClick={handleCurrentLocation} disabled={isLoading} className="flex items-center gap-1.5 border border-[#F9A922] text-[#F9A922] hover:bg-[rgba(249,169,34,0.04)] disabled:border-[#ccc] disabled:text-[#ccc] text-[0.8rem] font-medium px-2.5 py-2 rounded-lg transition-colors">
+          <button onClick={handleCurrentLocation} disabled={isLoading} className="flex items-center gap-1.5 border border-brand text-brand hover:bg-[rgba(249,169,34,0.04)] disabled:border-line-light disabled:text-line-light text-[0.8rem] font-medium px-2.5 py-2 rounded-lg transition-colors">
             <Navigation className="w-4 h-4" /> My Location
           </button>
         </div>
@@ -169,13 +169,13 @@ const MapSelector: React.FC<MapSelectorProps> = ({
       {/* Map Container */}
       <div className="h-full w-full rounded-lg overflow-hidden relative">
         {loadError && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-[#666] z-10">
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-dim z-10">
             <p className="text-lg font-medium">Error loading map</p>
             <p className="text-sm">Please check your Google Maps API key</p>
           </div>
         )}
         {!isLoaded ? (
-          <div className="absolute inset-0 flex items-center justify-center text-[#666] z-10">
+          <div className="absolute inset-0 flex items-center justify-center text-dim z-10">
             <p className="text-lg">Loading map...</p>
           </div>
         ) : (
@@ -189,7 +189,7 @@ const MapSelector: React.FC<MapSelectorProps> = ({
           >
             <Marker
               position={currentLocation}
-              icon={{ url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="#F9A922" stroke="white" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="white"/></svg>`)}`, scaledSize: new google.maps.Size(24, 24), anchor: new google.maps.Point(12, 12) }}
+              icon={{ url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="var(--color-brand)" stroke="white" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="white"/></svg>`)}`, scaledSize: new google.maps.Size(24, 24), anchor: new google.maps.Point(12, 12) }}
             />
           </GoogleMap>
         )}
@@ -198,28 +198,28 @@ const MapSelector: React.FC<MapSelectorProps> = ({
         {isLoading && (
           <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-[200]">
             <div className="flex flex-col items-center gap-2">
-              <Spinner size="sm" className="border-[#F9A922] border-t-transparent" />
-              <span className="text-sm text-[#666]">Loading...</span>
+              <Spinner size="sm" className="border-brand border-t-transparent" />
+              <span className="text-sm text-dim">Loading...</span>
             </div>
           </div>
         )}
 
         {/* Coordinates */}
-        <div className="absolute bottom-3 right-3 bg-white/95 rounded px-2 py-1 text-xs text-[#666] shadow-[0_2px_4px_rgba(0,0,0,0.1)] border border-black/10 z-[1000]">
+        <div className="absolute bottom-3 right-3 bg-white/95 rounded px-2 py-1 text-xs text-dim shadow-[0_2px_4px_rgba(0,0,0,0.1)] border border-black/10 z-[1000]">
           {currentLocation.lat.toFixed(6)}, {currentLocation.lng.toFixed(6)}
         </div>
 
         {/* Attribution */}
-        <div className="absolute bottom-3 left-3 bg-white/90 rounded px-2 py-1 text-[0.7rem] text-[#666] z-[1000]">
+        <div className="absolute bottom-3 left-3 bg-white/90 rounded px-2 py-1 text-[0.7rem] text-dim z-[1000]">
           © Google Maps
         </div>
       </div>
 
       {/* Instructions */}
       <div className="absolute bottom-3 left-3 bg-white/95 rounded-xl p-3 shadow-[0_2px_8px_rgba(0,0,0,0.12)] max-w-[280px]">
-        <p className="text-[0.75rem] font-semibold text-[#666] mb-1">Instructions:</p>
+        <p className="text-[0.75rem] font-semibold text-dim mb-1">Instructions:</p>
         {["Type for address suggestions", "Use ↑↓ arrows, Enter to select", "Click map to select location", 'Use "My Location" for GPS'].map((t) => (
-          <p key={t} className="text-[0.7rem] text-[#666] mb-0.5">• {t}</p>
+          <p key={t} className="text-[0.7rem] text-dim mb-0.5">• {t}</p>
         ))}
       </div>
     </div>

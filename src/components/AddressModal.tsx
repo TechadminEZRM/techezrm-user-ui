@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import { Truck, X, Save, Map, Home, Building2, Store } from "lucide-react";
@@ -41,7 +41,7 @@ const defaultAddress: AddressFormData = {
 };
 
 const fieldClass =
-  "flex h-10 w-full rounded-lg border border-[#e0e0e0] bg-white px-4 py-2 text-sm text-[#1F2A44] placeholder:text-[#737791] focus:outline-none focus:ring-2 focus:ring-[#F9A922] focus:border-[#F9A922]";
+  "flex h-10 w-full rounded-lg border border-line-light bg-white px-4 py-2 text-sm text-heading placeholder:text-soft focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand";
 
 const countryCodes = [
   { code: "+54", country: "Argentina" }, { code: "+61", country: "Australia" },
@@ -150,7 +150,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="max-w-[800px] p-0 overflow-hidden">
           {/* Header */}
-          <div className="bg-[#F9A922] text-white flex justify-between items-center py-4 px-6">
+          <div className="bg-brand text-white flex justify-between items-center py-4 px-6">
             <div className="flex items-center gap-3">
               <Truck className="w-5 h-5" />
               <DialogTitle className="text-white font-semibold text-base">Enter Shipping Address</DialogTitle>
@@ -165,18 +165,18 @@ const AddressModal: React.FC<AddressModalProps> = ({
             <div className="flex flex-col gap-6">
               {/* Company Name */}
               <div>
-                <label className="text-sm font-semibold text-[#333] mb-2 block">Company Name *</label>
+                <label className="text-sm font-semibold text-body mb-2 block">Company Name *</label>
                 <input placeholder="Enter Company Name" value={addressData.companyName} onChange={handleInputChange("companyName")} className={fieldClass} />
               </div>
 
               {/* Receiver Info Row */}
               <div className="flex gap-6">
                 <div className="flex-1">
-                  <label className="text-sm font-semibold text-[#333] mb-2 block">Receiver Name *</label>
+                  <label className="text-sm font-semibold text-body mb-2 block">Receiver Name *</label>
                   <input placeholder="Enter Receiver Name" value={addressData.receiverName} onChange={handleInputChange("receiverName")} className={fieldClass} />
                 </div>
                 <div className="flex-1">
-                  <label className="text-sm font-semibold text-[#333] mb-2 block">Receiver Email *</label>
+                  <label className="text-sm font-semibold text-body mb-2 block">Receiver Email *</label>
                   <input type="email" placeholder="Enter Receiver Email" value={addressData.receiverEmail} onChange={handleInputChange("receiverEmail")} className={fieldClass} />
                 </div>
               </div>
@@ -184,20 +184,20 @@ const AddressModal: React.FC<AddressModalProps> = ({
               {/* Phone Row */}
               <div className="flex gap-6">
                 <div style={{ flex: "0.3" }}>
-                  <label className="text-sm font-semibold text-[#333] mb-2 block">Country Code *</label>
+                  <label className="text-sm font-semibold text-body mb-2 block">Country Code *</label>
                   <select value={addressData.receiverPhoneCountryCode} onChange={handleInputChange("receiverPhoneCountryCode")} className={fieldClass}>
                     {countryCodes.map((c) => <option key={c.code} value={c.code}>{c.code} ({c.country})</option>)}
                   </select>
                 </div>
                 <div style={{ flex: "0.7" }}>
-                  <label className="text-sm font-semibold text-[#333] mb-2 block">Phone Number *</label>
+                  <label className="text-sm font-semibold text-body mb-2 block">Phone Number *</label>
                   <input placeholder="Enter Phone Number" value={addressData.receiverPhone} onChange={handleInputChange("receiverPhone")} className={fieldClass} />
                 </div>
               </div>
 
               {/* Address Type */}
               <div>
-                <label className="text-sm font-semibold text-[#333] mb-2 block">Address Type *</label>
+                <label className="text-sm font-semibold text-body mb-2 block">Address Type *</label>
                 <div className="flex gap-3 flex-wrap">
                   {addressTypes.map((type) => {
                     const Icon = type.icon;
@@ -209,8 +209,8 @@ const AddressModal: React.FC<AddressModalProps> = ({
                         onClick={() => handleSelectChange("type")(type.value)}
                         className={`flex items-center gap-2 px-4 py-3 rounded-lg border font-semibold text-sm transition-colors ${
                           isSelected
-                            ? "border-[#F9A922] bg-[#F9A922] text-white"
-                            : "border-[#F9A922] text-[#F9A922] bg-transparent hover:bg-[rgba(249,169,34,0.04)]"
+                            ? "border-brand bg-brand text-white"
+                            : "border-brand text-brand bg-transparent hover:bg-[rgba(249,169,34,0.04)]"
                         }`}
                       >
                         <Icon className="w-4 h-4" />
@@ -224,8 +224,8 @@ const AddressModal: React.FC<AddressModalProps> = ({
               {/* Street */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm font-semibold text-[#333]">Street Address *</label>
-                  <button type="button" onClick={() => setMapModalOpen(true)} className="flex items-center gap-1.5 text-xs border border-[#F9A922] text-[#F9A922] px-3 py-1 rounded-lg hover:bg-[#FFFAF1] font-semibold transition-colors">
+                  <label className="text-sm font-semibold text-body">Street Address *</label>
+                  <button type="button" onClick={() => setMapModalOpen(true)} className="flex items-center gap-1.5 text-xs border border-brand text-brand px-3 py-1 rounded-lg hover:bg-brand-light font-semibold transition-colors">
                     <Map className="w-3.5 h-3.5" /> Choose on Map
                   </button>
                 </div>
@@ -235,11 +235,11 @@ const AddressModal: React.FC<AddressModalProps> = ({
               {/* City, State */}
               <div className="flex gap-6">
                 <div className="flex-1">
-                  <label className="text-sm font-semibold text-[#333] mb-2 block">City *</label>
+                  <label className="text-sm font-semibold text-body mb-2 block">City *</label>
                   <input placeholder="Enter City" value={addressData.city} onChange={handleInputChange("city")} className={fieldClass} />
                 </div>
                 <div className="flex-1">
-                  <label className="text-sm font-semibold text-[#333] mb-2 block">State *</label>
+                  <label className="text-sm font-semibold text-body mb-2 block">State *</label>
                   <input placeholder="Enter State" value={addressData.state} onChange={handleInputChange("state")} className={fieldClass} />
                 </div>
               </div>
@@ -247,14 +247,14 @@ const AddressModal: React.FC<AddressModalProps> = ({
               {/* Country, ZIP */}
               <div className="flex gap-6">
                 <div className="flex-1">
-                  <label className="text-sm font-semibold text-[#333] mb-2 block">Country *</label>
+                  <label className="text-sm font-semibold text-body mb-2 block">Country *</label>
                   <select value={addressData.country} onChange={handleInputChange("country")} className={fieldClass}>
                     <option value="">Select Country</option>
                     {countries.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div className="flex-1">
-                  <label className="text-sm font-semibold text-[#333] mb-2 block">ZIP Code *</label>
+                  <label className="text-sm font-semibold text-body mb-2 block">ZIP Code *</label>
                   <input placeholder="Enter ZIP Code" value={addressData.zipCode} onChange={handleInputChange("zipCode")} className={fieldClass} />
                 </div>
               </div>
@@ -262,11 +262,11 @@ const AddressModal: React.FC<AddressModalProps> = ({
               {/* Coordinates */}
               <div className="flex gap-6">
                 <div className="flex-1">
-                  <label className="text-sm font-semibold text-[#333] mb-2 block">Latitude</label>
+                  <label className="text-sm font-semibold text-body mb-2 block">Latitude</label>
                   <input placeholder="Enter Latitude" value={addressData.coordinates.latitude} onChange={handleCoordinatesChange("latitude")} className={fieldClass} />
                 </div>
                 <div className="flex-1">
-                  <label className="text-sm font-semibold text-[#333] mb-2 block">Longitude</label>
+                  <label className="text-sm font-semibold text-body mb-2 block">Longitude</label>
                   <input placeholder="Enter Longitude" value={addressData.coordinates.longitude} onChange={handleCoordinatesChange("longitude")} className={fieldClass} />
                 </div>
               </div>
@@ -276,32 +276,32 @@ const AddressModal: React.FC<AddressModalProps> = ({
                 <label className="flex items-center gap-3 cursor-pointer">
                   <div
                     onClick={() => handleSelectChange("isDefault")(!addressData.isDefault)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${addressData.isDefault ? "bg-[#F9A922]" : "bg-gray-200"}`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${addressData.isDefault ? "bg-brand" : "bg-gray-200"}`}
                   >
                     <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${addressData.isDefault ? "translate-x-6" : "translate-x-1"}`} />
                   </div>
-                  <span className="text-sm font-semibold text-[#333]">Set as Default Address</span>
+                  <span className="text-sm font-semibold text-body">Set as Default Address</span>
                 </label>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <div
                     onClick={() => handleSelectChange("isActive")(!addressData.isActive)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${addressData.isActive ? "bg-[#F9A922]" : "bg-gray-200"}`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${addressData.isActive ? "bg-brand" : "bg-gray-200"}`}
                   >
                     <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${addressData.isActive ? "translate-x-6" : "translate-x-1"}`} />
                   </div>
-                  <span className="text-sm font-semibold text-[#333]">Active Address</span>
+                  <span className="text-sm font-semibold text-body">Active Address</span>
                 </label>
               </div>
             </div>
           </div>
 
           {/* Footer */}
-          <div className="flex justify-end gap-3 p-4 border-t border-[#E5E7EB]">
-            <button onClick={onClose} className="text-sm border border-[#ddd] text-[#666] px-6 py-2 rounded-[30px] hover:bg-gray-50 font-medium transition-colors">Cancel</button>
+          <div className="flex justify-end gap-3 p-4 border-t border-line">
+            <button onClick={onClose} className="text-sm border border-line-light text-dim px-6 py-2 rounded-[30px] hover:bg-gray-50 font-medium transition-colors">Cancel</button>
             <button
               onClick={handleSave}
               disabled={isLoading}
-              className="flex items-center gap-2 text-sm bg-[#F9A922] text-white px-6 py-2 rounded-[30px] hover:bg-[#E8981F] disabled:bg-gray-300 font-medium transition-colors"
+              className="flex items-center gap-2 text-sm bg-brand text-white px-6 py-2 rounded-[30px] hover:bg-brand-hover disabled:bg-gray-300 font-medium transition-colors"
             >
               {isLoading ? <Spinner size="sm" className="border-white border-t-transparent" /> : <Save className="w-4 h-4" />}
               {isLoading ? "Saving..." : editingAddressId ? "Update Address" : "Save Address"}
@@ -313,7 +313,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
       {/* Map Modal */}
       <Dialog open={mapModalOpen} onOpenChange={() => setMapModalOpen(false)}>
         <DialogContent className="max-w-[1000px] p-0 overflow-hidden">
-          <div className="bg-[#F9A922] text-white flex justify-between items-center py-4 px-6">
+          <div className="bg-brand text-white flex justify-between items-center py-4 px-6">
             <div className="flex items-center gap-3">
               <Map className="w-5 h-5" />
               <DialogTitle className="text-white font-semibold text-base">Select Location on Map</DialogTitle>

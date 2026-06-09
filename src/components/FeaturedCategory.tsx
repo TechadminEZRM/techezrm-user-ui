@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { useFeaturedCategories } from "@/api/handlers";
@@ -22,7 +22,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category, isHighlighted = f
     <div
       onClick={() => router.push(`/product?category=${category.slug}`)}
       className={`flex items-center gap-3 px-5 py-0 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.1)] cursor-pointer transition-all hover:shadow-[0_4px_16px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 ${
-        isHighlighted ? "bg-[#F9A922] hover:bg-[#E8981F] text-white" : "bg-white hover:bg-[#f8f9fa] text-[#333]"
+        isHighlighted ? "bg-brand hover:bg-brand-hover text-white" : "bg-white hover:bg-surface text-body"
       }`}
       style={{ width: "13.6rem", minWidth: "12.6rem", height: "4.5rem" }}
     >
@@ -64,14 +64,14 @@ const FeaturedCategory: React.FC = () => {
   const categoryRows = organizeIntoRows(categories);
 
   return (
-    <div className="bg-[#f8f9fa] py-8 md:py-12">
+    <div className="bg-surface py-8 md:py-12">
       <div className="max-w-7xl mx-auto px-4">
         {/* Section Title */}
         <div className="flex items-center mb-8">
-          <div className="w-1 h-8 bg-[#F9A922] mr-4 rounded-sm" />
-          <h2 className="text-2xl md:text-3xl font-semibold text-[#333] py-2">Featured Category</h2>
+          <div className="w-1 h-8 bg-brand mr-4 rounded-sm" />
+          <h2 className="text-2xl md:text-3xl font-semibold text-body py-2">Featured Category</h2>
           {!isLoading && categories.length > 0 && (
-            <span className="ml-3 text-sm text-[#666]">({categories.length} categories)</span>
+            <span className="ml-3 text-sm text-dim">({categories.length} categories)</span>
           )}
         </div>
 
@@ -97,8 +97,8 @@ const FeaturedCategory: React.FC = () => {
         {/* Empty */}
         {!isLoading && !isError && categories.length === 0 && (
           <div className="text-center py-8">
-            <p className="text-[#666] text-lg mb-1">No featured categories found</p>
-            <p className="text-[#999] text-sm">Featured categories will appear here once they are available.</p>
+            <p className="text-dim text-lg mb-1">No featured categories found</p>
+            <p className="text-faint text-sm">Featured categories will appear here once they are available.</p>
           </div>
         )}
 

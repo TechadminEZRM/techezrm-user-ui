@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useCompanyDetails } from "@/hooks/use-company-details";
@@ -163,7 +163,7 @@ const ChatWidget: React.FC = () => {
   //         position: "fixed",
   //         bottom: "20px",
   //         right: "20px",
-  //         background: "#f0f0f0",
+  //         background: "var(--color-wash)",
   //         border: "1px solid #ccc",
   //         padding: "10px",
   //         borderRadius: "5px",

@@ -1,4 +1,4 @@
-export interface Truck {
+﻿export interface Truck {
   id: number;
   name: string;
   image: string;
@@ -25,7 +25,7 @@ export interface Product {
 }
 
 export const sampleProducts: Product[] = [
-  { type: "📦", name: "Boxes 1", length: 500, width: 300, height: 300, weight: 45, quantity: 80, color: "#52c41a" },
+  { type: "📦", name: "Boxes 1", length: 500, width: 300, height: 300, weight: 45, quantity: 80, color: "var(--color-success)" },
   { type: "🧦", name: "Socks", length: 1000, width: 300, height: 300, weight: 45, quantity: 100, color: "#eb2f96" },
-  { type: "👜", name: "Big Bags", length: 1000, width: 1000, height: 1000, weight: 50, quantity: 16, color: "#1890ff" },
+  { type: "👜", name: "Big Bags", length: 1000, width: 1000, height: 1000, weight: 50, quantity: 16, color: "var(--color-info)" },
 ];

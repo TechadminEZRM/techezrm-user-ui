@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
@@ -12,10 +12,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 type SignupStep = "email" | "otp" | "details" | "success";
 
 const inputClass =
-  "w-full border-0 border-b border-[#e0e0e0] bg-transparent text-[#333] text-base py-3 placeholder:text-[#999] focus:outline-none focus:border-[#F9A922] transition-colors";
+  "w-full border-0 border-b border-line-light bg-transparent text-body text-base py-3 placeholder:text-faint focus:outline-none focus:border-brand transition-colors";
 
 const errorInputClass =
-  "w-full border-0 border-b border-red-400 bg-transparent text-[#333] text-base py-3 placeholder:text-[#999] focus:outline-none focus:border-red-500 transition-colors";
+  "w-full border-0 border-b border-red-400 bg-transparent text-body text-base py-3 placeholder:text-faint focus:outline-none focus:border-red-500 transition-colors";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -124,9 +124,9 @@ export default function RegisterPage() {
 
   const renderStep1 = () => (
     <>
-      <p className="font-semibold text-[#333] mb-8 text-xl">Buyer Registration</p>
+      <p className="font-semibold text-body mb-8 text-xl">Buyer Registration</p>
       <div className="w-full max-w-[400px]">
-        <p className="text-[#5A607F] mb-6 text-sm font-semibold">Step 1 : Provide your Details</p>
+        <p className="text-soft mb-6 text-sm font-semibold">Step 1 : Provide your Details</p>
 
         {initiateSignupMutation.isError && (
           <Alert variant="destructive" className="mb-4">
@@ -155,16 +155,16 @@ export default function RegisterPage() {
           {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
         </div>
 
-        <p className="text-[#5A607F] text-sm font-semibold mb-4">Connect By</p>
+        <p className="text-soft text-sm font-semibold mb-4">Connect By</p>
         <div className="mb-8">
           <RadioGroup value={connectBy} onValueChange={setConnectBy} className="flex flex-row gap-6">
             <label className="flex items-center gap-2 cursor-pointer">
               <RadioGroupItem value="email" />
-              <span className="text-sm text-[#333]">Email</span>
+              <span className="text-sm text-body">Email</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <RadioGroupItem value="whatsapp" />
-              <span className="text-sm text-[#333]">Whatsapp</span>
+              <span className="text-sm text-body">Whatsapp</span>
             </label>
           </RadioGroup>
         </div>
@@ -172,22 +172,22 @@ export default function RegisterPage() {
         <button
           onClick={handleStep1Submit}
           disabled={initiateSignupMutation.isPending}
-          className="w-full bg-[#F9A922] text-white font-medium py-[14px] rounded-[30px] text-base hover:bg-[#E8981F] disabled:bg-gray-300 transition-colors mb-4"
+          className="w-full bg-brand text-white font-medium py-[14px] rounded-[30px] text-base hover:bg-brand-hover disabled:bg-gray-300 transition-colors mb-4"
         >
           {initiateSignupMutation.isPending ? (
             <span className="flex items-center justify-center gap-2"><Spinner size="sm" className="border-white border-t-transparent" />Sending...</span>
           ) : "Submit"}
         </button>
-        <p className="text-[#666] text-xs">Public email domains are not allowed. Please enter a valid company email address.</p>
+        <p className="text-dim text-xs">Public email domains are not allowed. Please enter a valid company email address.</p>
       </div>
     </>
   );
 
   const renderOtpStep = () => (
     <>
-      <p className="font-semibold text-[#333] mb-8 text-xl">Buyer Registration</p>
+      <p className="font-semibold text-body mb-8 text-xl">Buyer Registration</p>
       <div className="w-full max-w-[400px]">
-        <p className="text-[#5A607F] mb-6 text-sm font-semibold">Step 2 : Verify your Email</p>
+        <p className="text-soft mb-6 text-sm font-semibold">Step 2 : Verify your Email</p>
 
         {verifyOtpMutation.isError && (
           <Alert variant="destructive" className="mb-4">
@@ -195,7 +195,7 @@ export default function RegisterPage() {
           </Alert>
         )}
 
-        <p className="text-[#666] text-sm mb-6">We sent a 6-digit OTP to <strong>{email}</strong>. Please enter it below.</p>
+        <p className="text-dim text-sm mb-6">We sent a 6-digit OTP to <strong>{email}</strong>. Please enter it below.</p>
 
         <div className="mb-6">
           <input
@@ -212,7 +212,7 @@ export default function RegisterPage() {
         <button
           onClick={handleOtpSubmit}
           disabled={verifyOtpMutation.isPending || otp.length !== 6}
-          className="w-full bg-[#F9A922] text-white font-medium py-[14px] rounded-[30px] text-base hover:bg-[#E8981F] disabled:bg-gray-300 transition-colors mb-4"
+          className="w-full bg-brand text-white font-medium py-[14px] rounded-[30px] text-base hover:bg-brand-hover disabled:bg-gray-300 transition-colors mb-4"
         >
           {verifyOtpMutation.isPending ? (
             <span className="flex items-center justify-center gap-2"><Spinner size="sm" className="border-white border-t-transparent" />Verifying...</span>
@@ -220,10 +220,10 @@ export default function RegisterPage() {
         </button>
 
         <div className="flex justify-center gap-2">
-          <span className="text-[#666] text-[13px]">Didnt receive the code?</span>
+          <span className="text-dim text-[13px]">Didnt receive the code?</span>
           <span
             onClick={!initiateSignupMutation.isPending ? handleResendOtp : undefined}
-            className={`text-[#F9A922] text-[13px] font-semibold ${initiateSignupMutation.isPending ? "cursor-default" : "cursor-pointer hover:underline"}`}
+            className={`text-brand text-[13px] font-semibold ${initiateSignupMutation.isPending ? "cursor-default" : "cursor-pointer hover:underline"}`}
           >
             {initiateSignupMutation.isPending ? "Sending..." : "Resend OTP"}
           </span>
@@ -234,9 +234,9 @@ export default function RegisterPage() {
 
   const renderStep2 = () => (
     <>
-      <p className="font-semibold text-[#333] mb-8 text-xl">Buyer Registration</p>
+      <p className="font-semibold text-body mb-8 text-xl">Buyer Registration</p>
       <div className="w-full max-w-[400px]">
-        <p className="text-[#5A607F] mb-6 text-sm font-semibold">Step 3 : Provide your Details</p>
+        <p className="text-soft mb-6 text-sm font-semibold">Step 3 : Provide your Details</p>
 
         {completeSignupMutation.isError && (
           <Alert variant="destructive" className="mb-4">
@@ -262,7 +262,7 @@ export default function RegisterPage() {
             onChange={(e) => { setAddress(e.target.value); if (addressError) setAddressError(""); }}
             disabled={completeSignupMutation.isPending}
             rows={4}
-            className={`w-full border-0 border-b ${addressError ? "border-red-400" : "border-[#e0e0e0]"} bg-transparent text-[#333] text-base py-3 placeholder:text-[#999] focus:outline-none focus:border-[#F9A922] transition-colors resize-none`}
+            className={`w-full border-0 border-b ${addressError ? "border-red-400" : "border-line-light"} bg-transparent text-body text-base py-3 placeholder:text-faint focus:outline-none focus:border-brand transition-colors resize-none`}
           />
           {addressError && <p className="text-red-500 text-xs mt-1">{addressError}</p>}
         </div>
@@ -270,34 +270,34 @@ export default function RegisterPage() {
         <button
           onClick={handleStep2Submit}
           disabled={completeSignupMutation.isPending}
-          className="w-full bg-[#F9A922] text-white font-medium py-[14px] rounded-[30px] text-base hover:bg-[#E8981F] disabled:bg-gray-300 transition-colors mb-4"
+          className="w-full bg-brand text-white font-medium py-[14px] rounded-[30px] text-base hover:bg-brand-hover disabled:bg-gray-300 transition-colors mb-4"
         >
           {completeSignupMutation.isPending ? (
             <span className="flex items-center justify-center gap-2"><Spinner size="sm" className="border-white border-t-transparent" />Completing...</span>
           ) : "Submit"}
         </button>
-        <p className="text-[#666] text-xs">Public email domains are not allowed. Please enter a valid company email address.</p>
+        <p className="text-dim text-xs">Public email domains are not allowed. Please enter a valid company email address.</p>
       </div>
     </>
   );
 
   const renderSuccessStep = () => (
     <div className="flex flex-col items-center text-center w-full max-w-[400px] mt-4">
-      <div className="w-20 h-20 rounded-full bg-[#F9A922] flex items-center justify-center mb-6">
+      <div className="w-20 h-20 rounded-full bg-brand flex items-center justify-center mb-6">
         <div className="w-[30px] h-[30px] rounded-full bg-white flex items-center justify-center">
-          <span className="text-[#F9A922] text-base font-bold">✓</span>
+          <span className="text-brand text-base font-bold">✓</span>
         </div>
       </div>
-      <p className="font-semibold text-[#333] mb-4 text-lg">Application Submitted</p>
-      <p className="text-[#666] text-sm leading-relaxed mb-2">
+      <p className="font-semibold text-body mb-4 text-lg">Application Submitted</p>
+      <p className="text-dim text-sm leading-relaxed mb-2">
         Thank you, {name}! Your registration has been submitted successfully.
       </p>
-      <p className="text-[#666] text-sm leading-relaxed mb-6">
+      <p className="text-dim text-sm leading-relaxed mb-6">
         Our team will review your application and you will receive login credentials via email once approved.
       </p>
       <button
         onClick={handleBackToHome}
-        className="w-full bg-[#F9A922] text-white font-medium py-[14px] rounded-[30px] text-base hover:bg-[#E8981F] transition-colors"
+        className="w-full bg-brand text-white font-medium py-[14px] rounded-[30px] text-base hover:bg-brand-hover transition-colors"
       >
         Back To Home
       </button>

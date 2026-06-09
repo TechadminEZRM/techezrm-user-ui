@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useRef } from "react";
 import { ChevronDown } from "lucide-react";
@@ -97,7 +97,7 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
   return (
     <div className={`relative ${fullWidth ? "w-full" : ""}`}>
       {label && (
-        <label className="block text-sm font-medium text-[#1F2A44] mb-1">
+        <label className="block text-sm font-medium text-heading mb-1">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
@@ -108,31 +108,31 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
             type="button"
             onClick={() => setOpen((p) => !p)}
             disabled={disabled}
-            className={`flex items-center gap-1.5 px-3 ${inputH} border border-r-0 border-[#e0e0e0] rounded-l-lg bg-[#f8f9fa] hover:bg-[#e9ecef] transition-colors text-sm min-w-[80px] disabled:cursor-not-allowed`}
+            className={`flex items-center gap-1.5 px-3 ${inputH} border border-r-0 border-line-light rounded-l-lg bg-surface hover:bg-line transition-colors text-sm min-w-[80px] disabled:cursor-not-allowed`}
           >
             {loading ? (
               <Spinner size="sm" />
             ) : selectedCountry ? (
               <>
                 <span className="text-xl leading-none">{selectedCountry.emoji}</span>
-                <span className="text-xs font-medium text-[#666]">{selectedCountry.phoneCode}</span>
+                <span className="text-xs font-medium text-dim">{selectedCountry.phoneCode}</span>
               </>
             ) : (
-              <span className="text-sm text-[#999]">+1</span>
+              <span className="text-sm text-faint">+1</span>
             )}
-            <ChevronDown className="w-4 h-4 text-[#666]" />
+            <ChevronDown className="w-4 h-4 text-dim" />
           </button>
 
           {/* Dropdown */}
           {open && (
-            <div className="absolute z-50 top-full left-0 mt-1 w-72 bg-white border border-[#e0e0e0] rounded-xl shadow-lg max-h-96 flex flex-col">
+            <div className="absolute z-50 top-full left-0 mt-1 w-72 bg-white border border-line-light rounded-xl shadow-lg max-h-96 flex flex-col">
               {/* Search */}
-              <div className="p-3 border-b border-[#e0e0e0]">
+              <div className="p-3 border-b border-line-light">
                 <input
                   placeholder="Search countries..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-8 px-3 text-sm border border-[#e0e0e0] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#F9A922]"
+                  className="w-full h-8 px-3 text-sm border border-line-light rounded-lg focus:outline-none focus:ring-1 focus:ring-brand"
                   autoFocus
                 />
               </div>
@@ -143,18 +143,18 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
                     key={country.countryCode}
                     type="button"
                     onMouseDown={() => handleCountrySelect(country)}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#FFFAF1] transition-colors text-left"
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-brand-light transition-colors text-left"
                   >
                     <span className="text-xl leading-none">{country.emoji}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#1F2A44] truncate">{country.name}</p>
-                      <p className="text-xs text-[#737791]">{country.continent}</p>
+                      <p className="text-sm font-medium text-heading truncate">{country.name}</p>
+                      <p className="text-xs text-soft">{country.continent}</p>
                     </div>
-                    <span className="text-[11px] border border-[#F9A922] text-[#F9A922] rounded px-1.5 py-px flex-shrink-0">{country.phoneCode}</span>
+                    <span className="text-[11px] border border-brand text-brand rounded px-1.5 py-px flex-shrink-0">{country.phoneCode}</span>
                   </button>
                 ))}
                 {filtered.length === 0 && (
-                  <div className="px-4 py-3 text-sm text-[#737791] text-center">No countries found</div>
+                  <div className="px-4 py-3 text-sm text-soft text-center">No countries found</div>
                 )}
               </div>
             </div>
@@ -168,11 +168,11 @@ const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
           onChange={handlePhoneChange}
           placeholder={placeholder}
           disabled={disabled}
-          className={`flex-1 ${inputH} px-4 border border-[#e0e0e0] rounded-r-lg text-sm text-[#1F2A44] placeholder:text-[#737791] focus:outline-none focus:ring-2 focus:ring-[#F9A922] focus:border-[#F9A922] disabled:bg-gray-100 disabled:cursor-not-allowed ${error ? "border-red-500" : ""}`}
+          className={`flex-1 ${inputH} px-4 border border-line-light rounded-r-lg text-sm text-heading placeholder:text-soft focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand disabled:bg-gray-100 disabled:cursor-not-allowed ${error ? "border-red-500" : ""}`}
         />
       </div>
       {helperText && (
-        <p className={`text-xs mt-1 ${error ? "text-red-500" : "text-[#737791]"}`}>{helperText}</p>
+        <p className={`text-xs mt-1 ${error ? "text-red-500" : "text-soft"}`}>{helperText}</p>
       )}
     </div>
   );

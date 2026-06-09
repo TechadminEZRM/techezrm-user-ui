@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type React from "react";
 import { useEffect, useState } from "react";
@@ -175,7 +175,7 @@ export default function ProductDetailPage() {
   const features =
     product?.dietaryAttributes?.map((attr: any) => ({
       label: attr.title,
-      color: "#F9A922",
+      color: "var(--color-brand)",
       logo: attr.logo,
       certificateLink: attr.certificateLink,
     })) || [];
@@ -196,12 +196,12 @@ export default function ProductDetailPage() {
   return (
     <div className="max-w-7xl mx-auto py-2 px-4">
       {/* Header breadcrumb */}
-      <p className="mb-6 font-medium text-[#333] text-lg">
+      <p className="mb-6 font-medium text-body text-lg">
         {product?.name}{" "}
         /{" "}
         <span
           onClick={() => router.push(`/product?category=${product?.category?.slug}`)}
-          className="text-[#F9A922] cursor-pointer hover:text-[#E8981F] hover:underline transition-colors"
+          className="text-brand cursor-pointer hover:text-brand-hover hover:underline transition-colors"
         >
           {product?.category?.name}
         </span>
@@ -213,7 +213,7 @@ export default function ProductDetailPage() {
         <div className="w-[65%]">
           {/* Product Image */}
           <div
-            className="relative w-full h-[400px] rounded-[20px] overflow-hidden bg-[#f5f5f5] mb-6"
+            className="relative w-full h-[400px] rounded-[20px] overflow-hidden bg-paper mb-6"
           >
             <div
               className="relative w-full h-full"
@@ -238,7 +238,7 @@ export default function ProductDetailPage() {
 
           {/* Thumbnail Gallery */}
           <div className="mb-6">
-            <p className="font-semibold text-[#333] text-sm mb-3">
+            <p className="font-semibold text-body text-sm mb-3">
               Product Images ({getProductImages().length})
             </p>
             <div className="flex gap-3 overflow-x-auto pb-2">
@@ -248,13 +248,13 @@ export default function ProductDetailPage() {
                   onClick={() => setSelectedImageIndex(index)}
                   className="relative flex-shrink-0 w-[90px] h-[90px] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105"
                   style={{
-                    border: selectedImageIndex === index ? "3px solid #F9A922" : "2px solid #e0e0e0",
+                    border: selectedImageIndex === index ? "3px solid var(--color-brand)" : "2px solid var(--color-line-light)",
                     boxShadow: selectedImageIndex === index ? "0 4px 20px rgba(255,107,53,0.3)" : "0 2px 8px rgba(0,0,0,0.1)",
                   }}
                 >
                   <Image src={image.src} alt={image.alt} fill style={{ objectFit: "cover" }} />
                   {image.type === "banner" && (
-                    <span className="absolute top-1.5 left-1.5 bg-[#F9A922]/95 text-white text-[11px] font-semibold px-2 py-0.5 rounded-md">
+                    <span className="absolute top-1.5 left-1.5 bg-brand/95 text-white text-[11px] font-semibold px-2 py-0.5 rounded-md">
                       Main
                     </span>
                   )}
@@ -272,8 +272,8 @@ export default function ProductDetailPage() {
                   onClick={() => setTabValue(i)}
                   className={`px-4 py-2.5 text-sm font-medium transition-all ${
                     tabValue === i
-                      ? "bg-[#F9A922] text-white rounded-t-md"
-                      : "text-[#666] hover:text-[#333]"
+                      ? "bg-brand text-white rounded-t-md"
+                      : "text-dim hover:text-body"
                   }`}
                 >
                   {label}
@@ -282,7 +282,7 @@ export default function ProductDetailPage() {
             </div>
 
             <TabPanel value={tabValue} index={0}>
-              <p className="text-[#666] leading-relaxed text-sm">
+              <p className="text-dim leading-relaxed text-sm">
                 Sample Product information and details will be displayed here.
               </p>
             </TabPanel>
@@ -293,15 +293,15 @@ export default function ProductDetailPage() {
 
                 {/* Product Overview */}
                 <div className="mb-8">
-                  <p className="leading-[1.8] text-[#333] mb-6 text-[15px] text-justify">
+                  <p className="leading-[1.8] text-body mb-6 text-[15px] text-justify">
                     {product?.description}
                   </p>
                 </div>
 
                 {/* Product Details Table */}
                 <div className="mb-8">
-                  <h3 className="font-semibold text-[#333] mb-5">Product Details</h3>
-                  <div className="rounded-xl border border-[#e8e8e8] overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+                  <h3 className="font-semibold text-body mb-5">Product Details</h3>
+                  <div className="rounded-xl border border-line-light overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
                     <table className="w-full min-w-[400px]">
                       <tbody>
                         {[
@@ -309,27 +309,27 @@ export default function ProductDetailPage() {
                           { label: "Category", value: product.category?.name || "Not specified" },
                           { label: "Product ID", value: product.uniqueId, mono: true },
                         ].map((row, i) => (
-                          <tr key={i} className={i % 2 === 0 ? "bg-[#fafafa]" : "bg-white"}>
-                            <td className="w-[30%] px-4 py-3 font-semibold text-[#F9A922] text-sm border-r border-[#e8e8e8] bg-[rgba(255,107,53,0.03)]">
+                          <tr key={i} className={i % 2 === 0 ? "bg-paper" : "bg-white"}>
+                            <td className="w-[30%] px-4 py-3 font-semibold text-brand text-sm border-r border-line-light bg-[rgba(255,107,53,0.03)]">
                               {row.label}
                             </td>
-                            <td className={`px-4 py-3 text-[#333] text-sm border-b border-[#e8e8e8] ${row.mono ? "font-mono font-medium" : ""}`}>
+                            <td className={`px-4 py-3 text-body text-sm border-b border-line-light ${row.mono ? "font-mono font-medium" : ""}`}>
                               {row.value}
                             </td>
                           </tr>
                         ))}
 
                         {/* Stock Status */}
-                        <tr className="bg-[#fafafa]">
-                          <td className="w-[30%] px-4 py-3 font-semibold text-[#F9A922] text-sm border-r border-[#e8e8e8] bg-[rgba(255,107,53,0.03)]">
+                        <tr className="bg-paper">
+                          <td className="w-[30%] px-4 py-3 font-semibold text-brand text-sm border-r border-line-light bg-[rgba(255,107,53,0.03)]">
                             Stock Status
                           </td>
-                          <td className="px-4 py-3 border-b border-[#e8e8e8]">
+                          <td className="px-4 py-3 border-b border-line-light">
                             <span
                               className={`inline-block px-3 py-1 rounded-md text-xs font-semibold border ${
                                 product.inStock
-                                  ? "bg-[#e8f5e8] text-[#2e7d32] border-[#c8e6c9]"
-                                  : "bg-[#ffeaea] text-[#d32f2f] border-[#ffcdd2]"
+                                  ? "bg-success-light text-success border-success-light"
+                                  : "bg-danger-light text-danger border-danger-light"
                               }`}
                             >
                               {product.inStock ? "In Stock" : "Out of Stock"}
@@ -339,80 +339,80 @@ export default function ProductDetailPage() {
 
                         {/* Applications */}
                         <tr className="bg-white">
-                          <td className="w-[30%] px-4 py-3 font-semibold text-[#F9A922] text-sm border-r border-[#e8e8e8] bg-[rgba(255,107,53,0.03)]">
+                          <td className="w-[30%] px-4 py-3 font-semibold text-brand text-sm border-r border-line-light bg-[rgba(255,107,53,0.03)]">
                             Applications
                           </td>
-                          <td className="px-4 py-3 border-b border-[#e8e8e8]">
+                          <td className="px-4 py-3 border-b border-line-light">
                             {product.applications?.length > 0 ? (
                               <div className="flex flex-wrap gap-2">
                                 {product.applications.map((app: string, i: number) => (
-                                  <span key={i} className="px-2 py-1 rounded-md text-xs font-medium bg-[rgba(255,107,53,0.1)] text-[#F9A922] border border-[rgba(255,107,53,0.2)]">
+                                  <span key={i} className="px-2 py-1 rounded-md text-xs font-medium bg-[rgba(255,107,53,0.1)] text-brand border border-[rgba(255,107,53,0.2)]">
                                     {app.replace(/-/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase())}
                                   </span>
                                 ))}
                               </div>
                             ) : (
-                              <p className="text-[#999] italic text-sm">Not specified</p>
+                              <p className="text-faint italic text-sm">Not specified</p>
                             )}
                           </td>
                         </tr>
 
                         {/* Functions */}
-                        <tr className="bg-[#fafafa]">
-                          <td className="w-[30%] px-4 py-3 font-semibold text-[#F9A922] text-sm border-r border-[#e8e8e8] bg-[rgba(255,107,53,0.03)]">
+                        <tr className="bg-paper">
+                          <td className="w-[30%] px-4 py-3 font-semibold text-brand text-sm border-r border-line-light bg-[rgba(255,107,53,0.03)]">
                             Functions
                           </td>
-                          <td className="px-4 py-3 border-b border-[#e8e8e8]">
+                          <td className="px-4 py-3 border-b border-line-light">
                             {product.functions?.length > 0 ? (
                               <div className="flex flex-wrap gap-2">
                                 {product.functions.map((func: string, i: number) => (
-                                  <span key={i} className="px-2 py-1 rounded-md text-xs font-medium bg-[rgba(255,107,53,0.1)] text-[#F9A922] border border-[rgba(255,107,53,0.2)]">
+                                  <span key={i} className="px-2 py-1 rounded-md text-xs font-medium bg-[rgba(255,107,53,0.1)] text-brand border border-[rgba(255,107,53,0.2)]">
                                     {func.replace(/-/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase())}
                                   </span>
                                 ))}
                               </div>
                             ) : (
-                              <p className="text-[#999] italic text-sm">Not specified</p>
+                              <p className="text-faint italic text-sm">Not specified</p>
                             )}
                           </td>
                         </tr>
 
                         {/* Tags */}
                         <tr className="bg-white">
-                          <td className="w-[30%] px-4 py-3 font-semibold text-[#F9A922] text-sm border-r border-[#e8e8e8] bg-[rgba(255,107,53,0.03)]">
+                          <td className="w-[30%] px-4 py-3 font-semibold text-brand text-sm border-r border-line-light bg-[rgba(255,107,53,0.03)]">
                             Tags
                           </td>
-                          <td className="px-4 py-3 border-b border-[#e8e8e8]">
+                          <td className="px-4 py-3 border-b border-line-light">
                             {product.tags?.length > 0 ? (
                               <div className="flex flex-wrap gap-2">
                                 {product.tags.map((tag: string, i: number) => (
-                                  <span key={i} className="px-2 py-1 rounded-md text-xs font-medium bg-[rgba(255,107,53,0.1)] text-[#F9A922] border border-[rgba(255,107,53,0.2)]">
+                                  <span key={i} className="px-2 py-1 rounded-md text-xs font-medium bg-[rgba(255,107,53,0.1)] text-brand border border-[rgba(255,107,53,0.2)]">
                                     {tag.replace(/-/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase())}
                                   </span>
                                 ))}
                               </div>
                             ) : (
-                              <p className="text-[#999] italic text-sm">Not specified</p>
+                              <p className="text-faint italic text-sm">Not specified</p>
                             )}
                           </td>
                         </tr>
 
                         {/* Countries of Origin */}
-                        <tr className="bg-[#fafafa]">
-                          <td className="w-[30%] px-4 py-3 font-semibold text-[#F9A922] text-sm border-r border-[#e8e8e8] bg-[rgba(255,107,53,0.03)]">
+                        <tr className="bg-paper">
+                          <td className="w-[30%] px-4 py-3 font-semibold text-brand text-sm border-r border-line-light bg-[rgba(255,107,53,0.03)]">
                             Countries of Origin
                           </td>
                           <td className="px-4 py-3">
                             {product.countryOfOrigin?.length > 0 ? (
                               <div className="flex flex-wrap gap-2">
                                 {product.countryOfOrigin.map((country: string, i: number) => (
-                                  <span key={i} className="px-2 py-1 rounded-md text-xs font-medium bg-[rgba(255,107,53,0.1)] text-[#F9A922] border border-[rgba(255,107,53,0.2)]">
+                                  <span key={i} className="px-2 py-1 rounded-md text-xs font-medium bg-[rgba(255,107,53,0.1)] text-brand border border-[rgba(255,107,53,0.2)]">
                                     {country}
                                   </span>
                                 ))}
                               </div>
                             ) : (
-                              <p className="text-[#999] italic text-sm">Not specified</p>
+                              <p className="text-faint italic text-sm">Not specified</p>
                             )}
                           </td>
                         </tr>
@@ -424,7 +424,7 @@ export default function ProductDetailPage() {
                 {/* Dietary Attributes / Certifications */}
                 {product.dietaryAttributes?.length > 0 && (
                   <div className="mb-8">
-                    <h3 className="font-semibold text-[#333] mb-5">Certifications & Attributes</h3>
+                    <h3 className="font-semibold text-body mb-5">Certifications & Attributes</h3>
                     <div className="flex flex-wrap gap-4">
                       {product.dietaryAttributes.map((attr: any, i: number) => (
                         <div
@@ -445,9 +445,9 @@ export default function ProductDetailPage() {
                             />
                           )}
                           <div>
-                            <p className="font-semibold text-[#333] text-sm">{attr.title}</p>
+                            <p className="font-semibold text-body text-sm">{attr.title}</p>
                             {attr.certificateLink && (
-                              <p className="text-[#F9A922] text-[10px]">Click to view certificate</p>
+                              <p className="text-brand text-[10px]">Click to view certificate</p>
                             )}
                           </div>
                         </div>
@@ -473,12 +473,12 @@ export default function ProductDetailPage() {
               /{" "}
               <span
                 onClick={() => router.push(`/product?category=${product?.category?.slug}`)}
-                className="font-normal text-[#F9A922] cursor-pointer hover:text-[#E8981F] hover:underline transition-all"
+                className="font-normal text-brand cursor-pointer hover:text-brand-hover hover:underline transition-all"
               >
                 {product?.category?.name}
               </span>
             </h2>
-            <p className="text-[#666] text-sm mb-6">{product.uniqueId}</p>
+            <p className="text-dim text-sm mb-6">{product.uniqueId}</p>
           </div>
 
           {/* Product Icons / Dietary Attributes */}
@@ -500,7 +500,7 @@ export default function ProductDetailPage() {
                       </div>
                     )}
                   </div>
-                  <span className="text-xs font-medium text-[#666] max-w-[80px] leading-tight">{feature.label}</span>
+                  <span className="text-xs font-medium text-dim max-w-[80px] leading-tight">{feature.label}</span>
                 </div>
               ))}
             </div>
@@ -517,7 +517,7 @@ export default function ProductDetailPage() {
                 <button
                   onClick={() => setCartQuantity(Math.max(minCartQuantity, cartQuantity - minCartQuantity))}
                   disabled={cartQuantity <= minCartQuantity}
-                  className="w-8 h-8 flex items-center justify-center border border-[#e0e0e0] rounded disabled:opacity-50 hover:border-[#F9A922] transition-colors"
+                  className="w-8 h-8 flex items-center justify-center border border-line-light rounded disabled:opacity-50 hover:border-brand transition-colors"
                 >
                   <Minus className="w-4 h-4" />
                 </button>
@@ -532,11 +532,11 @@ export default function ProductDetailPage() {
                     else value = Math.ceil(value / minCartQuantity) * minCartQuantity;
                     setCartQuantity(value);
                   }}
-                  className="w-16 h-8 text-center text-sm border border-[#e0e0e0] rounded outline-none focus:border-[#F9A922]"
+                  className="w-16 h-8 text-center text-sm border border-line-light rounded outline-none focus:border-brand"
                 />
                 <button
                   onClick={() => setCartQuantity(cartQuantity + minCartQuantity)}
-                  className="w-8 h-8 flex items-center justify-center border border-[#e0e0e0] rounded hover:border-[#F9A922] transition-colors"
+                  className="w-8 h-8 flex items-center justify-center border border-line-light rounded hover:border-brand transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -548,7 +548,7 @@ export default function ProductDetailPage() {
               onClick={handleAddToCart}
               disabled={!product.inStock || addToCartMutation.isPending || minCartQuantity <= 1}
               className="w-full flex items-center justify-center gap-2 py-3 rounded text-white text-sm font-medium transition-colors disabled:opacity-60 mb-4"
-              style={{ backgroundColor: product.inStock ? "#4caf50" : "#ccc" }}
+              style={{ backgroundColor: product.inStock ? "var(--color-success)" : "var(--color-line-light)" }}
             >
               <ShoppingCart className="w-4 h-4" />
               {addToCartMutation.isPending ? "Adding..." : product.inStock ? "Add to Cart" : "Out of Stock"}
@@ -560,18 +560,18 @@ export default function ProductDetailPage() {
             onClick={handlePlaceEnquiry}
             disabled={!product.inStock}
             className="w-full py-3 rounded text-white text-sm font-medium transition-colors mb-6 disabled:opacity-60"
-            style={{ backgroundColor: product.inStock ? "#F9A922" : "#ccc" }}
+            style={{ backgroundColor: product.inStock ? "var(--color-brand)" : "var(--color-line-light)" }}
           >
             {product.inStock ? "Place an Enquiry" : "Out of Stock"}
           </button>
 
           {/* Social Icons */}
           <div className="flex items-center gap-2 mt-4 h-24">
-            <p className="text-xs text-[#666] mr-1">Add to Wishlist</p>
+            <p className="text-xs text-dim mr-1">Add to Wishlist</p>
             <button
               onClick={handleWishlistClick}
               disabled={addToWishlistMutation.isPending || minCartQuantity <= 1}
-              className="p-1.5 text-[#F9A922] hover:opacity-80 transition-opacity disabled:opacity-50"
+              className="p-1.5 text-brand hover:opacity-80 transition-opacity disabled:opacity-50"
             >
               <Heart className="w-4 h-4" />
             </button>
@@ -581,7 +581,7 @@ export default function ProductDetailPage() {
             <button onClick={() => handleEmailShare(product)} className="p-1.5 text-[#ea4335] hover:opacity-80 transition-opacity">
               <Mail className="w-4 h-4" />
             </button>
-            <button className="p-1.5 text-[#F9A922] hover:opacity-80 transition-opacity">
+            <button className="p-1.5 text-brand hover:opacity-80 transition-opacity">
               <Share2 className="w-4 h-4" />
             </button>
           </div>
@@ -605,7 +605,7 @@ export default function ProductDetailPage() {
             <p className="font-semibold mb-4 text-base">Request For Sample</p>
             <button
               className="w-full py-3 rounded text-white text-sm font-medium mb-6 transition-colors hover:opacity-90"
-              style={{ backgroundColor: "#F9A922" }}
+              style={{ backgroundColor: "var(--color-brand)" }}
             >
               Request Now
             </button>
@@ -614,7 +614,7 @@ export default function ProductDetailPage() {
               <input
                 value={product?.moq !== undefined && product?.moq !== null ? `${product.moq} Kg` : ""}
                 disabled
-                className="w-20 h-8 text-center text-xs border border-[#e0e0e0] rounded bg-white px-2"
+                className="w-20 h-8 text-center text-xs border border-line-light rounded bg-white px-2"
               />
             </div>
           </div>

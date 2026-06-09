@@ -1,18 +1,21 @@
-import type React from "react";
+﻿import type React from "react";
 import SearchBox from "./SearchBox";
+import Image from "next/image";
 
 const Hero: React.FC = () => {
   return (
     <div
-      className="w-screen relative bg-[#f9a922] bg-cover bg-center bg-no-repeat left-1/2 -translate-x-1/2"
+      className="w-screen relative bg-brand bg-cover bg-center bg-no-repeat left-1/2 -translate-x-1/2"
     >
       <div className="max-w-7xl mx-auto px-4 h-full">
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center py-8 md:py-16">
           {/* Logo */}
-          <img
+          <Image
             src="/ezrm-logo.png"
+            width={100}
+            height={100}
             alt="EZRM - Raw Materials Simplified"
-            className="w-70 h-12 sm:h-20 md:h-22.5 mb-4 object-contain"
+            className="w-70 h-12 sm:h-20 md:h-36 mb-4 object-contain mix-blend-multiply"
           />
 
           {/* Description */}

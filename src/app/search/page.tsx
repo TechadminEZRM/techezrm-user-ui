@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
@@ -34,7 +34,7 @@ const SearchPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa]">
+    <div className="min-h-screen bg-surface">
       <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Search Header */}
         <div className="mb-8">

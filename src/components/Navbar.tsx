@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type React from "react";
 import { useEffect, useState, useRef } from "react";
@@ -11,6 +11,7 @@ import { useCartSummary } from "@/api/handlers/cartHandler";
 import { useWishlist } from "@/api/handlers/wishlistHandler";
 import { useCompanyDetails } from "@/hooks/use-company-details";
 import { searchSuggestionService } from "@/api/services/searchSuggestionService";
+import { Button } from "./ui/button";
 
 interface SearchResult {
   id: string;
@@ -183,7 +184,7 @@ const Navbar: React.FC = () => {
   ];
 
   return (
-    <header className="py-2 bg-[#F9A922] w-full">
+    <header className="py-2 bg-brand w-full">
       <div className="flex items-center justify-between px-4 md:px-6 min-h-[64px] md:min-h-[70px]">
         {/* Logo */}
         <Link href="/" passHref>
@@ -191,7 +192,7 @@ const Navbar: React.FC = () => {
           <img
             src="/ezrm-logo.png"
             alt={`${companyDetails?.fullName || "EZRM"} - Raw Materials Simplified`}
-            className="h-8 md:h-10 w-auto cursor-pointer"
+            className="h-8 md:h-16 w-auto cursor-pointer mix-blend-multiply"
           />
         </Link>
 
@@ -201,14 +202,14 @@ const Navbar: React.FC = () => {
             <div className="flex gap-6 items-center relative">
               {/* About */}
               <Link href="/about" passHref>
-                <span className="text-white text-base font-medium cursor-pointer whitespace-nowrap transition-all hover:font-bold hover:-translate-y-px hover:[text-shadow:0_2px_4px_rgba(0,0,0,0.2)]">
+                <span className="text-base font-medium cursor-pointer whitespace-nowrap transition-all">
                   About
                 </span>
               </Link>
 
               {/* Product */}
               <Link href="/product" passHref>
-                <span className="text-white text-base font-medium cursor-pointer whitespace-nowrap transition-all hover:font-bold hover:-translate-y-px hover:[text-shadow:0_2px_4px_rgba(0,0,0,0.2)]">
+                <span className="text-base font-medium cursor-pointer whitespace-nowrap transition-all">
                   Product
                 </span>
               </Link>
@@ -220,18 +221,18 @@ const Navbar: React.FC = () => {
                 onMouseEnter={() => setIsToolsOpen(true)}
                 onMouseLeave={() => setIsToolsOpen(false)}
               >
-                <span className="text-white text-base font-medium cursor-pointer whitespace-nowrap flex items-center gap-1 transition-all hover:font-bold hover:-translate-y-px hover:[text-shadow:0_2px_4px_rgba(0,0,0,0.2)]">
+                <span className="text-base font-medium cursor-pointer whitespace-nowrap flex items-center gap-1 transition-all">
                   Tools
                   <ChevronDown className="w-4 h-4" />
                 </span>
 
                 {isToolsOpen && (
-                  <div className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-[#e0e0e0] min-w-[280px] py-1 z-50">
+                  <div className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-line-light min-w-[280px] py-1 z-50">
                     {toolsLinks.map((tool) => (
                       <button
                         key={tool.href}
                         onClick={() => { setIsToolsOpen(false); router.push(tool.href); }}
-                        className="w-full text-left py-3 px-4 text-sm font-medium text-[#1F2A44] hover:bg-gray-50 transition-colors"
+                        className="w-full text-left py-3 px-4 text-sm font-medium text-heading hover:bg-gray-50 transition-colors"
                       >
                         {tool.label}
                       </button>
@@ -242,7 +243,7 @@ const Navbar: React.FC = () => {
 
               {/* Certifications */}
               <Link href="/certifications" passHref>
-                <span className="text-white text-base font-medium cursor-pointer whitespace-nowrap transition-all hover:font-bold hover:-translate-y-px hover:[text-shadow:0_2px_4px_rgba(0,0,0,0.2)]">
+                <span className="text-base font-medium cursor-pointer whitespace-nowrap transition-all">
                   Certifications
                 </span>
               </Link>
@@ -258,23 +259,23 @@ const Navbar: React.FC = () => {
                         onChange={(e) => handleSearch(e.target.value)}
                         placeholder="Search for products, categories..."
                         autoFocus
-                        className="w-[320px] h-9 bg-white rounded-xl border border-[#e0e0e0] pl-9 pr-9 text-sm text-[#333] placeholder:text-[#666] focus:outline-none focus:ring-2 focus:ring-[#F9A922] focus:border-[#F9A922]"
+                        className="w-[320px] h-9 bg-white rounded-lg border border-line-light pl-9 pr-9 text-sm text-body placeholder:text-dim focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand"
                       />
                       {searchQuery && (
-                        <button
+                        <Button
                           type="button"
                           onClick={handleSearchClear}
                           className="absolute right-3 text-gray-500 hover:text-gray-700"
                         >
                           <X className="w-4 h-4" />
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </form>
 
                   {/* Search Results Dropdown */}
                   {(searchResults.length > 0 || isSearching) && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.12)] border border-[#e0e0e0] max-h-[300px] overflow-auto z-[1000]">
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.12)] border border-line-light max-h-[300px] overflow-auto z-[1000]">
                       {isSearching ? (
                         <div className="p-4 text-center text-sm text-gray-500">Searching...</div>
                       ) : (
@@ -285,13 +286,12 @@ const Navbar: React.FC = () => {
                               onClick={() => handleResultClick(result)}
                               className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 flex items-center gap-2"
                             >
-                              <span className="text-sm font-medium text-[#1F2A44]">{result.title}</span>
+                              <span className="text-sm font-medium text-heading">{result.title}</span>
                               <span
-                                className={`text-[10px] px-2 py-0.5 rounded border ${
-                                  result.type === "product"
-                                    ? "text-[#F9A922] border-[#F9A922]"
-                                    : "text-blue-500 border-blue-400"
-                                }`}
+                                className={`text-[10px] px-2 py-0.5 rounded border ${result.type === "product"
+                                  ? "text-brand border-brand"
+                                  : "text-blue-500 border-blue-400"
+                                  }`}
                               >
                                 {result.type}
                               </span>
@@ -309,23 +309,23 @@ const Navbar: React.FC = () => {
           {/* Right Side Icons */}
           <div className="flex items-center gap-3">
             {/* Search toggle */}
-            <button
+            <Button
               onClick={handleSearchToggle}
               className="bg-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
             >
               <Search className="w-5 h-5 text-gray-600" />
-            </button>
+            </Button>
 
             {/* Wishlist */}
             <div className="relative">
-              <button
+              <Button
                 onClick={handleFavouriteClick}
                 className="bg-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
               >
                 <Heart className="w-5 h-5 text-gray-600" />
-              </button>
+              </Button>
               {isAuthenticated && wishlistCount > 0 && (
-                <span className="absolute top-[15%] right-[15%] translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-[#F9A922] to-[#E8981F] text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full border-2 border-white shadow-md flex items-center justify-center z-10">
+                <span className="absolute top-[15%] right-[15%] translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-brand to-brand-hover text-[10px] font-bold min-w-[18px] h-[18px] rounded-full border-2 border-white shadow-md flex items-center justify-center z-10">
                   {wishlistCount > 9 ? "9+" : wishlistCount}
                 </span>
               )}
@@ -333,14 +333,14 @@ const Navbar: React.FC = () => {
 
             {/* Cart */}
             <div className="relative">
-              <button
+              <Button
                 onClick={handleCartClick}
                 className="bg-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
               >
                 <ShoppingCart className="w-5 h-5 text-gray-600" />
-              </button>
+              </Button>
               {isAuthenticated && cartCount > 0 && (
-                <span className="absolute top-[15%] right-[15%] translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-[#F9A922] to-[#E8981F] text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full border-2 border-white shadow-md flex items-center justify-center z-10">
+                <span className="absolute top-[15%] right-[15%] translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-brand to-brand-hover text-[10px] font-bold min-w-[18px] h-[18px] rounded-full border-2 border-white shadow-md flex items-center justify-center z-10">
                   {cartCount > 9 ? "9+" : cartCount}
                 </span>
               )}
@@ -352,35 +352,35 @@ const Navbar: React.FC = () => {
                 {/* Profile Dropdown Button */}
                 <button
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                  className="flex items-center gap-2 bg-white text-[#F9A922] font-semibold text-sm px-3 py-2 ml-1 cursor-pointer rounded-lg min-w-[120px] transition-all hover:bg-gray-50 hover:scale-[1.02] active:scale-[0.98]"
+                  className="flex items-center gap-2 bg-white text-brand font-semibold text-sm px-3 py-2 ml-1 cursor-pointer rounded-lg min-w-[120px] transition-all hover:bg-gray-50 hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  <div className="w-6 h-6 rounded-full bg-[#F9A922] text-white text-[10px] font-semibold flex items-center justify-center flex-shrink-0">
+                  <div className="w-6 h-6 rounded-full bg-brand text-[10px] font-semibold flex items-center justify-center flex-shrink-0">
                     {getInitials(customer.name)}
                   </div>
                   <span className="max-w-[80px] overflow-hidden text-ellipsis whitespace-nowrap">
                     {customer.name.split(" ")[0]}
                   </span>
                   <ChevronDown
-                    className={`w-4 h-4 text-[#F9A922] transition-transform ${isProfileMenuOpen ? "rotate-180" : ""}`}
+                    className={`w-4 h-4 text-brand transition-transform ${isProfileMenuOpen ? "rotate-180" : ""}`}
                   />
                 </button>
 
                 {/* Profile Dropdown Menu */}
                 {isProfileMenuOpen && (
-                  <div className="absolute right-0 top-full mt-1 min-w-[200px] bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-[#f0f0f0] z-50">
+                  <div className="absolute right-0 top-full mt-1 min-w-[200px] bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-wash z-50">
                     {/* User Info Header */}
-                    <div className="px-4 py-3 border-b border-[#f0f0f0]">
-                      <p className="text-sm font-semibold text-[#333] mb-0.5">{customer.name}</p>
-                      <p className="text-xs text-[#666]">{customer.email}</p>
+                    <div className="px-4 py-3 border-b border-wash">
+                      <p className="text-sm font-semibold text-body mb-0.5">{customer.name}</p>
+                      <p className="text-xs text-dim">{customer.email}</p>
                     </div>
                     <button
                       onClick={handleProfileClick}
-                      className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-gray-50 transition-colors"
+                      className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm text-body hover:bg-gray-50 transition-colors"
                     >
                       <User className="w-4 h-4 text-gray-500" />
                       My Profile
                     </button>
-                    <hr className="border-[#E5E7EB] my-1" />
+                    <hr className="border-line my-1" />
                     <button
                       onClick={handleLogout}
                       disabled={logoutMutation.isPending}
@@ -396,10 +396,7 @@ const Navbar: React.FC = () => {
               /* Sign In Button */
               <div
                 onClick={handleSignInClick}
-                className="relative bg-white text-[#F9A922] font-bold text-sm px-6 py-[4.8px] ml-1 cursor-pointer min-w-[90px] text-center transition-all hover:bg-gray-50 hover:scale-[1.02] active:scale-[0.98]"
-                style={{
-                  clipPath: "polygon(0% 0%, calc(100% - 15px) 0%, 100% 50%, calc(100% - 15px) 100%, 0% 100%, 15px 50%)",
-                }}
+                className="relative ml-1 min-w-[90px] cursor-pointer bg-white px-6 py-2 text-center text-sm font-bold text-brand transition-all hover:scale-[1.02] hover:bg-gray-50 active:scale-[0.98] [clip-path:polygon(0%_0%,calc(100%_-_15px)_0%,100%_50%,calc(100%_-_15px)_100%,0%_100%,15px_50%)]"
               >
                 SIGN IN
               </div>

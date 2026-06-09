@@ -1,12 +1,12 @@
-import React from "react";
+﻿import React from "react";
 import { Search } from "lucide-react";
 import CompanyContactInfo from "@/components/CompanyContactInfo";
 
 const TH = ({ children }: { children: React.ReactNode }) => (
-  <th className="font-bold text-left p-3 text-sm border-b border-[#e8e8e8] bg-[#f5f5f5]">{children}</th>
+  <th className="font-bold text-left p-3 text-sm border-b border-line-light bg-paper">{children}</th>
 );
 const TD = ({ children }: { children: React.ReactNode }) => (
-  <td className="p-3 text-sm text-[#333] align-top">{children}</td>
+  <td className="p-3 text-sm text-body align-top">{children}</td>
 );
 
 export default function EnzymeApplicationsPage() {
@@ -22,8 +22,8 @@ export default function EnzymeApplicationsPage() {
         <div className="relative z-[2] w-[90%] max-w-[700px]">
           <div className="relative flex items-center bg-white/95 backdrop-blur-[15px] rounded-[50px]" style={{ boxShadow: "0 25px 50px rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.08)" }}>
             <input placeholder="Search enzymes, applications, units, or specifications..."
-              className="w-full h-[60px] text-lg px-6 pr-16 rounded-[50px] bg-transparent text-[#2c3e50] font-medium placeholder:text-[#7f8c8d] focus:outline-none" />
-            <div className="absolute right-3 flex items-center justify-center w-10 h-10 rounded-full bg-[#F9A922] transition-transform hover:scale-110" style={{ boxShadow: "0 4px 12px rgba(249,169,34,0.3)" }}>
+              className="w-full h-[60px] text-lg px-6 pr-16 rounded-[50px] bg-transparent text-heading font-medium placeholder:text-soft focus:outline-none" />
+            <div className="absolute right-3 flex items-center justify-center w-10 h-10 rounded-full bg-brand transition-transform hover:scale-110" style={{ boxShadow: "0 4px 12px rgba(249,169,34,0.3)" }}>
               <Search className="w-5 h-5 text-white" />
             </div>
           </div>
@@ -32,19 +32,19 @@ export default function EnzymeApplicationsPage() {
       </div>
 
       <div className="px-4 py-6 max-w-[1200px] mx-auto">
-        <h2 className="mb-3 font-bold text-[#333] text-2xl">Activity, Measurement and Potency</h2>
-        <p className="mb-4 text-[#666] leading-relaxed">We listen to our customers and always want to help, so we have created an enzyme tool for you on our website so you can find the right kind of enzyme and potency for your project. Whether it&apos;s for a gut health supplement, to increase muscle mass, heart health or a combination we have the technical know how and tools to point you in the right direction.</p>
+        <h2 className="mb-3 font-bold text-body text-2xl">Activity, Measurement and Potency</h2>
+        <p className="mb-4 text-dim leading-relaxed">We listen to our customers and always want to help, so we have created an enzyme tool for you on our website so you can find the right kind of enzyme and potency for your project. Whether it&apos;s for a gut health supplement, to increase muscle mass, heart health or a combination we have the technical know how and tools to point you in the right direction.</p>
 
-        <h3 className="mt-4 mb-3 font-bold text-[#333] text-xl">Key Questions Answered:</h3>
+        <h3 className="mt-4 mb-3 font-bold text-body text-xl">Key Questions Answered:</h3>
         <div className="mb-4 flex flex-col gap-2">
-          <p className="text-[#666] leading-relaxed">• Which enzyme is suitable for gut, muscle and heart applications</p>
-          <p className="text-[#666] leading-relaxed">• What is the optimum temperature</p>
-          <p className="text-[#666] leading-relaxed">• Which unit is used</p>
-          <p className="text-[#666] leading-relaxed">• Which potency is ideal for your project</p>
+          <p className="text-dim leading-relaxed">• Which enzyme is suitable for gut, muscle and heart applications</p>
+          <p className="text-dim leading-relaxed">• What is the optimum temperature</p>
+          <p className="text-dim leading-relaxed">• Which unit is used</p>
+          <p className="text-dim leading-relaxed">• Which potency is ideal for your project</p>
         </div>
-        <p className="mb-6 text-[#666] leading-relaxed">Below is a summary, for a more detailed view of the different units used globally please see our Enzyme table. Please contact our friendly and knowledgeable technical sales colleagues to help guide you to the best solutions for your formulations.</p>
+        <p className="mb-6 text-dim leading-relaxed">Below is a summary, for a more detailed view of the different units used globally please see our Enzyme table. Please contact our friendly and knowledgeable technical sales colleagues to help guide you to the best solutions for your formulations.</p>
 
-        <h3 className="mt-4 mb-3 font-bold text-[#333] text-xl">Enzyme Applications and Specifications</h3>
+        <h3 className="mt-4 mb-3 font-bold text-body text-xl">Enzyme Applications and Specifications</h3>
         <div className="overflow-x-auto mb-6 shadow-md rounded-lg">
           <table className="w-full border-collapse bg-white">
             <thead><tr><TH>Item Code</TH><TH>Name</TH><TH>Applications</TH><TH>Optimum Temperature °C</TH><TH>Optimum pH</TH><TH>Common Units</TH></tr></thead>
@@ -85,13 +85,13 @@ export default function EnzymeApplicationsPage() {
                 ["NIGEENZ001701","Sucrase 1000 SU/g","Catalyses the breakdown of sucrose into glucose and fructose. Applications in digestive health and energy.","20 – 65","3.0 – 5.0",""],
                 ["NIGEENZ001751","Trypsin 250USP/mg","Proteolytic enzyme that hydrolyses protein into amino acids. Applications in digestive health, muscle repair and injury recovery.","35 – 60","7.0 – 9.0","USP"],
                 ["NIGEENZ003001","Ox Bile Powder CP2010","Applications in digestive health and weight management","20 – 65","6.0 – 7.0",""],
-              ].map((r, i) => <tr key={i} className="border-b border-[#e8e8e8] hover:bg-gray-50">{r.map((c, j) => <TD key={j}>{c}</TD>)}</tr>)}
+              ].map((r, i) => <tr key={i} className="border-b border-line-light hover:bg-gray-50">{r.map((c, j) => <TD key={j}>{c}</TD>)}</tr>)}
             </tbody>
           </table>
         </div>
 
-        <div className="mt-6 mb-4 bg-[#f8f9fa] border border-[#e9ecef] rounded-lg p-4">
-          <p className="text-[#666] text-sm leading-relaxed italic">All information is correct to the best of our knowledge and Nutraceuticals Group Europe takes no responsibility for any errors or mistakes. Links to other sources and reference material are included for accuracy. Any errors or omissions? Please let us know through our contact form.</p>
+        <div className="mt-6 mb-4 bg-surface border border-line rounded-lg p-4">
+          <p className="text-dim text-sm leading-relaxed italic">All information is correct to the best of our knowledge and Nutraceuticals Group Europe takes no responsibility for any errors or mistakes. Links to other sources and reference material are included for accuracy. Any errors or omissions? Please let us know through our contact form.</p>
         </div>
         <CompanyContactInfo />
       </div>

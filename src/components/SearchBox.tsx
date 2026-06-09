@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useRef, useEffect } from "react";
 import { Search, X, Tag, LayoutGrid, TrendingUp } from "lucide-react";
@@ -106,17 +106,17 @@ const SearchBox: React.FC<SearchBoxProps> = ({
     <div ref={searchRef} className={`relative ${fullWidth ? "w-full" : ""}`}>
       <form onSubmit={handleSubmit}>
         <div className="relative flex items-center">
-          <Search className="absolute left-3 w-5 h-5 text-[#666] pointer-events-none" />
+          <Search className="absolute left-3 w-5 h-5 text-dim pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={handleInputChange}
             onFocus={() => showDropdown && setIsOpen(true)}
             placeholder={placeholder}
-            className={`${fullWidth ? "w-full" : ""} bg-white border border-[#e0e0e0] rounded-lg pl-10 pr-10 py-3 text-sm text-[#333] placeholder:text-[#999] focus:outline-none focus:border-[#F9A922] hover:border-[#c0c0c0] transition-colors`}
+            className={`${fullWidth ? "w-full" : ""} bg-white border border-line-light rounded-lg pl-10 pr-10 py-3 text-sm text-body placeholder:text-faint focus:outline-none focus:border-brand hover:border-line-light transition-colors`}
           />
           {searchQuery && (
-            <button type="button" onClick={handleClear} className="absolute right-3 text-[#666] hover:text-[#333] transition-colors">
+            <button type="button" onClick={handleClear} className="absolute right-3 text-dim hover:text-body transition-colors">
               <X className="w-5 h-5" />
             </button>
           )}
@@ -125,16 +125,16 @@ const SearchBox: React.FC<SearchBoxProps> = ({
 
       {/* Search Dropdown */}
       {showDropdown && isOpen && (
-        <div className="absolute top-full left-0 right-0 z-[1300] mt-1 max-h-[400px] overflow-auto rounded-lg shadow-[0_8px_24px_rgba(0,0,0,0.12)] border border-[#e0e0e0] bg-white">
+        <div className="absolute top-full left-0 right-0 z-[1300] mt-1 max-h-[400px] overflow-auto rounded-lg shadow-[0_8px_24px_rgba(0,0,0,0.12)] border border-line-light bg-white">
           {loading ? (
             <div className="p-6 flex flex-col items-center gap-2">
               <Spinner size="sm" />
-              <span className="text-sm text-[#666]">Searching...</span>
+              <span className="text-sm text-dim">Searching...</span>
             </div>
           ) : searchQuery.trim() === "" ? (
             /* Popular Searches */
             <div className="p-4">
-              <p className="text-sm font-semibold text-[#333] mb-3 flex items-center gap-1.5">
+              <p className="text-sm font-semibold text-body mb-3 flex items-center gap-1.5">
                 <TrendingUp className="w-4 h-4" />
                 Popular Searches
               </p>
@@ -144,7 +144,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
                     key={term}
                     type="button"
                     onClick={() => handlePopularSearchClick(term)}
-                    className="text-sm px-3 py-1 rounded-full border border-[#e0e0e0] text-[#555] hover:bg-[#F9A922] hover:text-white hover:border-[#F9A922] transition-colors"
+                    className="text-sm px-3 py-1 rounded-full border border-line-light text-dim hover:bg-brand hover:text-white hover:border-brand transition-colors"
                   >
                     {term}
                   </button>
@@ -156,7 +156,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
               {/* Categories */}
               {searchResults.categories.length > 0 && (
                 <>
-                  <p className="px-4 py-2 text-xs font-semibold text-[#333]">Categories</p>
+                  <p className="px-4 py-2 text-xs font-semibold text-body">Categories</p>
                   {searchResults.categories.map((category: any) => (
                     <button
                       key={category._id}
@@ -164,23 +164,23 @@ const SearchBox: React.FC<SearchBoxProps> = ({
                       onClick={() => handleCategoryClick(category.slug)}
                       className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-[rgba(255,107,53,0.04)] transition-colors"
                     >
-                      <div className="w-8 h-8 rounded-full bg-[#F9A922] flex items-center justify-center flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-brand flex items-center justify-center flex-shrink-0">
                         <LayoutGrid className="w-[18px] h-[18px] text-white" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-[#333]">{category.name}</p>
-                        {category.description && <p className="text-xs text-[#666]">{category.description}</p>}
+                        <p className="text-sm font-semibold text-body">{category.name}</p>
+                        {category.description && <p className="text-xs text-dim">{category.description}</p>}
                       </div>
                     </button>
                   ))}
-                  {searchResults.products.length > 0 && <hr className="border-[#e0e0e0] my-1" />}
+                  {searchResults.products.length > 0 && <hr className="border-line-light my-1" />}
                 </>
               )}
 
               {/* Products */}
               {searchResults.products.length > 0 && (
                 <>
-                  <p className="px-4 py-2 text-xs font-semibold text-[#333]">Products</p>
+                  <p className="px-4 py-2 text-xs font-semibold text-body">Products</p>
                   {searchResults.products.map((product) => (
                     <button
                       key={product._id}
@@ -188,19 +188,19 @@ const SearchBox: React.FC<SearchBoxProps> = ({
                       onClick={() => handleProductClick(product._id)}
                       className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-[rgba(255,107,53,0.04)] transition-colors"
                     >
-                      <div className="w-8 h-8 rounded-full overflow-hidden bg-[#f0f0f0] flex items-center justify-center flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full overflow-hidden bg-wash flex items-center justify-center flex-shrink-0">
                         {(product.bannerImage || product.images?.[0]) ? (
                           <img src={product.bannerImage || product.images[0]} alt={product.name} className="w-full h-full object-cover" />
                         ) : (
-                          <Tag className="w-[18px] h-[18px] text-[#666]" />
+                          <Tag className="w-[18px] h-[18px] text-dim" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-[#333] truncate">{product.name}</p>
-                        <p className="text-xs text-[#666]">{product.uniqueId} • ${product.price}</p>
+                        <p className="text-sm font-semibold text-body truncate">{product.name}</p>
+                        <p className="text-xs text-dim">{product.uniqueId} • ${product.price}</p>
                       </div>
                       {product.inStock && (
-                        <span className="text-[0.7rem] font-semibold px-2 py-0.5 rounded-full bg-[#4caf50] text-white flex-shrink-0">In Stock</span>
+                        <span className="text-[0.7rem] font-semibold px-2 py-0.5 rounded-full bg-success text-white flex-shrink-0">In Stock</span>
                       )}
                     </button>
                   ))}
@@ -208,12 +208,12 @@ const SearchBox: React.FC<SearchBoxProps> = ({
               )}
 
               {/* View All Results */}
-              <hr className="border-[#e0e0e0]" />
+              <hr className="border-line-light" />
               <div className="p-3">
                 <button
                   type="button"
                   onClick={() => { setIsOpen(false); router.push(`/search?q=${encodeURIComponent(searchQuery)}`); }}
-                  className="w-full py-2 border border-[#F9A922] text-[#F9A922] text-sm font-medium rounded-lg hover:bg-[rgba(249,169,34,0.04)] hover:border-[#E8981F] transition-colors"
+                  className="w-full py-2 border border-brand text-brand text-sm font-medium rounded-lg hover:bg-[rgba(249,169,34,0.04)] hover:border-brand-hover transition-colors"
                 >
                   View All Results
                 </button>
@@ -222,8 +222,8 @@ const SearchBox: React.FC<SearchBoxProps> = ({
           ) : (
             /* No Results */
             <div className="p-6 flex flex-col items-center gap-2 text-center">
-              <Search className="w-12 h-12 text-[#c0c0c0]" />
-              <p className="text-sm text-[#666]">No results found for "{searchQuery}"</p>
+              <Search className="w-12 h-12 text-line-light" />
+              <p className="text-sm text-dim">No results found for "{searchQuery}"</p>
             </div>
           )}
         </div>

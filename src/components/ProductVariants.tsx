@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { Spinner } from "@/components/ui/spinner";
@@ -46,18 +46,18 @@ export default function ProductVariants({ productId }: ProductVariantsProps) {
   return (
     <div className="mt-0 mb-6">
       <div
-        className="border border-[#e0e0e0] rounded-lg overflow-hidden"
+        className="border border-line-light rounded-lg overflow-hidden"
         style={variants.length > 2 ? { maxHeight: 133, overflowY: "auto" } : {}}
       >
         <table className="w-full text-xs">
-          <thead className="bg-[#f8f9fa]">
+          <thead className="bg-surface">
             <tr>
-              <th className="text-left px-3 py-2.5 font-semibold text-[#1F2A44] border-b border-[#e0e0e0]">Quantity</th>
-              <th className="text-left px-3 py-2.5 font-semibold text-[#1F2A44] border-b border-[#e0e0e0]">Price</th>
-              <th className="text-left px-3 py-2.5 font-semibold text-[#1F2A44] border-b border-[#e0e0e0]">Save</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-heading border-b border-line-light">Quantity</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-heading border-b border-line-light">Price</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-heading border-b border-line-light">Save</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#e0e0e0]">
+          <tbody className="divide-y divide-line-light">
             {variants.map((variant: any) => (
               <tr key={variant._id}>
                 <td className="px-3 py-2.5">{variant.unitSize} {variant.unit}</td>

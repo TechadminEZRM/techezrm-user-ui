@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React, { useState } from "react";
 import { ChevronDown, Heart } from "lucide-react";
 import { useProductListing } from "@/api/handlers";
@@ -141,11 +141,11 @@ const ProductPage: React.FC = () => {
     return (
       <div className="bg-[rgba(217,217,217,0.21)] mb-[5px]">
         <button
-          className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-[#333] hover:bg-[rgba(0,0,0,0.02)] transition-colors"
+          className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-body hover:bg-[rgba(0,0,0,0.02)] transition-colors"
           onClick={() => handleAccordionChange(panelKey)}
         >
           {label}
-          <ChevronDown className={`w-4 h-4 text-[#666] transition-transform ${open ? "rotate-180" : ""}`} />
+          <ChevronDown className={`w-4 h-4 text-dim transition-transform ${open ? "rotate-180" : ""}`} />
         </button>
         {open && (
           <div className="px-4 pb-3 max-h-[200px] overflow-y-auto scrollbar-thin scrollbar-thumb-[rgba(0,0,0,0.2)] scrollbar-track-transparent">
@@ -161,8 +161,8 @@ const ProductPage: React.FC = () => {
                     className="flex items-center gap-2 cursor-pointer px-2 py-1.5 rounded hover:bg-[rgba(255,107,53,0.08)] hover:translate-x-0.5 transition-all"
                     onClick={() => onToggle(slug, !isChecked)}
                   >
-                    <input type="checkbox" checked={isChecked} onChange={() => {}} className="cursor-pointer accent-[#F9A922]" />
-                    <span className="text-xs text-[#666]">
+                    <input type="checkbox" checked={isChecked} onChange={() => {}} className="cursor-pointer accent-brand" />
+                    <span className="text-xs text-dim">
                       {item.emoji ? `${item.emoji} ` : ""}{name}{count > 0 ? ` (${count})` : ""}
                     </span>
                   </div>
@@ -176,11 +176,11 @@ const ProductPage: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#f8f9fa]">
+    <div className="flex min-h-screen bg-surface">
       {/* Left Sidebar */}
       <div className="w-[280px] flex flex-col mt-4 ml-4 flex-shrink-0">
         {/* Filter Header */}
-        <div className="bg-[#F9A922] text-white px-4 py-3 flex items-center justify-between rounded-[20px_20px_0_0]">
+        <div className="bg-brand text-white px-4 py-3 flex items-center justify-between rounded-[20px_20px_0_0]">
           <span className="font-semibold text-base">Filters</span>
           <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-semibold">×</div>
         </div>
@@ -206,14 +206,14 @@ const ProductPage: React.FC = () => {
 
               {hasActiveFilters && (
                 <div className="p-4">
-                  <button onClick={clearAllFilters} className="w-full border border-[#F9A922] text-[#F9A922] text-xs font-semibold py-2 rounded hover:border-[#E8981F] hover:bg-[rgba(255,107,53,0.04)] transition-colors">
+                  <button onClick={clearAllFilters} className="w-full border border-brand text-brand text-xs font-semibold py-2 rounded hover:border-brand-hover hover:bg-[rgba(255,107,53,0.04)] transition-colors">
                     Clear All Filters
                   </button>
                 </div>
               )}
 
               {(!filtersData?.data?.category || filtersData.data.category.length === 0) && (!filtersData?.data?.countryOfOrigin || filtersData.data.countryOfOrigin.length === 0) && (
-                <div className="p-4"><p className="text-xs text-[#666] text-center">No filters available</p></div>
+                <div className="p-4"><p className="text-xs text-dim text-center">No filters available</p></div>
               )}
             </>
           )}
@@ -225,10 +225,10 @@ const ProductPage: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col gap-4 mb-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-semibold text-[#333]">Our Products</h1>
+            <h1 className="text-2xl font-semibold text-body">Our Products</h1>
             <div className="flex items-center gap-4">
-              <span className="text-base text-[#666] font-medium whitespace-nowrap">Total: {response?.pagination?.total || 0}</span>
-              <button onClick={() => setContactModalOpen(true)} className="border border-[#F9A922] text-[#F9A922] font-semibold px-4 py-2 rounded hover:border-[#E8981F] hover:bg-[rgba(255,107,53,0.04)] transition-colors text-sm">
+              <span className="text-base text-dim font-medium whitespace-nowrap">Total: {response?.pagination?.total || 0}</span>
+              <button onClick={() => setContactModalOpen(true)} className="border border-brand text-brand font-semibold px-4 py-2 rounded hover:border-brand-hover hover:bg-[rgba(255,107,53,0.04)] transition-colors text-sm">
                 Contact Us
               </button>
             </div>
@@ -250,12 +250,12 @@ const ProductPage: React.FC = () => {
             return (
               <div className="flex flex-wrap gap-2 items-center max-h-[90px] overflow-y-auto">
                 {visible.map((f, i) => (
-                  <span key={`${f.type}-${f.slug}-${i}`} className="inline-flex items-center gap-1 bg-[#F9A922] text-white text-xs font-medium h-7 px-3 rounded-full">
+                  <span key={`${f.type}-${f.slug}-${i}`} className="inline-flex items-center gap-1 bg-brand text-white text-xs font-medium h-7 px-3 rounded-full">
                     {f.type}: {f.name}
                     <button onClick={f.onDelete} className="ml-1 hover:text-white/70">×</button>
                   </span>
                 ))}
-                {remaining > 0 && <span className="inline-flex items-center bg-[#f5f5f5] text-[#666] text-xs font-medium h-7 px-3 rounded-full">+{remaining} more</span>}
+                {remaining > 0 && <span className="inline-flex items-center bg-paper text-dim text-xs font-medium h-7 px-3 rounded-full">+{remaining} more</span>}
               </div>
             );
           })()}
@@ -268,15 +268,15 @@ const ProductPage: React.FC = () => {
           <div className="flex flex-col items-center justify-center py-16 px-8 text-center">
             <style>{`@keyframes float{0%,100%{transform:translateY(0px) rotate(0deg)}50%{transform:translateY(-15px) rotate(2deg)}}@keyframes fadeInUp{0%{opacity:0;transform:translateY(30px)}100%{opacity:1;transform:translateY(0)}}`}</style>
             <div className="w-[140px] h-[140px] mb-8" style={{ animation: "float 3s ease-in-out infinite" }}>
-              <div className="w-full h-full bg-gradient-to-br from-[#f8f9fa] to-[#e9ecef] border-[3px] border-dashed border-[#dee2e6] rounded-[20px] flex items-center justify-center shadow-[0_8px_32px_rgba(0,0,0,0.1)]">
-                <div className="w-10 h-10 border-[3px] border-[#F9A922] rounded-full" />
+              <div className="w-full h-full bg-gradient-to-br from-surface to-line border-[3px] border-dashed border-line rounded-[20px] flex items-center justify-center shadow-[0_8px_32px_rgba(0,0,0,0.1)]">
+                <div className="w-10 h-10 border-[3px] border-brand rounded-full" />
               </div>
             </div>
-            <h2 className="text-2xl font-semibold text-[#333] mb-4" style={{ animation: "fadeInUp 1s ease-out 0.5s both" }}>No Products Found</h2>
-            <p className="text-[#666] mb-8 max-w-[500px] text-sm" style={{ animation: "fadeInUp 1s ease-out 0.8s both" }}>
+            <h2 className="text-2xl font-semibold text-body mb-4" style={{ animation: "fadeInUp 1s ease-out 0.5s both" }}>No Products Found</h2>
+            <p className="text-dim mb-8 max-w-[500px] text-sm" style={{ animation: "fadeInUp 1s ease-out 0.8s both" }}>
               We couldn't find any products matching your current filters. Try adjusting your search criteria or clear all filters to see all available products.
             </p>
-            <button onClick={clearAllFilters} className="bg-[#F9A922] hover:bg-[#E8981F] text-white px-8 py-3 text-base font-medium rounded-[8px] shadow-[0_4px_12px_rgba(255,107,53,0.3)] hover:shadow-[0_8px_24px_rgba(255,107,53,0.6)] hover:-translate-y-0.5 transition-all" style={{ animation: "fadeInUp 1s ease-out 1.1s both" }}>
+            <button onClick={clearAllFilters} className="bg-brand hover:bg-brand-hover text-white px-8 py-3 text-base font-medium rounded-[8px] shadow-[0_4px_12px_rgba(255,107,53,0.3)] hover:shadow-[0_8px_24px_rgba(255,107,53,0.6)] hover:-translate-y-0.5 transition-all" style={{ animation: "fadeInUp 1s ease-out 1.1s both" }}>
               Clear All Filters
             </button>
           </div>
@@ -315,26 +315,26 @@ const ProductPage: React.FC = () => {
                       className="absolute top-2 left-2 z-[2]"
                       onClick={(e) => handleWishlistToggle(product._id, e)}
                     >
-                      <Heart className="w-5 h-5" fill={productInWishlist ? "#ff4444" : "none"} stroke={productInWishlist ? "#ff4444" : "white"} />
+                      <Heart className="w-5 h-5" fill={productInWishlist ? "var(--color-danger)" : "none"} stroke={productInWishlist ? "var(--color-danger)" : "white"} />
                     </button>
                     {/* Out of Stock Badge */}
                     {!product.inStock && (
-                      <span className="absolute top-2 right-2 bg-white/90 text-[#F9A922] text-[11px] h-6 px-2 flex items-center rounded font-semibold">Out of Stock</span>
+                      <span className="absolute top-2 right-2 bg-white/90 text-brand text-[11px] h-6 px-2 flex items-center rounded font-semibold">Out of Stock</span>
                     )}
                   </div>
 
                   {/* Product Content */}
                   <div className="p-4">
                     <div className="flex justify-between items-start mb-2 gap-2">
-                      <h3 className="text-sm font-semibold text-[#333] leading-snug flex-1 line-clamp-2">{product.name}</h3>
+                      <h3 className="text-sm font-semibold text-body leading-snug flex-1 line-clamp-2">{product.name}</h3>
                       {isAuthenticated && (
-                        <span className="text-[#F9A922] font-bold text-[0.8rem] bg-[rgba(255,107,53,0.1)] px-1.5 py-0.5 rounded border border-[rgba(255,107,53,0.2)] whitespace-nowrap flex-shrink-0">
+                        <span className="text-brand font-bold text-[0.8rem] bg-[rgba(255,107,53,0.1)] px-1.5 py-0.5 rounded border border-[rgba(255,107,53,0.2)] whitespace-nowrap flex-shrink-0">
                           ${product.price}/kg
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-[#666] mb-2 line-clamp-2 leading-snug">{product.description || "Premium, lab-tested raw material trusted by manufacturers."}</p>
-                    <p className="text-[11px] text-[#999] mb-4">Product Code: {product.uniqueId}</p>
+                    <p className="text-xs text-dim mb-2 line-clamp-2 leading-snug">{product.description || "Premium, lab-tested raw material trusted by manufacturers."}</p>
+                    <p className="text-[11px] text-faint mb-4">Product Code: {product.uniqueId}</p>
                     <button
                       disabled={!product.inStock}
                       onClick={(e) => {
@@ -342,7 +342,7 @@ const ProductPage: React.FC = () => {
                         setSelectedProduct({ id: product._id, name: product.name });
                         setRfqModalOpen(true);
                       }}
-                      className={`w-full py-2 text-xs font-semibold rounded text-white transition-colors ${product.inStock ? "bg-[#F9A922] hover:bg-[#E8981F]" : "bg-[#ccc] cursor-not-allowed"}`}
+                      className={`w-full py-2 text-xs font-semibold rounded text-white transition-colors ${product.inStock ? "bg-brand hover:bg-brand-hover" : "bg-line-light cursor-not-allowed"}`}
                     >
                       Get Quote
                     </button>
@@ -360,7 +360,7 @@ const ProductPage: React.FC = () => {
               <button
                 key={p}
                 onClick={() => setPage(p)}
-                className={`w-9 h-9 rounded text-sm font-medium transition-colors ${p === page ? "bg-[#F9A922] text-white" : "text-[#666] hover:bg-[#f0f0f0]"}`}
+                className={`w-9 h-9 rounded text-sm font-medium transition-colors ${p === page ? "bg-brand text-white" : "text-dim hover:bg-wash"}`}
               >
                 {p}
               </button>

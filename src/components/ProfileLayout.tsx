@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import ProfileSidebar from "./ProfileSidebar";
 
 interface ProfileLayoutProps {
@@ -21,7 +21,7 @@ const ProfileLayout: React.FC<ProfileLayoutProps> = ({
   showBackButton = false,
 }) => {
   return (
-    <div className="flex min-h-screen bg-[#F9FAFB]">
+    <div className="flex min-h-screen bg-surface">
       {/* Left Sidebar */}
       <ProfileSidebar customer={customer} currentPage={currentPage} onPageChange={onPageChange} />
 

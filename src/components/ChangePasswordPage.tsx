@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import { Eye, EyeOff, Lock, Shield, CheckCircle2 } from "lucide-react";
@@ -42,7 +42,7 @@ const ChangePasswordPage: React.FC<ChangePasswordPageProps> = ({ onPasswordChang
   };
 
   const getPasswordStrength = (password: string): PasswordStrength => {
-    if (!password) return { score: 0, message: "", color: "#e0e0e0" };
+    if (!password) return { score: 0, message: "", color: "var(--color-line-light)" };
     let score = 0;
     if (password.length >= 8) score++;
     if (/[a-z]/.test(password)) score++;
@@ -54,8 +54,8 @@ const ChangePasswordPage: React.FC<ChangePasswordPageProps> = ({ onPasswordChang
       case 2: return { score, message: "Weak", color: "#ff9800" };
       case 3: return { score, message: "Fair", color: "#ffc107" };
       case 4: return { score, message: "Good", color: "#8bc34a" };
-      case 5: return { score, message: "Strong", color: "#4caf50" };
-      default: return { score: 0, message: "", color: "#e0e0e0" };
+      case 5: return { score, message: "Strong", color: "var(--color-success)" };
+      default: return { score: 0, message: "", color: "var(--color-line-light)" };
     }
   };
 
@@ -97,7 +97,7 @@ const ChangePasswordPage: React.FC<ChangePasswordPageProps> = ({ onPasswordChang
     { met: /[^A-Za-z0-9]/.test(formData.newPassword), text: "One special character" },
   ];
 
-  const inputClass = "flex h-10 w-full rounded-xl border border-[#e0e0e0] bg-white pr-10 pl-4 py-2 text-sm text-[#1F2A44] placeholder:text-[#737791] focus:outline-none focus:ring-2 focus:ring-[#F9A922] focus:border-[#F9A922]";
+  const inputClass = "flex h-10 w-full rounded-xl border border-line-light bg-white pr-10 pl-4 py-2 text-sm text-heading placeholder:text-soft focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand";
 
   return (
     <div className="max-w-[600px] mx-auto p-6">
@@ -111,7 +111,7 @@ const ChangePasswordPage: React.FC<ChangePasswordPageProps> = ({ onPasswordChang
       <Card className="rounded-2xl">
         <CardContent className="p-8">
           <div className="flex items-center gap-2 font-semibold text-lg mb-6">
-            <Lock className="w-5 h-5 text-[#F9A922]" />
+            <Lock className="w-5 h-5 text-brand" />
             Password Update
           </div>
 
@@ -119,7 +119,7 @@ const ChangePasswordPage: React.FC<ChangePasswordPageProps> = ({ onPasswordChang
             <div className="flex flex-col gap-6">
               {/* Current Password */}
               <div>
-                <label className="text-sm text-[#1F2A44] mb-1.5 block font-medium">Current Password</label>
+                <label className="text-sm text-heading mb-1.5 block font-medium">Current Password</label>
                 <div className="relative">
                   <input
                     type={showPasswords.current ? "text" : "password"}
@@ -136,11 +136,11 @@ const ChangePasswordPage: React.FC<ChangePasswordPageProps> = ({ onPasswordChang
                 {errors.currentPassword && <p className="text-red-500 text-xs mt-1">{errors.currentPassword}</p>}
               </div>
 
-              <hr className="border-[#E5E7EB]" />
+              <hr className="border-line" />
 
               {/* New Password */}
               <div>
-                <label className="text-sm text-[#1F2A44] mb-1.5 block font-medium">New Password</label>
+                <label className="text-sm text-heading mb-1.5 block font-medium">New Password</label>
                 <div className="relative">
                   <input
                     type={showPasswords.new ? "text" : "password"}
@@ -161,10 +161,10 @@ const ChangePasswordPage: React.FC<ChangePasswordPageProps> = ({ onPasswordChang
               {formData.newPassword && (
                 <div className="-mt-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm text-[#666]">Password Strength:</span>
+                    <span className="text-sm text-dim">Password Strength:</span>
                     <span className="text-sm font-semibold" style={{ color: passwordStrength.color }}>{passwordStrength.message}</span>
                   </div>
-                  <div className="w-full h-1 bg-[#e0e0e0] rounded-full overflow-hidden">
+                  <div className="w-full h-1 bg-line-light rounded-full overflow-hidden">
                     <div className="h-full rounded-full transition-all" style={{ width: `${(passwordStrength.score / 5) * 100}%`, backgroundColor: passwordStrength.color }} />
                   </div>
                 </div>
@@ -173,12 +173,12 @@ const ChangePasswordPage: React.FC<ChangePasswordPageProps> = ({ onPasswordChang
               {/* Requirements */}
               {formData.newPassword && (
                 <div>
-                  <p className="text-sm text-[#666] mb-2">Password Requirements:</p>
+                  <p className="text-sm text-dim mb-2">Password Requirements:</p>
                   <div className="flex flex-col gap-1">
                     {passwordRequirements.map((req, i) => (
                       <div key={i} className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: req.met ? "#4caf50" : "#e0e0e0" }} />
-                        <span className="text-sm" style={{ color: req.met ? "#4caf50" : "#999" }}>{req.text}</span>
+                        <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: req.met ? "var(--color-success)" : "var(--color-line-light)" }} />
+                        <span className="text-sm" style={{ color: req.met ? "var(--color-success)" : "var(--color-faint)" }}>{req.text}</span>
                       </div>
                     ))}
                   </div>
@@ -187,7 +187,7 @@ const ChangePasswordPage: React.FC<ChangePasswordPageProps> = ({ onPasswordChang
 
               {/* Confirm Password */}
               <div>
-                <label className="text-sm text-[#1F2A44] mb-1.5 block font-medium">Confirm New Password</label>
+                <label className="text-sm text-heading mb-1.5 block font-medium">Confirm New Password</label>
                 <div className="relative">
                   <input
                     type={showPasswords.confirm ? "text" : "password"}
@@ -205,12 +205,12 @@ const ChangePasswordPage: React.FC<ChangePasswordPageProps> = ({ onPasswordChang
               </div>
 
               {/* Security Tips */}
-              <div className="bg-gray-50 rounded-xl p-6 border border-[#e0e0e0]">
+              <div className="bg-gray-50 rounded-xl p-6 border border-line-light">
                 <div className="flex items-center gap-2 font-semibold text-sm mb-3">
-                  <Shield className="w-4 h-4 text-[#F9A922]" />
+                  <Shield className="w-4 h-4 text-brand" />
                   Security Tips
                 </div>
-                <ul className="list-disc pl-5 text-sm text-[#666] space-y-1">
+                <ul className="list-disc pl-5 text-sm text-dim space-y-1">
                   <li>Use a unique password for your account</li>
                   <li>Avoid using personal information in passwords</li>
                   <li>Consider using a password manager</li>
@@ -222,7 +222,7 @@ const ChangePasswordPage: React.FC<ChangePasswordPageProps> = ({ onPasswordChang
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center justify-center gap-2 bg-[#F9A922] text-white font-semibold py-3 rounded-xl hover:bg-[#E8981F] disabled:bg-gray-200 disabled:text-gray-400 transition-colors"
+                className="flex items-center justify-center gap-2 bg-brand text-white font-semibold py-3 rounded-xl hover:bg-brand-hover disabled:bg-gray-200 disabled:text-gray-400 transition-colors"
               >
                 {loading ? <><Spinner size="sm" className="border-white border-t-transparent" /> Updating Password...</> : "Update Password"}
               </button>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { ShoppingCart, Eye, CheckCircle2, AlertCircle } from "lucide-react";
@@ -35,7 +35,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, handleProductClick, 
 
   return (
     <div
-      className="h-full flex flex-col cursor-pointer transition-all border border-[#e0e0e0] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] hover:-translate-y-1 rounded-xl relative overflow-hidden bg-white"
+      className="h-full flex flex-col cursor-pointer transition-all border border-line-light hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] hover:-translate-y-1 rounded-xl relative overflow-hidden bg-white"
       onClick={() => handleProductClick(product._id)}
     >
       {/* Stock badge */}
@@ -66,12 +66,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, handleProductClick, 
       <div className="flex-1 flex flex-col p-6">
         {/* Unique ID */}
         {product.uniqueId && (
-          <span className="text-[#999] text-xs font-medium tracking-[0.5px] mb-1">{product.uniqueId}</span>
+          <span className="text-faint text-xs font-medium tracking-[0.5px] mb-1">{product.uniqueId}</span>
         )}
 
         {/* Name */}
         <h3
-          className="font-semibold text-[#333] mb-2 text-base leading-tight"
+          className="font-semibold text-body mb-2 text-base leading-tight"
           style={{
             display: "-webkit-box",
             WebkitLineClamp: 2,
@@ -85,7 +85,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, handleProductClick, 
         {/* Description */}
         {product.description && (
           <p
-            className="text-sm text-[#666] mb-4 leading-relaxed"
+            className="text-sm text-dim mb-4 leading-relaxed"
             style={{
               display: "-webkit-box",
               WebkitLineClamp: 3,
@@ -99,16 +99,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, handleProductClick, 
 
         {/* Appearance */}
         {product.appearance && (
-          <span className="text-xs text-[#999] italic mb-4 block">{product.appearance}</span>
+          <span className="text-xs text-faint italic mb-4 block">{product.appearance}</span>
         )}
 
         {/* Price */}
-        <p className="text-lg font-bold text-[#F9A922] mb-4">{formatPrice(product.price)}</p>
+        <p className="text-lg font-bold text-brand mb-4">{formatPrice(product.price)}</p>
 
         {/* Action Buttons */}
         <div className="flex gap-2 mt-auto">
           <button
-            className="flex-1 flex items-center justify-center gap-2 bg-[#F9A922] text-white font-semibold text-sm py-2 px-4 rounded-[30px] hover:bg-[#E8981F] transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 bg-brand text-white font-semibold text-sm py-2 px-4 rounded-[30px] hover:bg-brand-hover transition-colors"
             onClick={(e) => {
               e.stopPropagation();
               handleProductClick(product._id);
@@ -118,7 +118,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, handleProductClick, 
             View Details
           </button>
           <button
-            className="border border-[#e0e0e0] text-[#666] p-2 rounded-lg hover:bg-gray-50 hover:border-[#F9A922] hover:text-[#F9A922] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="border border-line-light text-dim p-2 rounded-lg hover:bg-gray-50 hover:border-brand hover:text-brand transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={!hasVariants || isLoading}
             onClick={(e) => {
               e.stopPropagation();

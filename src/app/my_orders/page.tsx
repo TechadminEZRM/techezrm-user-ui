@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type React from "react";
 import { useState } from "react";
@@ -18,10 +18,10 @@ interface OrderCardProps {
 }
 
 const statusBadgeClasses: Record<string, { bg: string; text: string; border: string }> = {
-  success: { bg: "#e8f5e8", text: "#2e7d32", border: "#c8e6c9" },
-  error: { bg: "#ffeaea", text: "#d32f2f", border: "#ffcdd2" },
-  info: { bg: "#e3f2fd", text: "#1976d2", border: "#bbdefb" },
-  warning: { bg: "#fff3e0", text: "#f57c00", border: "#ffcc02" },
+  success: { bg: "var(--color-success-light)", text: "var(--color-success)", border: "var(--color-success-light)" },
+  error: { bg: "var(--color-danger-light)", text: "var(--color-danger)", border: "var(--color-danger-light)" },
+  info: { bg: "var(--color-info-light)", text: "var(--color-info)", border: "var(--color-info-light)" },
+  warning: { bg: "var(--color-brand-light)", text: "var(--color-warn)", border: "var(--color-warn)" },
 };
 
 const OrderCard: React.FC<OrderCardProps> = ({ order, onBuyAgain }) => {
@@ -70,16 +70,16 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onBuyAgain }) => {
   const canBuyAgain = order.orderStatus === "delivered";
 
   return (
-    <div className="bg-white rounded-[12px] p-6 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-[#f0f0f0]">
+    <div className="bg-white rounded-[12px] p-6 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-wash">
       <div className="flex justify-between items-start mb-6">
         <div>
-          <p className="text-base font-semibold text-[#333] mb-1">{getStatusText(order.orderStatus, order.paymentStatus)}</p>
-          <p className="text-sm text-[#666]">{formatDate(order.createdAt)}</p>
-          <p className="text-xs text-[#999] mt-1">Order ID: {order.uniqueId}</p>
+          <p className="text-base font-semibold text-body mb-1">{getStatusText(order.orderStatus, order.paymentStatus)}</p>
+          <p className="text-sm text-dim">{formatDate(order.createdAt)}</p>
+          <p className="text-xs text-faint mt-1">Order ID: {order.uniqueId}</p>
         </div>
         <button
           onClick={() => router.push(`/orderDetails?orderId=${order.uniqueId}`)}
-          className="flex items-center gap-1 text-[#333] text-sm font-medium hover:underline"
+          className="flex items-center gap-1 text-body text-sm font-medium hover:underline"
         >
           View Order Details <ArrowRight className="w-4 h-4" />
         </button>
@@ -88,19 +88,19 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onBuyAgain }) => {
       <div className="flex items-center justify-between flex-wrap gap-4">
         {/* Payment Info */}
         <div className="flex items-center gap-2">
-          <Wallet className="w-5 h-5 text-[#666]" />
+          <Wallet className="w-5 h-5 text-dim" />
           <div>
-            <p className="text-base font-semibold text-[#333]">${order.totalAmount.toLocaleString()}</p>
-            <p className="text-xs text-[#666]">{formatPaymentMethod(order.paymentMethod)}</p>
+            <p className="text-base font-semibold text-body">${order.totalAmount.toLocaleString()}</p>
+            <p className="text-xs text-dim">{formatPaymentMethod(order.paymentMethod)}</p>
           </div>
         </div>
 
         {/* Items Info */}
         <div className="flex items-center gap-2">
-          <Package className="w-5 h-5 text-[#666]" />
+          <Package className="w-5 h-5 text-dim" />
           <div>
-            <p className="text-base font-semibold text-[#333]">Items</p>
-            <p className="text-xs text-[#666]">{order.items.reduce((t, i) => t + i.quantity, 0)}x</p>
+            <p className="text-base font-semibold text-body">Items</p>
+            <p className="text-xs text-dim">{order.items.reduce((t, i) => t + i.quantity, 0)}x</p>
           </div>
         </div>
 
@@ -122,7 +122,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onBuyAgain }) => {
             <button
               onClick={onBuyAgain}
               className="text-xs font-medium h-7 px-3 rounded-full border hover:bg-[#ffe0b2] transition-colors"
-              style={{ backgroundColor: "#fff3e0", color: "#f57c00", borderColor: "#ffcc02" }}
+              style={{ backgroundColor: "var(--color-brand-light)", color: "var(--color-warn)", borderColor: "var(--color-warn)" }}
             >
               Buy Again
             </button>
@@ -138,8 +138,8 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onBuyAgain }) => {
           </div>
         ))}
         {order.items.length > 6 && (
-          <div className="w-10 h-10 rounded-[8px] bg-[#f0f0f0] flex items-center justify-center m-2">
-            <span className="text-xs font-semibold text-[#666]">+{order.items.length - 6}</span>
+          <div className="w-10 h-10 rounded-[8px] bg-wash flex items-center justify-center m-2">
+            <span className="text-xs font-semibold text-dim">+{order.items.length - 6}</span>
           </div>
         )}
       </div>
@@ -179,10 +179,10 @@ const OrdersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   if (isLoading) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center">
+        <div className="min-h-screen bg-surface flex items-center justify-center">
           <div className="text-center">
-            <Spinner size="lg" className="border-[#F9A922] border-t-transparent mx-auto mb-4" />
-            <p className="text-[#666]">Loading your orders...</p>
+            <Spinner size="lg" className="border-brand border-t-transparent mx-auto mb-4" />
+            <p className="text-dim">Loading your orders...</p>
           </div>
         </div>
       </ProtectedRoute>
@@ -192,7 +192,7 @@ const OrdersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   if (isError) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center p-6">
+        <div className="min-h-screen bg-surface flex items-center justify-center p-6">
           <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-6 max-w-[500px]">
             <p className="font-semibold text-base mb-1">Error loading orders</p>
             <p className="text-sm">{error instanceof Error ? error.message : "Something went wrong"}</p>
@@ -204,15 +204,15 @@ const OrdersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-[#f8f9fa]">
+      <div className="min-h-screen bg-surface">
         {/* Tabs */}
-        <div className="bg-white border-b border-[#e0e0e0]">
+        <div className="bg-white border-b border-line-light">
           <div className="flex px-6 overflow-x-auto">
             {tabs.map((tab, index) => (
               <button
                 key={index}
                 onClick={() => setActiveTab(index)}
-                className={`text-sm font-medium py-4 mr-8 flex-shrink-0 border-b-[3px] transition-colors ${activeTab === index ? "text-[#F9A922] border-[#F9A922] font-semibold" : "text-[#666] border-transparent hover:text-[#F9A922]"}`}
+                className={`text-sm font-medium py-4 mr-8 flex-shrink-0 border-b-[3px] transition-colors ${activeTab === index ? "text-brand border-brand font-semibold" : "text-dim border-transparent hover:text-brand"}`}
               >
                 {tab}
               </button>
@@ -224,8 +224,8 @@ const OrdersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         <div className="p-6 max-w-[1200px] mx-auto">
           {orders.length === 0 ? (
             <div className="text-center py-16">
-              <p className="text-lg text-[#666] mb-2">No orders found</p>
-              <p className="text-sm text-[#999]">
+              <p className="text-lg text-dim mb-2">No orders found</p>
+              <p className="text-sm text-faint">
                 {activeTab === 0 ? "You haven't placed any orders yet." : "No orders found for the selected filter."}
               </p>
             </div>

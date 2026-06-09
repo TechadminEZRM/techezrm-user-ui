@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type React from "react";
 import { useEffect } from "react";
@@ -23,9 +23,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, redirectTo = 
 
   if (!isAuthenticated || !customer) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-[#f8f9fa]">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-surface">
         <Spinner size="lg" />
-        <p className="text-[#666] text-sm mt-4">Checking authentication...</p>
+        <p className="text-dim text-sm mt-4">Checking authentication...</p>
       </div>
     );
   }

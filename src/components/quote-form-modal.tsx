@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import type React from "react";
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
@@ -30,8 +30,8 @@ interface FormData {
   availabilityTime: string;
 }
 
-const fieldClass = "flex h-[45px] w-full rounded-[6px] border border-[#e0e0e0] bg-white px-3.5 py-3 text-sm text-[#1F2A44] placeholder:text-[#999] focus:outline-none focus:border-[#4CAF50] focus:ring-1 focus:ring-[#4CAF50]";
-const selectClass = "flex h-[45px] w-full rounded-[6px] border border-[#e0e0e0] bg-white px-3.5 text-sm text-[#333] focus:outline-none focus:border-[#4CAF50] focus:ring-1 focus:ring-[#4CAF50] appearance-none";
+const fieldClass = "flex h-[45px] w-full rounded-[6px] border border-line-light bg-white px-3.5 py-3 text-sm text-heading placeholder:text-faint focus:outline-none focus:border-success focus:ring-1 focus:ring-success";
+const selectClass = "flex h-[45px] w-full rounded-[6px] border border-line-light bg-white px-3.5 text-sm text-body focus:outline-none focus:border-success focus:ring-1 focus:ring-success appearance-none";
 
 const QuoteFormModal: React.FC<QuoteFormModalProps> = ({ isOpen, onClose, productName = "", productId = "" }) => {
   const submitRFQMutation = useSubmitRFQ();
@@ -108,8 +108,8 @@ const QuoteFormModal: React.FC<QuoteFormModalProps> = ({ isOpen, onClose, produc
       <DialogContent className="max-w-[600px] p-0 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.1)]">
         {/* Header */}
         <div className="flex items-center justify-between p-6 pb-4">
-          <h2 className="font-semibold text-[#333] text-lg">Tell Us Your Requirement</h2>
-          <button onClick={handleClose} className="text-[#999] hover:text-[#666] hover:bg-[#f5f5f5] rounded-full p-1 transition-colors">
+          <h2 className="font-semibold text-body text-lg">Tell Us Your Requirement</h2>
+          <button onClick={handleClose} className="text-faint hover:text-dim hover:bg-paper rounded-full p-1 transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -128,14 +128,14 @@ const QuoteFormModal: React.FC<QuoteFormModalProps> = ({ isOpen, onClose, produc
         <form onSubmit={handleSubmit} className="px-6 pb-6 flex flex-col gap-4">
           {/* Customer Name */}
           <div>
-            <label className="text-sm font-medium text-[#333] mb-2 block"><span className="text-red-500">*</span> Customer Name</label>
+            <label className="text-sm font-medium text-body mb-2 block"><span className="text-red-500">*</span> Customer Name</label>
             <input value={formData.customerName} onChange={(e) => handleInputChange("customerName", e.target.value)} className={fieldClass} />
             {errors.customerName && <p className="text-red-600 text-xs mt-1">{errors.customerName}</p>}
           </div>
 
           {/* Product */}
           <div>
-            <label className="text-sm font-medium text-[#333] mb-2 block"><span className="text-red-500">*</span> Enter Product</label>
+            <label className="text-sm font-medium text-body mb-2 block"><span className="text-red-500">*</span> Enter Product</label>
             <input value={formData.productName} onChange={(e) => handleInputChange("productName", e.target.value)} className={fieldClass} />
             {errors.productName && <p className="text-red-600 text-xs mt-1">{errors.productName}</p>}
           </div>
@@ -143,12 +143,12 @@ const QuoteFormModal: React.FC<QuoteFormModalProps> = ({ isOpen, onClose, produc
           {/* Quantity + Website */}
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="text-sm font-medium text-[#333] mb-2 block"><span className="text-red-500">*</span> Pack Quantity</label>
+              <label className="text-sm font-medium text-body mb-2 block"><span className="text-red-500">*</span> Pack Quantity</label>
               <input type="number" value={formData.quantity} onChange={(e) => handleInputChange("quantity", parseInt(e.target.value) || 1)} className={fieldClass} />
               {errors.quantity && <p className="text-red-600 text-xs mt-1">{errors.quantity}</p>}
             </div>
             <div className="flex-1">
-              <label className="text-sm font-medium text-[#333] mb-2 block">Company Website Link</label>
+              <label className="text-sm font-medium text-body mb-2 block">Company Website Link</label>
               <input placeholder="Ex. www.example.com" value={formData.companyWebsiteLink} onChange={(e) => handleInputChange("companyWebsiteLink", e.target.value)} className={fieldClass} />
             </div>
           </div>
@@ -156,12 +156,12 @@ const QuoteFormModal: React.FC<QuoteFormModalProps> = ({ isOpen, onClose, produc
           {/* Email + Mobile */}
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="text-sm font-medium text-[#333] mb-2 block"><span className="text-red-500">*</span> Email</label>
+              <label className="text-sm font-medium text-body mb-2 block"><span className="text-red-500">*</span> Email</label>
               <input type="email" placeholder="Ex. user@example.com" value={formData.customerEmail} onChange={(e) => handleInputChange("customerEmail", e.target.value)} className={fieldClass} />
               {errors.customerEmail && <p className="text-red-600 text-xs mt-1">{errors.customerEmail}</p>}
             </div>
             <div className="flex-1">
-              <label className="text-sm font-medium text-[#333] mb-2 block"><span className="text-red-500">*</span> Mobile</label>
+              <label className="text-sm font-medium text-body mb-2 block"><span className="text-red-500">*</span> Mobile</label>
               <div className="flex gap-2">
                 <select value={formData.customerPhoneCountryCode} onChange={(e) => handleInputChange("customerPhoneCountryCode", e.target.value)} className={`${selectClass} w-[90px] flex-shrink-0`}>
                   <option value="+1">🇺🇸 +1</option>
@@ -177,7 +177,7 @@ const QuoteFormModal: React.FC<QuoteFormModalProps> = ({ isOpen, onClose, produc
           {/* Department + Company Type */}
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="text-sm font-medium text-[#333] mb-2 block"><span className="text-red-500">*</span> Department</label>
+              <label className="text-sm font-medium text-body mb-2 block"><span className="text-red-500">*</span> Department</label>
               <select value={formData.department} onChange={(e) => handleInputChange("department", e.target.value)} className={selectClass}>
                 <option value="">Please Select a Department</option>
                 <option value="sales">Sales</option>
@@ -188,7 +188,7 @@ const QuoteFormModal: React.FC<QuoteFormModalProps> = ({ isOpen, onClose, produc
               {errors.department && <p className="text-red-600 text-xs mt-1">{errors.department}</p>}
             </div>
             <div className="flex-1">
-              <label className="text-sm font-medium text-[#333] mb-2 block">Company Type</label>
+              <label className="text-sm font-medium text-body mb-2 block">Company Type</label>
               <select value={formData.companyType} onChange={(e) => handleInputChange("companyType", e.target.value)} className={selectClass}>
                 <option value="">Please Select a Type</option>
                 <option value="manufacturer">Manufacturer</option>
@@ -202,7 +202,7 @@ const QuoteFormModal: React.FC<QuoteFormModalProps> = ({ isOpen, onClose, produc
           {/* Monthly Volume + Timeline */}
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="text-sm font-medium text-[#333] mb-2 block"><span className="text-red-500">*</span> Monthly Volume</label>
+              <label className="text-sm font-medium text-body mb-2 block"><span className="text-red-500">*</span> Monthly Volume</label>
               <select value={formData.monthlyVolume} onChange={(e) => handleInputChange("monthlyVolume", e.target.value)} className={selectClass}>
                 <option value="">Please Select a Volume</option>
                 <option value="1-10">1-10 units</option>
@@ -213,7 +213,7 @@ const QuoteFormModal: React.FC<QuoteFormModalProps> = ({ isOpen, onClose, produc
               {errors.monthlyVolume && <p className="text-red-600 text-xs mt-1">{errors.monthlyVolume}</p>}
             </div>
             <div className="flex-1">
-              <label className="text-sm font-medium text-[#333] mb-2 block"><span className="text-red-500">*</span> Timeline</label>
+              <label className="text-sm font-medium text-body mb-2 block"><span className="text-red-500">*</span> Timeline</label>
               <select value={formData.timeline} onChange={(e) => handleInputChange("timeline", e.target.value)} className={selectClass}>
                 <option value="">Please Select a Timeline</option>
                 <option value="immediate">Immediate</option>
@@ -227,10 +227,10 @@ const QuoteFormModal: React.FC<QuoteFormModalProps> = ({ isOpen, onClose, produc
 
           {/* Availability */}
           <div>
-            <p className="text-sm font-medium text-[#333] mb-3">Would you be available for a call at your earliest convenience?</p>
+            <p className="text-sm font-medium text-body mb-3">Would you be available for a call at your earliest convenience?</p>
             <div className="flex gap-4">
               <div className="flex-1">
-                <label className="text-sm font-medium text-[#333] mb-2 block">Day</label>
+                <label className="text-sm font-medium text-body mb-2 block">Day</label>
                 <select value={formData.availabilityDay} onChange={(e) => handleInputChange("availabilityDay", e.target.value)} className={selectClass}>
                   <option value="">Please Select a Day</option>
                   <option value="today">Today</option>
@@ -240,7 +240,7 @@ const QuoteFormModal: React.FC<QuoteFormModalProps> = ({ isOpen, onClose, produc
                 </select>
               </div>
               <div className="flex-1">
-                <label className="text-sm font-medium text-[#333] mb-2 block">Time (Timezone-EST)</label>
+                <label className="text-sm font-medium text-body mb-2 block">Time (Timezone-EST)</label>
                 <select value={formData.availabilityTime} onChange={(e) => handleInputChange("availabilityTime", e.target.value)} className={selectClass}>
                   <option value="">Please Select time</option>
                   <option value="9-10">9:00 AM - 10:00 AM</option>
@@ -257,7 +257,7 @@ const QuoteFormModal: React.FC<QuoteFormModalProps> = ({ isOpen, onClose, produc
           <button
             type="submit"
             disabled={submitRFQMutation.isPending}
-            className="w-full h-12 bg-[#F05A25] text-white text-base font-medium rounded-[6px] hover:bg-[#689F38] disabled:bg-[#ccc] disabled:text-[#666] transition-colors flex items-center justify-center gap-2"
+            className="w-full h-12 bg-[#F05A25] text-white text-base font-medium rounded-[6px] hover:bg-[#689F38] disabled:bg-line-light disabled:text-dim transition-colors flex items-center justify-center gap-2"
           >
             {submitRFQMutation.isPending ? <><Spinner size="sm" className="border-white border-t-transparent" /> Submitting...</> : "Place an Enquiry"}
           </button>

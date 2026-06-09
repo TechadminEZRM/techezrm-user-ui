@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import { Bell, Mail, MessageSquare, Shield, Globe, Palette, CreditCard, CheckCircle2, Download, Trash2, BadgeCheck } from "lucide-react";
@@ -23,7 +23,7 @@ const ToggleSwitch: React.FC<{ checked: boolean; onChange: () => void; disabled?
     aria-checked={checked}
     disabled={disabled}
     onClick={onChange}
-    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#F9A922] disabled:opacity-50 disabled:cursor-not-allowed ${checked ? "bg-[#F9A922]" : "bg-gray-200"}`}
+    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brand disabled:opacity-50 disabled:cursor-not-allowed ${checked ? "bg-brand" : "bg-gray-200"}`}
   >
     <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${checked ? "translate-x-6" : "translate-x-1"}`} />
   </button>
@@ -58,38 +58,38 @@ const SettingsPage: React.FC = () => {
   return (
     <div className="max-w-[1000px] mx-auto p-6">
       <div className="mb-8">
-        <p className="text-[#666]">Manage your account preferences, subscription, and notifications</p>
+        <p className="text-dim">Manage your account preferences, subscription, and notifications</p>
       </div>
 
       {/* Notification Settings */}
       <Card className="mb-8">
         <CardContent className="p-8">
           <div className="flex items-center gap-2 font-semibold text-lg mb-6">
-            <Bell className="w-5 h-5 text-[#F9A922]" />
+            <Bell className="w-5 h-5 text-brand" />
             Notification Preferences
           </div>
 
-          <div className="divide-y divide-[#E5E7EB]">
+          <div className="divide-y divide-line">
             {notificationItems.map(({ key, icon: Icon, label, desc }) => (
               <div key={key} className="flex items-center justify-between py-4">
                 <div className="flex items-center gap-4">
-                  <Icon className="w-5 h-5 text-[#666]" />
+                  <Icon className="w-5 h-5 text-dim" />
                   <div>
-                    <p className="text-sm font-medium text-[#1F2A44]">{label}</p>
-                    <p className="text-xs text-[#666]">{desc}</p>
+                    <p className="text-sm font-medium text-heading">{label}</p>
+                    <p className="text-xs text-dim">{desc}</p>
                   </div>
                 </div>
                 <ToggleSwitch checked={notifications[key]} onChange={() => handleNotificationChange(key)} />
               </div>
             ))}
 
-            <hr className="border-[#E5E7EB] my-2" />
+            <hr className="border-line my-2" />
 
             {contentItems.map(({ key, label, desc, disabled }) => (
               <div key={key} className="flex items-center justify-between py-4">
                 <div>
-                  <p className="text-sm font-medium text-[#1F2A44]">{label}</p>
-                  <p className="text-xs text-[#666]">{desc}</p>
+                  <p className="text-sm font-medium text-heading">{label}</p>
+                  <p className="text-xs text-dim">{desc}</p>
                 </div>
                 <ToggleSwitch checked={notifications[key]} onChange={() => handleNotificationChange(key)} disabled={disabled} />
               </div>
@@ -106,36 +106,36 @@ const SettingsPage: React.FC = () => {
         <Card>
           <CardContent className="p-8">
             <div className="flex items-center gap-2 font-semibold text-lg mb-6">
-              <Shield className="w-5 h-5 text-[#F9A922]" />
+              <Shield className="w-5 h-5 text-brand" />
               Privacy & Security
             </div>
-            <div className="divide-y divide-[#E5E7EB]">
+            <div className="divide-y divide-line">
               <div className="flex items-center justify-between py-4">
                 <div className="flex items-center gap-3">
-                  <Shield className="w-5 h-5 text-[#666]" />
+                  <Shield className="w-5 h-5 text-dim" />
                   <div>
-                    <p className="text-sm font-medium text-[#1F2A44]">Two-Factor Authentication</p>
-                    <p className="text-xs text-[#666]">Add an extra layer of security</p>
+                    <p className="text-sm font-medium text-heading">Two-Factor Authentication</p>
+                    <p className="text-xs text-dim">Add an extra layer of security</p>
                   </div>
                 </div>
-                <button className="text-sm border border-[#F9A922] text-[#F9A922] px-3 py-1.5 rounded-[30px] hover:bg-[#FFFAF1] transition-colors">Enable</button>
+                <button className="text-sm border border-brand text-brand px-3 py-1.5 rounded-[30px] hover:bg-brand-light transition-colors">Enable</button>
               </div>
               <div className="flex items-center justify-between py-4">
                 <div className="flex items-center gap-3">
-                  <Download className="w-5 h-5 text-[#666]" />
+                  <Download className="w-5 h-5 text-dim" />
                   <div>
-                    <p className="text-sm font-medium text-[#1F2A44]">Download Your Data</p>
-                    <p className="text-xs text-[#666]">Get a copy of your account information</p>
+                    <p className="text-sm font-medium text-heading">Download Your Data</p>
+                    <p className="text-xs text-dim">Get a copy of your account information</p>
                   </div>
                 </div>
-                <button className="text-sm border border-[#F9A922] text-[#F9A922] px-3 py-1.5 rounded-[30px] hover:bg-[#FFFAF1] transition-colors">Request</button>
+                <button className="text-sm border border-brand text-brand px-3 py-1.5 rounded-[30px] hover:bg-brand-light transition-colors">Request</button>
               </div>
               <div className="flex items-center justify-between py-4">
                 <div className="flex items-center gap-3">
                   <Trash2 className="w-5 h-5 text-red-500" />
                   <div>
-                    <p className="text-sm font-medium text-[#1F2A44]">Delete Account</p>
-                    <p className="text-xs text-[#666]">Permanently remove your account and data</p>
+                    <p className="text-sm font-medium text-heading">Delete Account</p>
+                    <p className="text-xs text-dim">Permanently remove your account and data</p>
                   </div>
                 </div>
                 <button onClick={() => setDeleteDialogOpen(true)} className="text-sm border border-red-500 text-red-500 px-3 py-1.5 rounded-[30px] hover:bg-red-50 transition-colors">Delete</button>
@@ -148,14 +148,14 @@ const SettingsPage: React.FC = () => {
         <Card>
           <CardContent className="p-8">
             <div className="flex items-center gap-2 font-semibold text-lg mb-6">
-              <Palette className="w-5 h-5 text-[#F9A922]" />
+              <Palette className="w-5 h-5 text-brand" />
               Preferences
             </div>
             <div className="mb-4">
-              <label className="text-sm text-[#7f8c8d] mb-1.5 block">Language</label>
+              <label className="text-sm text-soft mb-1.5 block">Language</label>
               <div className="relative">
-                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#666]" />
-                <select value={language} onChange={(e) => setLanguage(e.target.value)} className="w-full h-10 rounded-xl border border-[#E5E7EB] bg-white pl-9 pr-4 text-sm text-[#1F2A44] focus:outline-none focus:ring-2 focus:ring-[#F9A922]">
+                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dim" />
+                <select value={language} onChange={(e) => setLanguage(e.target.value)} className="w-full h-10 rounded-xl border border-line bg-white pl-9 pr-4 text-sm text-heading focus:outline-none focus:ring-2 focus:ring-brand">
                   <option value="english">English</option>
                   <option value="spanish">Español</option>
                   <option value="french">Français</option>
@@ -165,19 +165,19 @@ const SettingsPage: React.FC = () => {
               </div>
             </div>
             <div className="mb-6">
-              <label className="text-sm text-[#7f8c8d] mb-1.5 block">Theme</label>
-              <select value={theme} onChange={(e) => setTheme(e.target.value)} className="w-full h-10 rounded-xl border border-[#E5E7EB] bg-white px-4 text-sm text-[#1F2A44] focus:outline-none focus:ring-2 focus:ring-[#F9A922]">
+              <label className="text-sm text-soft mb-1.5 block">Theme</label>
+              <select value={theme} onChange={(e) => setTheme(e.target.value)} className="w-full h-10 rounded-xl border border-line bg-white px-4 text-sm text-heading focus:outline-none focus:ring-2 focus:ring-brand">
                 <option value="light">Light</option>
                 <option value="dark">Dark</option>
                 <option value="auto">Auto (System)</option>
               </select>
             </div>
-            <p className="text-xs font-semibold text-[#666] mb-3">Quick Actions</p>
+            <p className="text-xs font-semibold text-dim mb-3">Quick Actions</p>
             <div className="flex flex-col gap-2">
-              <button className="flex items-center gap-2 border border-[#e0e0e0] text-[#666] px-4 py-2.5 rounded-xl text-sm hover:border-[#F9A922] hover:text-[#F9A922] transition-colors text-left">
+              <button className="flex items-center gap-2 border border-line-light text-dim px-4 py-2.5 rounded-xl text-sm hover:border-brand hover:text-brand transition-colors text-left">
                 <CreditCard className="w-4 h-4" /> Manage Payment Methods
               </button>
-              <button className="flex items-center gap-2 border border-[#e0e0e0] text-[#666] px-4 py-2.5 rounded-xl text-sm hover:border-[#F9A922] hover:text-[#F9A922] transition-colors text-left">
+              <button className="flex items-center gap-2 border border-line-light text-dim px-4 py-2.5 rounded-xl text-sm hover:border-brand hover:text-brand transition-colors text-left">
                 <BadgeCheck className="w-4 h-4" /> Verify Account
               </button>
             </div>
@@ -194,16 +194,16 @@ const SettingsPage: React.FC = () => {
           <Alert variant="destructive" className="mb-4">
             This action cannot be undone. All your data will be permanently deleted.
           </Alert>
-          <p className="text-sm text-[#1F2A44] mb-4">Are you sure you want to delete your account? This will:</p>
-          <ul className="list-disc pl-5 text-sm text-[#666] space-y-1 mb-4">
+          <p className="text-sm text-heading mb-4">Are you sure you want to delete your account? This will:</p>
+          <ul className="list-disc pl-5 text-sm text-dim space-y-1 mb-4">
             <li>Remove all your personal information</li>
             <li>Cancel any active subscriptions</li>
             <li>Delete your order history</li>
             <li>Remove all saved addresses and preferences</li>
           </ul>
-          <input className="w-full h-10 rounded-xl border border-[#E5E7EB] bg-white px-4 text-sm text-[#1F2A44] focus:outline-none focus:ring-2 focus:ring-[#F9A922] mt-2" placeholder="Type 'DELETE' to confirm" />
+          <input className="w-full h-10 rounded-xl border border-line bg-white px-4 text-sm text-heading focus:outline-none focus:ring-2 focus:ring-brand mt-2" placeholder="Type 'DELETE' to confirm" />
           <DialogFooter className="mt-4 gap-2">
-            <button onClick={() => setDeleteDialogOpen(false)} className="px-4 py-2 text-sm text-[#666] rounded-[30px] border border-[#E5E7EB] hover:bg-gray-50">Cancel</button>
+            <button onClick={() => setDeleteDialogOpen(false)} className="px-4 py-2 text-sm text-dim rounded-[30px] border border-line hover:bg-gray-50">Cancel</button>
             <button onClick={() => setDeleteDialogOpen(false)} className="px-4 py-2 text-sm text-white bg-red-600 rounded-[30px] hover:bg-red-700">Delete Account</button>
           </DialogFooter>
         </DialogContent>

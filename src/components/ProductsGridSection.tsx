@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type React from "react";
 import { useState, useEffect } from "react";
@@ -50,7 +50,7 @@ const ProductGridCard: React.FC<ProductGridCardProps> = ({ product, onClick, onB
       {/* CTA Button */}
       <button
         onClick={(e) => { e.stopPropagation(); onButtonClick(product._id, product.name); }}
-        className="w-full bg-[#F9A922] text-white font-medium py-2 text-base hover:bg-[#E8981F] transition-colors rounded-none flex-shrink-0"
+        className="w-full bg-brand text-white font-medium py-2 text-base hover:bg-brand-hover transition-colors rounded-none flex-shrink-0"
       >
         {isAuthenticated ? "Buy" : "Get Quote"}
       </button>
@@ -59,20 +59,20 @@ const ProductGridCard: React.FC<ProductGridCardProps> = ({ product, onClick, onB
       <div className="p-4 pb-0 flex-1 flex flex-col">
         <div className="flex justify-between items-start gap-2 mb-1">
           <p
-            className="font-semibold text-[#2c3e50] text-[0.8rem] leading-snug overflow-hidden flex-1"
+            className="font-semibold text-heading text-[0.8rem] leading-snug overflow-hidden flex-1"
             style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}
             title={product.name}
           >
             {product.name}
           </p>
           {authState && (
-            <span className="text-[#F9A922] text-[0.7rem] font-bold bg-[rgba(255,107,53,0.1)] px-1.5 py-0.5 rounded border border-[rgba(255,107,53,0.2)] flex-shrink-0">
+            <span className="text-brand text-[0.7rem] font-bold bg-[rgba(255,107,53,0.1)] px-1.5 py-0.5 rounded border border-[rgba(255,107,53,0.2)] flex-shrink-0">
               ${product.price}/kg
             </span>
           )}
         </div>
         <p
-          className="text-[#7f8c8d] text-[0.65rem] leading-snug flex-1 overflow-hidden"
+          className="text-soft text-[0.65rem] leading-snug flex-1 overflow-hidden"
           style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}
         >
           {product.description}--
@@ -139,22 +139,22 @@ const ProductsGridSection: React.FC = () => {
   const SectionHeader = () => (
     <div className="mb-8">
       <div className="flex items-center mb-3">
-        <div className="w-1 h-8 bg-[#F9A922] mr-4 rounded-sm" />
-        <h2 className="text-[1.8rem] md:text-[2.2rem] font-semibold text-[#333]">Products</h2>
+        <div className="w-1 h-8 bg-brand mr-4 rounded-sm" />
+        <h2 className="text-[1.8rem] md:text-[2.2rem] font-semibold text-body">Products</h2>
       </div>
       {!loading && (
         <div className="flex gap-2 ml-6">
           <button
             onClick={() => setCurrentIndex((p) => Math.max(0, p - 1))}
             disabled={!canPrev}
-            className="w-6 h-6 flex items-center justify-center text-[#666] hover:bg-[#f5f5f5] rounded disabled:opacity-50 transition-colors p-0"
+            className="w-6 h-6 flex items-center justify-center text-dim hover:bg-paper rounded disabled:opacity-50 transition-colors p-0"
           >
             <ChevronLeft className="w-4 h-4" /><ChevronLeft className="w-4 h-4 -ml-2" />
           </button>
           <button
             onClick={() => setCurrentIndex((p) => Math.min(Math.max(0, allProducts.length - 4), p + 1))}
             disabled={!canNext}
-            className="w-6 h-6 flex items-center justify-center text-[#666] hover:bg-[#f5f5f5] rounded disabled:opacity-50 transition-colors p-0"
+            className="w-6 h-6 flex items-center justify-center text-dim hover:bg-paper rounded disabled:opacity-50 transition-colors p-0"
           >
             <ChevronRight className="w-4 h-4" /><ChevronRight className="w-4 h-4 -ml-2" />
           </button>
@@ -165,7 +165,7 @@ const ProductsGridSection: React.FC = () => {
 
   return (
     <>
-      <div className="bg-[#f1f5f9] py-8 md:py-12">
+      <div className="bg-surface py-8 md:py-12">
         <div className="max-w-7xl mx-auto px-4">
           <SectionHeader />
 
@@ -184,8 +184,8 @@ const ProductsGridSection: React.FC = () => {
 
           {!loading && !error && allProducts.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-[#666] text-lg mb-1">No products available</p>
-              <p className="text-[#999] text-sm">Check back later for our latest products.</p>
+              <p className="text-dim text-lg mb-1">No products available</p>
+              <p className="text-faint text-sm">Check back later for our latest products.</p>
             </div>
           )}
 

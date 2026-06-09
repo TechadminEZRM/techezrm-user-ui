@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
@@ -40,7 +40,7 @@ const MapComponent: React.FC<{
         styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }],
       });
       const pinElement = document.createElement("div");
-      pinElement.style.cssText = "width:20px;height:20px;background-color:#F9A922;border:2px solid white;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,0.3);cursor:pointer";
+      pinElement.style.cssText = "width:20px;height:20px;background-color:var(--color-brand);border:2px solid white;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,0.3);cursor:pointer";
       const newMarker = new google.maps.marker.AdvancedMarkerElement({ position: initialCenter, map: newMap, title: "Selected Location", content: pinElement });
       const newGeocoder = new google.maps.Geocoder();
       let newAutocompleteService = null;
@@ -161,32 +161,32 @@ const MapComponent: React.FC<{
                 onKeyDown={handleKeyDown}
                 onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                className="w-full border border-[#e0e0e0] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#F9A922] hover:border-[#ccc] transition-colors"
+                className="w-full border border-line-light rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand hover:border-line-light transition-colors"
               />
               {/* Suggestions dropdown */}
               {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 max-h-[200px] overflow-auto z-[1001] shadow-[0_4px_16px_rgba(0,0,0,0.1)] border border-[#e0e0e0] rounded-xl bg-white">
+                <div className="absolute top-full left-0 right-0 mt-1 max-h-[200px] overflow-auto z-[1001] shadow-[0_4px_16px_rgba(0,0,0,0.1)] border border-line-light rounded-xl bg-white">
                   {suggestions.map((suggestion, index) => (
                     <button
                       key={suggestion.place_id}
                       type="button"
                       onClick={() => handleSuggestionSelect(suggestion.place_id)}
-                      className={`w-full flex items-center gap-3 px-3 py-2 text-left transition-colors ${selectedIndex === index ? "bg-[#F9A922] text-white" : "hover:bg-[#f5f5f5]"}`}
+                      className={`w-full flex items-center gap-3 px-3 py-2 text-left transition-colors ${selectedIndex === index ? "bg-brand text-white" : "hover:bg-paper"}`}
                     >
-                      <MapPin className={`w-4 h-4 flex-shrink-0 ${selectedIndex === index ? "text-white" : "text-[#F9A922]"}`} />
+                      <MapPin className={`w-4 h-4 flex-shrink-0 ${selectedIndex === index ? "text-white" : "text-brand"}`} />
                       <div>
-                        <p className={`text-[0.8rem] font-medium ${selectedIndex === index ? "text-white" : "text-[#333]"}`}>{suggestion.structured_formatting.main_text}</p>
-                        <p className={`text-[0.7rem] ${selectedIndex === index ? "text-white/80" : "text-[#666]"}`}>{suggestion.structured_formatting.secondary_text}</p>
+                        <p className={`text-[0.8rem] font-medium ${selectedIndex === index ? "text-white" : "text-body"}`}>{suggestion.structured_formatting.main_text}</p>
+                        <p className={`text-[0.7rem] ${selectedIndex === index ? "text-white/80" : "text-dim"}`}>{suggestion.structured_formatting.secondary_text}</p>
                       </div>
                     </button>
                   ))}
                 </div>
               )}
             </div>
-            <button onClick={handleSearch} className="flex items-center gap-1.5 bg-[#F9A922] hover:bg-[#E8981F] text-white text-[0.8rem] font-medium px-3 py-2 rounded-lg transition-colors">
+            <button onClick={handleSearch} className="flex items-center gap-1.5 bg-brand hover:bg-brand-hover text-white text-[0.8rem] font-medium px-3 py-2 rounded-lg transition-colors">
               <Search className="w-4 h-4" /> Search
             </button>
-            <button onClick={handleCurrentLocation} className="flex items-center gap-1.5 border border-[#F9A922] text-[#F9A922] hover:bg-[rgba(249,169,34,0.04)] text-[0.8rem] font-medium px-2.5 py-2 rounded-lg transition-colors">
+            <button onClick={handleCurrentLocation} className="flex items-center gap-1.5 border border-brand text-brand hover:bg-[rgba(249,169,34,0.04)] text-[0.8rem] font-medium px-2.5 py-2 rounded-lg transition-colors">
               <Navigation className="w-4 h-4" /> My Location
             </button>
           </div>
@@ -198,9 +198,9 @@ const MapComponent: React.FC<{
 
       {/* Instructions */}
       <div className="absolute bottom-3 left-3 bg-white/95 rounded-xl p-3 shadow-[0_2px_8px_rgba(0,0,0,0.12)] max-w-[280px]">
-        <p className="text-[0.75rem] font-semibold text-[#666] mb-1">Instructions:</p>
+        <p className="text-[0.75rem] font-semibold text-dim mb-1">Instructions:</p>
         {["Type for address suggestions", "Use ↑↓ arrows, Enter to select", "Click map to select location", "Drag marker to adjust"].map((t) => (
-          <p key={t} className="text-[0.7rem] text-[#666] mb-0.5">• {t}</p>
+          <p key={t} className="text-[0.7rem] text-dim mb-0.5">• {t}</p>
         ))}
       </div>
     </div>
@@ -208,10 +208,10 @@ const MapComponent: React.FC<{
 };
 
 const render = (status: Status): React.ReactElement => {
-  const base = "h-[400px] flex items-center justify-center bg-[#f0f0f0] rounded-lg";
+  const base = "h-[400px] flex items-center justify-center bg-wash rounded-lg";
   switch (status) {
     case Status.LOADING: return <div className={base}><p>Loading Google Maps...</p></div>;
-    case Status.FAILURE: return <div className={`${base} flex-col gap-4`}><p className="text-red-600">Failed to load Google Maps</p><p className="text-sm text-[#666]">Please check your internet connection and try again.</p></div>;
+    case Status.FAILURE: return <div className={`${base} flex-col gap-4`}><p className="text-red-600">Failed to load Google Maps</p><p className="text-sm text-dim">Please check your internet connection and try again.</p></div>;
     default: return <div className={base}><p>Initializing...</p></div>;
   }
 };
@@ -220,9 +220,9 @@ const GoogleMapSelector: React.FC<GoogleMapSelectorProps> = ({ onLocationSelect,
   const apiKey = process.env.NEXT_PUBLIC_MAPS_API_KEY;
   if (!apiKey) {
     return (
-      <div style={{ height }} className="flex flex-col items-center justify-center bg-[#f0f0f0] rounded-lg gap-3">
+      <div style={{ height }} className="flex flex-col items-center justify-center bg-wash rounded-lg gap-3">
         <p className="text-red-600 font-medium">Google Maps API key not found</p>
-        <p className="text-sm text-[#666]">Please add NEXT_PUBLIC_MAPS_API_KEY to your environment variables.</p>
+        <p className="text-sm text-dim">Please add NEXT_PUBLIC_MAPS_API_KEY to your environment variables.</p>
       </div>
     );
   }

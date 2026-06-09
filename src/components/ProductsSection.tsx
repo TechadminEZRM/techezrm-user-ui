@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type React from "react";
 import { useState, useEffect } from "react";
@@ -35,7 +35,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, onButtonCli
       className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.1)] w-[200px] h-[300px] flex-shrink-0 flex flex-col overflow-hidden cursor-pointer transition-all hover:shadow-[0_4px_16px_rgba(0,0,0,0.15)] hover:-translate-y-0.5"
     >
       {/* Image */}
-      <div className="bg-[#e9ecef] rounded-t-xl h-[150px] relative overflow-hidden flex-shrink-0">
+      <div className="bg-line rounded-t-xl h-[150px] relative overflow-hidden flex-shrink-0">
         <Image
           src={getProductImage(product)}
           alt={product.name}
@@ -48,17 +48,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, onButtonCli
       {/* Content */}
       <div className="p-3 flex-1 flex flex-col">
         <div className="flex justify-between items-start gap-1 mb-1">
-          <h3 className="font-semibold text-[#333] text-[0.95rem] overflow-hidden whitespace-nowrap text-ellipsis flex-1" title={product.name}>
+          <h3 className="font-semibold text-body text-[0.95rem] overflow-hidden whitespace-nowrap text-ellipsis flex-1" title={product.name}>
             {product.name}
           </h3>
           {authState && (
-            <span className="text-[#F9A922] text-[0.75rem] font-bold bg-[rgba(255,120,73,0.1)] px-1.5 py-0.5 rounded border border-[rgba(255,120,73,0.2)] flex-shrink-0">
+            <span className="text-brand text-[0.75rem] font-bold bg-[rgba(255,120,73,0.1)] px-1.5 py-0.5 rounded border border-[rgba(255,120,73,0.2)] flex-shrink-0">
               ${product.price}/kg
             </span>
           )}
         </div>
         <p
-          className="text-[#666] text-[0.75rem] leading-snug flex-1 overflow-hidden"
+          className="text-dim text-[0.75rem] leading-snug flex-1 overflow-hidden"
           style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}
         >
           {product.description}
@@ -68,7 +68,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, onButtonCli
       {/* CTA Button */}
       <button
         onClick={(e) => { e.stopPropagation(); onButtonClick(product._id, product.name); }}
-        className="w-full bg-[#F9A922] text-white font-medium text-[0.9rem] h-[30px] rounded-b-xl hover:bg-[#e66a3c] transition-colors flex-shrink-0"
+        className="w-full bg-brand text-white font-medium text-[0.9rem] h-[30px] rounded-b-xl hover:bg-[#e66a3c] transition-colors flex-shrink-0"
       >
         {isAuthenticated ? "Buy" : "Get Quote"}
       </button>
@@ -133,8 +133,8 @@ const ProductsSection: React.FC = () => {
   const LeftPanel = () => (
     <div className="min-w-[200px] flex-shrink-0">
       <div className="flex items-center mb-4">
-        <div className="w-1 h-8 bg-[#F9A922] mr-4 rounded-sm" />
-        <h2 className="font-semibold text-[#333] text-[1.3rem] md:text-[1.8rem] leading-snug">
+        <div className="w-1 h-8 bg-brand mr-4 rounded-sm" />
+        <h2 className="font-semibold text-body text-[1.3rem] md:text-[1.8rem] leading-snug">
           Products you may<br />like
         </h2>
       </div>
@@ -142,16 +142,16 @@ const ProductsSection: React.FC = () => {
         <button
           onClick={() => setCurrentIndex((p) => Math.max(0, p - 1))}
           disabled={!canPrev}
-          className="w-8 h-8 rounded flex items-center justify-center hover:bg-[#f5f5f5] disabled:opacity-50 transition-colors"
+          className="w-8 h-8 rounded flex items-center justify-center hover:bg-paper disabled:opacity-50 transition-colors"
         >
-          <ChevronLeft className="w-4 h-4 text-[#666]" /><ChevronLeft className="w-4 h-4 text-[#666] -ml-2" />
+          <ChevronLeft className="w-4 h-4 text-dim" /><ChevronLeft className="w-4 h-4 text-dim -ml-2" />
         </button>
         <button
           onClick={() => setCurrentIndex((p) => Math.min(Math.max(0, products.length - 4), p + 1))}
           disabled={!canNext}
-          className="w-8 h-8 rounded flex items-center justify-center hover:bg-[#f5f5f5] disabled:opacity-50 transition-colors"
+          className="w-8 h-8 rounded flex items-center justify-center hover:bg-paper disabled:opacity-50 transition-colors"
         >
-          <ChevronRight className="w-4 h-4 text-[#666]" /><ChevronRight className="w-4 h-4 text-[#666] -ml-2" />
+          <ChevronRight className="w-4 h-4 text-dim" /><ChevronRight className="w-4 h-4 text-dim -ml-2" />
         </button>
       </div>
     </div>
@@ -179,8 +179,8 @@ const ProductsSection: React.FC = () => {
 
           {!loading && !error && products.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-[#666] text-lg mb-1">No products available</p>
-              <p className="text-[#999] text-sm">Check back later for our latest products.</p>
+              <p className="text-dim text-lg mb-1">No products available</p>
+              <p className="text-faint text-sm">Check back later for our latest products.</p>
             </div>
           )}
 

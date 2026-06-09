@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { X, CheckCircle2, Clock, Circle } from "lucide-react";
@@ -12,10 +12,10 @@ import { formatDate } from "@/utils/dateUtils";
 
 const getMarkerColor = (status: "completed" | "current" | "pending") => {
   switch (status) {
-    case "completed": return "#4CAF50";
-    case "current": return "#F9A922";
+    case "completed": return "var(--color-success)";
+    case "current": return "var(--color-brand)";
     case "pending": return "#9E9E9E";
-    default: return "#F9A922";
+    default: return "var(--color-brand)";
   }
 };
 
@@ -142,15 +142,15 @@ const TrackingModal: React.FC<TrackingModalProps> = ({ open, onClose, trackingNu
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-5 border-b border-[#e0e0e0]">
+          <div className="flex items-center justify-between p-5 border-b border-line-light">
             <div className="flex items-center gap-3">
-              <span className="text-[#F9A922] text-xl">📍</span>
+              <span className="text-brand text-xl">📍</span>
               <div>
-                <h2 className="text-xl font-semibold text-[#1a365d]">Track Your Package</h2>
-                <p className="text-sm text-[#666]">Tracking Number: {trackingNumber || "N/A"}</p>
+                <h2 className="text-xl font-semibold text-heading">Track Your Package</h2>
+                <p className="text-sm text-dim">Tracking Number: {trackingNumber || "N/A"}</p>
               </div>
             </div>
-            <button onClick={onClose} className="text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded-full p-1.5 transition-colors">
+            <button onClick={onClose} className="text-dim hover:text-body hover:bg-paper rounded-full p-1.5 transition-colors">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -158,15 +158,15 @@ const TrackingModal: React.FC<TrackingModalProps> = ({ open, onClose, trackingNu
           {/* Body */}
           <div className="flex flex-1 overflow-hidden">
             {/* Map */}
-            <div className="flex-1 relative bg-[#f0f0f0] min-h-[500px] overflow-hidden">
+            <div className="flex-1 relative bg-wash min-h-[500px] overflow-hidden">
               {loadError && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-[#666] z-10">
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-dim z-10">
                   <p className="text-lg font-medium">Error loading map</p>
                   <p className="text-sm">Please check your Google Maps API key</p>
                 </div>
               )}
               {!isLoaded ? (
-                <div className="absolute inset-0 flex items-center justify-center text-[#666] z-10">
+                <div className="absolute inset-0 flex items-center justify-center text-dim z-10">
                   <p className="text-lg">Loading map...</p>
                 </div>
               ) : (
@@ -179,10 +179,10 @@ const TrackingModal: React.FC<TrackingModalProps> = ({ open, onClose, trackingNu
                     options={{ styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }], disableDefaultUI: false, zoomControl: true, mapTypeControl: true, scaleControl: true, streetViewControl: false, rotateControl: false, fullscreenControl: true }}
                   >
                     {trackingPoints && trackingPoints.length > 1 && (
-                      <Polyline path={trackingPoints.map((p) => ({ lat: p?.lat || 0, lng: p?.lng || 0 }))} options={{ strokeColor: "#F9A922", strokeOpacity: 1.0, strokeWeight: 5, geodesic: true, clickable: false, zIndex: 1 }} />
+                      <Polyline path={trackingPoints.map((p) => ({ lat: p?.lat || 0, lng: p?.lng || 0 }))} options={{ strokeColor: "var(--color-brand)", strokeOpacity: 1.0, strokeWeight: 5, geodesic: true, clickable: false, zIndex: 1 }} />
                     )}
                     {movingDotPosition && (
-                      <Marker position={movingDotPosition} icon={{ url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="8" fill="#F9A922" stroke="white" stroke-width="2"/><circle cx="10" cy="10" r="4" fill="white"/></svg>`)}`, scaledSize: new google.maps.Size(20, 20), anchor: new google.maps.Point(10, 10) }} options={{ clickable: false, zIndex: 10 }} />
+                      <Marker position={movingDotPosition} icon={{ url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="8" fill="var(--color-brand)" stroke="white" stroke-width="2"/><circle cx="10" cy="10" r="4" fill="white"/></svg>`)}`, scaledSize: new google.maps.Size(20, 20), anchor: new google.maps.Point(10, 10) }} options={{ clickable: false, zIndex: 10 }} />
                     )}
                     {trackingPoints?.map((point, index) => (
                       <Marker
@@ -203,14 +203,14 @@ const TrackingModal: React.FC<TrackingModalProps> = ({ open, onClose, trackingNu
                     onClick={isAnimating ? stopJourneyAnimation : startJourneyAnimation}
                     title={isAnimating ? "Stop Journey" : "Start Journey"}
                     className="w-10 h-10 rounded flex items-center justify-center text-white text-base font-bold transition-all hover:scale-[1.08]"
-                    style={{ backgroundColor: isAnimating ? "#dc3545" : "#28a745", boxShadow: `0 2px 8px ${isAnimating ? "rgba(220,53,69,0.3)" : "rgba(40,167,69,0.3)"}` }}
+                    style={{ backgroundColor: isAnimating ? "var(--color-danger)" : "var(--color-success)", boxShadow: `0 2px 8px ${isAnimating ? "rgba(220,53,69,0.3)" : "rgba(40,167,69,0.3)"}` }}
                   >
                     {isAnimating ? "⏹️" : "▶️"}
                   </button>
                   <button
                     onClick={handleFitToRoute}
                     title="Fit to Route"
-                    className="w-10 h-10 bg-[#F9A922] rounded flex items-center justify-center text-base font-bold text-white shadow-[0_2px_8px_rgba(255,107,53,0.3)] hover:bg-[#E8981F] hover:scale-[1.08] transition-all"
+                    className="w-10 h-10 bg-brand rounded flex items-center justify-center text-base font-bold text-white shadow-[0_2px_8px_rgba(255,107,53,0.3)] hover:bg-brand-hover hover:scale-[1.08] transition-all"
                   >
                     🗺️
                   </button>
@@ -219,46 +219,46 @@ const TrackingModal: React.FC<TrackingModalProps> = ({ open, onClose, trackingNu
             </div>
 
             {/* Tracking History */}
-            <div className="w-[400px] border-l border-[#e0e0e0] overflow-y-auto bg-[#fafafa]">
+            <div className="w-[400px] border-l border-line-light overflow-y-auto bg-paper">
               <div className="p-4">
                 <h3 className="text-lg font-semibold mb-4">Tracking History</h3>
                 <div className="relative">
                   {/* Timeline line */}
-                  <div className="absolute left-[20px] top-5 bottom-5 w-0.5 bg-[#e0e0e0] rounded z-0" />
+                  <div className="absolute left-[20px] top-5 bottom-5 w-0.5 bg-line-light rounded z-0" />
 
                   {trackingData?.map((point) => (
                     <div key={point?.id} className="mb-6 relative">
                       {/* Timeline dot */}
                       <div
                         className="absolute left-[11px] top-[15px] w-5 h-5 rounded-full bg-white flex items-center justify-center z-[2] shadow-[0_2px_4px_rgba(0,0,0,0.1)]"
-                        style={{ border: `3px solid ${point?.status === "completed" ? "#4CAF50" : point?.status === "current" ? "#F9A922" : "#e0e0e0"}` }}
+                        style={{ border: `3px solid ${point?.status === "completed" ? "var(--color-success)" : point?.status === "current" ? "var(--color-brand)" : "var(--color-line-light)"}` }}
                       >
                         {point?.status === "completed" ? (
-                          <CheckCircle2 className="w-3 h-3 text-[#4CAF50]" />
+                          <CheckCircle2 className="w-3 h-3 text-success" />
                         ) : point?.status === "current" ? (
-                          <Clock className="w-3 h-3 text-[#F9A922]" />
+                          <Clock className="w-3 h-3 text-brand" />
                         ) : (
-                          <Circle className="w-3 h-3 text-[#e0e0e0]" />
+                          <Circle className="w-3 h-3 text-line-light" />
                         )}
                       </div>
 
                       {/* Content Card */}
                       <div
                         onClick={() => handleLocationClick(point)}
-                        className={`ml-[40px] p-3 rounded cursor-pointer relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_12px_30px_rgba(255,107,53,0.4)] hover:border-2 hover:border-[#F9A922] hover:bg-[#fff5f2] ${selectedLocation === point?.id ? "bg-[#fff5f2] shadow-[0_4px_12px_rgba(255,107,53,0.2)] border-2 border-[#F9A922]" : point?.status === "current" ? "border-2 border-[#F9A922] bg-white" : "border border-[#e0e0e0] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.1)]"} ${selectedLocation === point?.id && isZooming ? "zoom-animation" : ""}`}
+                        className={`ml-[40px] p-3 rounded cursor-pointer relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_12px_30px_rgba(255,107,53,0.4)] hover:border-2 hover:border-brand hover:bg-brand-light ${selectedLocation === point?.id ? "bg-brand-light shadow-[0_4px_12px_rgba(255,107,53,0.2)] border-2 border-brand" : point?.status === "current" ? "border-2 border-brand bg-white" : "border border-line-light bg-white shadow-[0_1px_3px_rgba(0,0,0,0.1)]"} ${selectedLocation === point?.id && isZooming ? "zoom-animation" : ""}`}
                       >
                         {/* Arrow */}
                         <div className="absolute left-[-8px] top-[15px] w-0 h-0 border-t-[8px] border-b-[8px] border-r-[8px] border-t-transparent border-b-transparent border-r-white z-[1]" />
 
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-sm font-semibold">{point?.location || "N/A"}</span>
-                          <span className={`text-[10px] ${selectedLocation === point?.id && isZooming ? "text-[#4CAF50] font-bold" : "text-[#F9A922]"} opacity-70`}>
+                          <span className={`text-[10px] ${selectedLocation === point?.id && isZooming ? "text-success font-bold" : "text-brand"} opacity-70`}>
                             {selectedLocation === point?.id && isZooming ? "Zooming..." : "Click to focus"}
                           </span>
                         </div>
-                        <p className="text-sm text-[#666] mb-2">{point?.description || "N/A"}</p>
+                        <p className="text-sm text-dim mb-2">{point?.description || "N/A"}</p>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-[#999]">{formatDate(point?.timestamp)}</span>
+                          <span className="text-xs text-faint">{formatDate(point?.timestamp)}</span>
                           <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusBadge(point?.status || "pending")}`}>
                             {point?.status || "pending"}
                           </span>

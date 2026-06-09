@@ -1,12 +1,12 @@
-import React from "react";
+﻿import React from "react";
 import { Search } from "lucide-react";
 import CompanyContactInfo from "@/components/CompanyContactInfo";
 
 const TH = ({ children }: { children: React.ReactNode }) => (
-  <th className="font-bold text-left p-3 text-sm border-b border-[#e8e8e8] bg-[#f5f5f5]">{children}</th>
+  <th className="font-bold text-left p-3 text-sm border-b border-line-light bg-paper">{children}</th>
 );
 const TD = ({ children }: { children: React.ReactNode }) => (
-  <td className="p-3 text-sm text-[#333]">{children}</td>
+  <td className="p-3 text-sm text-body">{children}</td>
 );
 
 export default function ENumbersPage() {
@@ -22,8 +22,8 @@ export default function ENumbersPage() {
         <div className="relative z-[2] w-[90%] max-w-[700px]">
           <div className="relative flex items-center bg-white/95 backdrop-blur-[15px] rounded-[50px]" style={{ boxShadow: "0 25px 50px rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.08)" }}>
             <input placeholder="Search E Numbers, additives, or food ingredients..."
-              className="w-full h-[60px] text-lg px-6 pr-16 rounded-[50px] bg-transparent text-[#2c3e50] font-medium placeholder:text-[#7f8c8d] focus:outline-none" />
-            <div className="absolute right-3 flex items-center justify-center w-10 h-10 rounded-full bg-[#F9A922] transition-transform hover:scale-110" style={{ boxShadow: "0 4px 12px rgba(249,169,34,0.3)" }}>
+              className="w-full h-[60px] text-lg px-6 pr-16 rounded-[50px] bg-transparent text-heading font-medium placeholder:text-soft focus:outline-none" />
+            <div className="absolute right-3 flex items-center justify-center w-10 h-10 rounded-full bg-brand transition-transform hover:scale-110" style={{ boxShadow: "0 4px 12px rgba(249,169,34,0.3)" }}>
               <Search className="w-5 h-5 text-white" />
             </div>
           </div>
@@ -32,7 +32,7 @@ export default function ENumbersPage() {
       </div>
 
       <div className="px-4 py-6 max-w-[1200px] mx-auto">
-        <h2 className="mb-3 font-bold text-[#333] text-2xl">E-Numbers</h2>
+        <h2 className="mb-3 font-bold text-body text-2xl">E-Numbers</h2>
         <div className="overflow-x-auto mb-6 shadow-md rounded-lg">
           <table className="w-full border-collapse bg-white">
             <thead><tr><TH>E-Number</TH><TH>Additive Name</TH><TH>Item Code</TH><TH>Item Name</TH><TH>Also known as</TH></tr></thead>
@@ -63,40 +63,40 @@ export default function ENumbersPage() {
                 ["E466","Carboxymethylcellulose","466-000-000","Carboxymethylcellulose","CMC"],
                 ["E471","Mono- and diglycerides of fatty acids","471-000-000","Glyceryl Monostearate","GMS"],
                 ["E481","Sodium stearoyl-2-lactylate","481-000-000","Sodium Stearoyl Lactylate","SSL"],
-              ].map((r, i) => <tr key={i} className="border-b border-[#e8e8e8] hover:bg-gray-50">{r.map((c, j) => <TD key={j}>{c}</TD>)}</tr>)}
+              ].map((r, i) => <tr key={i} className="border-b border-line-light hover:bg-gray-50">{r.map((c, j) => <TD key={j}>{c}</TD>)}</tr>)}
             </tbody>
           </table>
         </div>
 
-        <h2 className="mb-3 font-bold text-[#333] text-2xl">Preservatives</h2>
+        <h2 className="mb-3 font-bold text-body text-2xl">Preservatives</h2>
         <div className="overflow-x-auto mb-6 shadow-md rounded-lg">
           <table className="w-full border-collapse bg-white">
             <thead><tr><TH>Preservatives</TH><TH>Item Code</TH><TH>Item Name</TH></tr></thead>
             <tbody>
               {[["Benzoic Acid","BENZ-000-000","Benzoic Acid"],["Potassium Sorbate","POTS-000-000","Potassium Sorbate"],["Sodium Benzoate","SOBE-000-000","Sodium Benzoate"],["Sorbic Acid","SORB-000-000","Sorbic Acid"],["Sulphur Dioxide","SULD-000-000","Sulphur Dioxide"]]
-                .map((r, i) => <tr key={i} className="border-b border-[#e8e8e8] hover:bg-gray-50">{r.map((c, j) => <TD key={j}>{c}</TD>)}</tr>)}
+                .map((r, i) => <tr key={i} className="border-b border-line-light hover:bg-gray-50">{r.map((c, j) => <TD key={j}>{c}</TD>)}</tr>)}
             </tbody>
           </table>
         </div>
 
-        <h2 className="mb-3 font-bold text-[#333] text-2xl">Antioxidants</h2>
+        <h2 className="mb-3 font-bold text-body text-2xl">Antioxidants</h2>
         <div className="overflow-x-auto mb-6 shadow-md rounded-lg">
           <table className="w-full border-collapse bg-white">
             <thead><tr><TH>Antioxidants</TH><TH>Item Code</TH><TH>Item Name</TH></tr></thead>
             <tbody>
               {[["Ascorbic Acid","ASCO-000-000","Ascorbic Acid (Vitamin C)"],["BHA","BHA-000-000","Butylated Hydroxyanisole"],["Mixed Tocopherols","MIXT-000-000","Mixed Tocopherols (Natural Vitamin E)"],["TBHQ","TBHQ-000-000","Tertiary-butylhydroquinone"]]
-                .map((r, i) => <tr key={i} className="border-b border-[#e8e8e8] hover:bg-gray-50">{r.map((c, j) => <TD key={j}>{c}</TD>)}</tr>)}
+                .map((r, i) => <tr key={i} className="border-b border-line-light hover:bg-gray-50">{r.map((c, j) => <TD key={j}>{c}</TD>)}</tr>)}
             </tbody>
           </table>
         </div>
 
-        <h2 className="mb-3 font-bold text-[#333] text-2xl">Acidity Regulators, Anti-caking, Humectants and Raising Agents</h2>
+        <h2 className="mb-3 font-bold text-body text-2xl">Acidity Regulators, Anti-caking, Humectants and Raising Agents</h2>
         <div className="overflow-x-auto mb-6 shadow-md rounded-lg">
           <table className="w-full border-collapse bg-white">
             <thead><tr><TH>Acidity Regulators, Anti-caking, Humectants and Raising Agents</TH><TH>Item Code</TH><TH>Item Name</TH></tr></thead>
             <tbody>
               {[["Acetic Acid","ACET-000-000","Acetic Acid"],["Calcium Carbonate","CALC-000-000","Calcium Carbonate"],["Citric Acid","CITR-000-000","Citric Acid"],["Magnesium Oxide","MAGO-000-000","Magnesium Oxide"],["Sodium Bicarbonate","SOBI-000-000","Sodium Bicarbonate"],["Tartaric Acid","TART-000-000","Tartaric Acid"]]
-                .map((r, i) => <tr key={i} className="border-b border-[#e8e8e8] hover:bg-gray-50">{r.map((c, j) => <TD key={j}>{c}</TD>)}</tr>)}
+                .map((r, i) => <tr key={i} className="border-b border-line-light hover:bg-gray-50">{r.map((c, j) => <TD key={j}>{c}</TD>)}</tr>)}
             </tbody>
           </table>
         </div>

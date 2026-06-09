@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { useSubmitContactQuery } from "@/api/handlers";
 
@@ -58,7 +58,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
   return (
     <div
       className="rounded-xl p-6 md:p-8 max-w-[500px] w-full"
-      style={{ background: "linear-gradient(135deg, #8B3E2F 0%, #A0522D 100%)", boxShadow: "0 8px 32px rgba(139, 62, 47, 0.3)" }}
+      style={{ background: "linear-gradient(135deg, var(--color-earthy) 0%, var(--color-earthy-light, #a0522d) 100%)", boxShadow: "0 8px 32px rgba(0,0,0,0.3)" }}
     >
       <h2 className="text-white font-semibold text-xl text-center mb-6">Contact Us</h2>
 
@@ -109,9 +109,9 @@ const ContactForm: React.FC<ContactFormProps> = ({
           <button
             type="submit"
             disabled={submitQueryMutation.isPending}
-            className="w-full bg-white text-[#8B3E2F] font-semibold text-base py-3 px-6 rounded-[25px] shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:bg-white/90 hover:shadow-[0_6px_16px_rgba(0,0,0,0.2)] disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+            className="w-full bg-white text-earthy font-semibold text-base py-3 px-6 rounded-[25px] shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:bg-white/90 hover:shadow-[0_6px_16px_rgba(0,0,0,0.2)] disabled:opacity-50 transition-all flex items-center justify-center gap-2"
           >
-            {submitQueryMutation.isPending && <Spinner size="sm" className="border-[#8B3E2F] border-t-transparent" />}
+            {submitQueryMutation.isPending && <Spinner size="sm" className="border-earthy border-t-transparent" />}
             Contact Us
           </button>
         </div>

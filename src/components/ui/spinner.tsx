@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 
 interface SpinnerProps {
   className?: string;
@@ -12,6 +12,6 @@ export function Spinner({ className, size = "md" }: SpinnerProps) {
     lg: "h-8 w-8 border-[3px]",
   };
   return (
-    <div className={cn("animate-spin rounded-full border-gray-200 border-t-[#F9A922]", sizeClasses[size], className)} />
+    <div className={cn("animate-spin rounded-full border-gray-200 border-t-brand", sizeClasses[size], className)} />
   );
 }

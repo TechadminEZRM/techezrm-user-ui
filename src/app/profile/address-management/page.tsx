@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useRef, useEffect } from "react";
 import { Plus, MapPin, Pencil, Trash2, MoreVertical, Home, Briefcase, Star, ChevronDown, Map, Phone, Mail, Building2, User } from "lucide-react";
@@ -103,11 +103,11 @@ const AddressManagementPage: React.FC = () => {
   const getAddressIcon = (type: string) => {
     switch (type?.toLowerCase()) {
       case "home":
-        return <Home className="w-5 h-5 text-[#F9A922]" />;
+        return <Home className="w-5 h-5 text-brand" />;
       case "work":
-        return <Briefcase className="w-5 h-5 text-[#F9A922]" />;
+        return <Briefcase className="w-5 h-5 text-brand" />;
       default:
-        return <MapPin className="w-5 h-5 text-[#F9A922]" />;
+        return <MapPin className="w-5 h-5 text-brand" />;
     }
   };
 
@@ -129,11 +129,11 @@ const AddressManagementPage: React.FC = () => {
         <div>
           {/* Header with Add Button */}
           <div className="flex justify-between items-center mb-6">
-            <p className="text-[#7f8c8d] text-sm">Manage your delivery addresses</p>
+            <p className="text-soft text-sm">Manage your delivery addresses</p>
             <button
               onClick={handleAddAddress}
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-white font-medium text-sm transition-opacity hover:opacity-90"
-              style={{ background: "linear-gradient(135deg, #F9A922 0%, #ff8c42 100%)" }}
+              style={{ background: "linear-gradient(135deg, var(--color-brand) 0%, var(--color-brand-hover) 100%)" }}
             >
               <Plus className="w-4 h-4" />
               Add New Address
@@ -162,8 +162,8 @@ const AddressManagementPage: React.FC = () => {
                   key={address._id}
                   className={`relative rounded-xl bg-white flex flex-col min-h-[280px] transition-all duration-200 hover:-translate-y-0.5 ${
                     address.isDefault
-                      ? "border-2 border-[#F9A922] shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
-                      : "border border-[#f0f0f0] shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+                      ? "border-2 border-brand shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+                      : "border border-wash shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
                   }`}
                 >
                   <div className="p-6 flex flex-col flex-1">
@@ -172,9 +172,9 @@ const AddressManagementPage: React.FC = () => {
                       <div className="flex items-center gap-3">
                         {getAddressIcon(address.type)}
                         <div>
-                          <p className="font-semibold text-[#2c3e50] capitalize">{address.type}</p>
+                          <p className="font-semibold text-heading capitalize">{address.type}</p>
                           {address.isDefault && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#fff5f2] text-[#F9A922] text-xs font-medium mt-1">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-brand-light text-brand text-xs font-medium mt-1">
                               <Star className="w-3 h-3" /> Default
                             </span>
                           )}
@@ -188,7 +188,7 @@ const AddressManagementPage: React.FC = () => {
                             setOpenMenuId(openMenuId === address._id ? "" : address._id);
                             setSelectedAddressId(address._id);
                           }}
-                          className="p-1.5 rounded-full text-[#7f8c8d] hover:bg-[#f8f9fa] hover:text-[#2c3e50] transition-colors"
+                          className="p-1.5 rounded-full text-soft hover:bg-surface hover:text-heading transition-colors"
                         >
                           <MoreVertical className="w-4 h-4" />
                         </button>
@@ -196,14 +196,14 @@ const AddressManagementPage: React.FC = () => {
                           <div className="absolute right-0 top-8 z-10 w-44 bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.15)] border border-gray-100 py-1">
                             <button
                               onClick={() => handleEditAddress(address)}
-                              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#333] hover:bg-gray-50 transition-colors"
+                              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-body hover:bg-gray-50 transition-colors"
                             >
                               <Pencil className="w-4 h-4" /> Edit
                             </button>
                             <button
                               onClick={() => handleSetDefaultAddress(address._id)}
                               disabled={address.isDefault}
-                              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#333] hover:bg-gray-50 transition-colors disabled:opacity-50"
+                              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-body hover:bg-gray-50 transition-colors disabled:opacity-50"
                             >
                               <Star className="w-4 h-4" />
                               {address.isDefault ? "Already Default" : "Set as Default"}
@@ -221,15 +221,15 @@ const AddressManagementPage: React.FC = () => {
 
                     {/* Address Details */}
                     <div className="flex-1 space-y-2">
-                      <p className="text-[#5a6c7d] text-sm font-medium leading-relaxed">
+                      <p className="text-soft text-sm font-medium leading-relaxed">
                         {address.street || "Street address not provided"}
                       </p>
-                      <p className="text-[#5a6c7d] text-sm leading-relaxed">
+                      <p className="text-soft text-sm leading-relaxed">
                         {address.city && address.state && address.zipCode
                           ? `${address.city}, ${address.state} ${address.zipCode}`
                           : address.city || address.state || address.zipCode || "City, State, Zip Code not provided"}
                       </p>
-                      <p className="text-[#5a6c7d] text-sm leading-relaxed">
+                      <p className="text-soft text-sm leading-relaxed">
                         {address.country || "Country not provided"}
                       </p>
 
@@ -237,7 +237,7 @@ const AddressManagementPage: React.FC = () => {
                       <div className="mt-auto pt-3">
                         <button
                           onClick={() => handleShowDetails(address)}
-                          className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-[#e0e0e0] text-[#7f8c8d] text-xs hover:border-[#F9A922] hover:text-[#F9A922] hover:bg-[#fff5f2] transition-colors"
+                          className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-line-light text-soft text-xs hover:border-brand hover:text-brand hover:bg-brand-light transition-colors"
                         >
                           <ChevronDown className="w-3 h-3" /> Show More
                         </button>
@@ -248,14 +248,14 @@ const AddressManagementPage: React.FC = () => {
               ))}
             </div>
           ) : (
-            <div className="rounded-xl border border-[#f0f0f0] shadow-[0_2px_8px_rgba(0,0,0,0.08)] text-center py-12 bg-white">
+            <div className="rounded-xl border border-wash shadow-[0_2px_8px_rgba(0,0,0,0.08)] text-center py-12 bg-white">
               <MapPin className="w-12 h-12 text-[#bdc3c7] mx-auto mb-3" />
-              <h3 className="text-[#7f8c8d] text-lg font-medium mb-1">No addresses found</h3>
-              <p className="text-[#95a5a6] text-sm mb-6">Add your first address to get started</p>
+              <h3 className="text-soft text-lg font-medium mb-1">No addresses found</h3>
+              <p className="text-soft text-sm mb-6">Add your first address to get started</p>
               <button
                 onClick={handleAddAddress}
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-white font-medium text-sm transition-opacity hover:opacity-90"
-                style={{ background: "linear-gradient(135deg, #F9A922 0%, #ff8c42 100%)" }}
+                style={{ background: "linear-gradient(135deg, var(--color-brand) 0%, var(--color-brand-hover) 100%)" }}
               >
                 <Plus className="w-4 h-4" /> Add Address
               </button>
@@ -288,15 +288,15 @@ const AddressManagementPage: React.FC = () => {
           {/* Address Details Dialog */}
           <Dialog open={detailsModalOpen} onOpenChange={(open) => !open && handleCloseDetailsModal()}>
             <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto p-0">
-              <DialogHeader className="px-6 py-4 border-b border-[#e8e8e8] bg-[#fafafa]">
+              <DialogHeader className="px-6 py-4 border-b border-line-light bg-paper">
                 <div className="flex items-center gap-3">
                   {selectedAddress && getAddressIcon(selectedAddress.type)}
                   <div>
-                    <DialogTitle className="text-base font-semibold text-[#2c3e50] capitalize">
+                    <DialogTitle className="text-base font-semibold text-heading capitalize">
                       {selectedAddress?.type} Address Details
                     </DialogTitle>
                     {selectedAddress?.isDefault && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#fff5f2] text-[#F9A922] text-xs font-medium mt-1">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-brand-light text-brand text-xs font-medium mt-1">
                         <Star className="w-3 h-3" /> Default
                       </span>
                     )}
@@ -308,13 +308,13 @@ const AddressManagementPage: React.FC = () => {
                 <div className="p-6 space-y-5">
                   {/* Address Information */}
                   <div>
-                    <p className="text-[#7f8c8d] text-[0.7rem] font-semibold uppercase tracking-wider mb-3">Address Information</p>
-                    <div className="flex items-start gap-3 p-3 bg-[#f8f9fa] rounded-xl border border-[#e8e8e8]">
-                      <MapPin className="w-4 h-4 text-[#F9A922] mt-0.5 flex-shrink-0" />
+                    <p className="text-soft text-[0.7rem] font-semibold uppercase tracking-wider mb-3">Address Information</p>
+                    <div className="flex items-start gap-3 p-3 bg-surface rounded-xl border border-line-light">
+                      <MapPin className="w-4 h-4 text-brand mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-[#2c3e50] text-sm font-medium leading-snug mb-1">{selectedAddress.street}</p>
-                        <p className="text-[#5a6c7d] text-xs leading-snug mb-1">{selectedAddress.city}, {selectedAddress.state} {selectedAddress.zipCode}</p>
-                        <p className="text-[#5a6c7d] text-xs leading-snug">{selectedAddress.country}</p>
+                        <p className="text-heading text-sm font-medium leading-snug mb-1">{selectedAddress.street}</p>
+                        <p className="text-soft text-xs leading-snug mb-1">{selectedAddress.city}, {selectedAddress.state} {selectedAddress.zipCode}</p>
+                        <p className="text-soft text-xs leading-snug">{selectedAddress.country}</p>
                       </div>
                     </div>
                   </div>
@@ -322,36 +322,36 @@ const AddressManagementPage: React.FC = () => {
                   {/* Company Information */}
                   {selectedAddress.companyName && (
                     <div>
-                      <p className="text-[#7f8c8d] text-[0.7rem] font-semibold uppercase tracking-wider mb-3">Company Information</p>
-                      <div className="flex items-center gap-3 p-3 bg-[#f8f9fa] rounded-xl border border-[#e8e8e8]">
-                        <Building2 className="w-4 h-4 text-[#F9A922] flex-shrink-0" />
-                        <p className="text-[#2c3e50] text-sm font-medium">{selectedAddress.companyName}</p>
+                      <p className="text-soft text-[0.7rem] font-semibold uppercase tracking-wider mb-3">Company Information</p>
+                      <div className="flex items-center gap-3 p-3 bg-surface rounded-xl border border-line-light">
+                        <Building2 className="w-4 h-4 text-brand flex-shrink-0" />
+                        <p className="text-heading text-sm font-medium">{selectedAddress.companyName}</p>
                       </div>
                     </div>
                   )}
 
                   {/* Receiver Information */}
                   <div>
-                    <p className="text-[#7f8c8d] text-[0.7rem] font-semibold uppercase tracking-wider mb-3">Receiver Information</p>
-                    <div className="p-3 bg-[#f8f9fa] rounded-xl border border-[#e8e8e8] space-y-3">
+                    <p className="text-soft text-[0.7rem] font-semibold uppercase tracking-wider mb-3">Receiver Information</p>
+                    <div className="p-3 bg-surface rounded-xl border border-line-light space-y-3">
                       {selectedAddress.receiverName && (
                         <div className="flex items-center gap-3">
-                          <User className="w-4 h-4 text-[#F9A922] flex-shrink-0" />
-                          <p className="text-[#2c3e50] text-sm font-medium">{selectedAddress.receiverName}</p>
+                          <User className="w-4 h-4 text-brand flex-shrink-0" />
+                          <p className="text-heading text-sm font-medium">{selectedAddress.receiverName}</p>
                         </div>
                       )}
                       {selectedAddress.receiverPhone && (
                         <div className="flex items-center gap-3">
-                          <Phone className="w-4 h-4 text-[#F9A922] flex-shrink-0" />
-                          <p className="text-[#2c3e50] text-sm font-medium">
+                          <Phone className="w-4 h-4 text-brand flex-shrink-0" />
+                          <p className="text-heading text-sm font-medium">
                             {selectedAddress.receiverPhoneCountryCode} {selectedAddress.receiverPhone}
                           </p>
                         </div>
                       )}
                       {selectedAddress.receiverEmail && (
                         <div className="flex items-center gap-3">
-                          <Mail className="w-4 h-4 text-[#F9A922] flex-shrink-0" />
-                          <p className="text-[#2c3e50] text-sm font-medium">{selectedAddress.receiverEmail}</p>
+                          <Mail className="w-4 h-4 text-brand flex-shrink-0" />
+                          <p className="text-heading text-sm font-medium">{selectedAddress.receiverEmail}</p>
                         </div>
                       )}
                     </div>
@@ -360,19 +360,19 @@ const AddressManagementPage: React.FC = () => {
                   {/* Location & Coordinates */}
                   {selectedAddress.coordinates && (
                     <div>
-                      <p className="text-[#7f8c8d] text-[0.7rem] font-semibold uppercase tracking-wider mb-3">Location & Coordinates</p>
-                      <div className="p-3 bg-[#f8f9fa] rounded-xl border border-[#e8e8e8]">
+                      <p className="text-soft text-[0.7rem] font-semibold uppercase tracking-wider mb-3">Location & Coordinates</p>
+                      <div className="p-3 bg-surface rounded-xl border border-line-light">
                         <div className="flex items-start gap-3 mb-3">
-                          <Map className="w-4 h-4 text-[#F9A922] mt-0.5 flex-shrink-0" />
+                          <Map className="w-4 h-4 text-brand mt-0.5 flex-shrink-0" />
                           <div>
-                            <p className="text-[#2c3e50] text-xs font-medium mb-1">Latitude: {selectedAddress.coordinates.latitude}</p>
-                            <p className="text-[#2c3e50] text-xs font-medium">Longitude: {selectedAddress.coordinates.longitude}</p>
+                            <p className="text-heading text-xs font-medium mb-1">Latitude: {selectedAddress.coordinates.latitude}</p>
+                            <p className="text-heading text-xs font-medium">Longitude: {selectedAddress.coordinates.longitude}</p>
                           </div>
                         </div>
                         <button
                           onClick={() => openGoogleMaps(selectedAddress.coordinates.latitude, selectedAddress.coordinates.longitude)}
                           className="flex items-center gap-2 px-4 py-1.5 rounded-xl text-white text-xs font-medium transition-opacity hover:opacity-90"
-                          style={{ background: "linear-gradient(135deg, #F9A922 0%, #ff8c42 100%)" }}
+                          style={{ background: "linear-gradient(135deg, var(--color-brand) 0%, var(--color-brand-hover) 100%)" }}
                         >
                           <Map className="w-3.5 h-3.5" /> Open in Google Maps
                         </button>
@@ -382,35 +382,35 @@ const AddressManagementPage: React.FC = () => {
 
                   {/* Additional Information */}
                   <div>
-                    <p className="text-[#7f8c8d] text-[0.7rem] font-semibold uppercase tracking-wider mb-3">Additional Information</p>
-                    <div className="p-3 bg-[#f8f9fa] rounded-xl border border-[#e8e8e8] space-y-2">
+                    <p className="text-soft text-[0.7rem] font-semibold uppercase tracking-wider mb-3">Additional Information</p>
+                    <div className="p-3 bg-surface rounded-xl border border-line-light space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className="text-[#7f8c8d] text-xs font-medium">Unique ID:</span>
-                        <span className="text-[#2c3e50] text-xs font-medium">{selectedAddress.uniqueId}</span>
+                        <span className="text-soft text-xs font-medium">Unique ID:</span>
+                        <span className="text-heading text-xs font-medium">{selectedAddress.uniqueId}</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-[#7f8c8d] text-xs font-medium">Status:</span>
+                        <span className="text-soft text-xs font-medium">Status:</span>
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${selectedAddress.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
                           {selectedAddress.isActive ? "Active" : "Inactive"}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-[#7f8c8d] text-xs font-medium">Created:</span>
-                        <span className="text-[#2c3e50] text-xs font-medium">{new Date(selectedAddress.createdAt).toLocaleDateString()}</span>
+                        <span className="text-soft text-xs font-medium">Created:</span>
+                        <span className="text-heading text-xs font-medium">{new Date(selectedAddress.createdAt).toLocaleDateString()}</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-[#7f8c8d] text-xs font-medium">Last Updated:</span>
-                        <span className="text-[#2c3e50] text-xs font-medium">{new Date(selectedAddress.updatedAt).toLocaleDateString()}</span>
+                        <span className="text-soft text-xs font-medium">Last Updated:</span>
+                        <span className="text-heading text-xs font-medium">{new Date(selectedAddress.updatedAt).toLocaleDateString()}</span>
                       </div>
                     </div>
                   </div>
                 </div>
               )}
 
-              <div className="px-6 py-3 border-t border-[#e8e8e8] bg-[#fafafa] flex justify-end">
+              <div className="px-6 py-3 border-t border-line-light bg-paper flex justify-end">
                 <button
                   onClick={handleCloseDetailsModal}
-                  className="px-5 py-2 rounded-xl text-[#7f8c8d] text-sm font-medium hover:bg-[#f0f0f0] hover:text-[#2c3e50] transition-colors"
+                  className="px-5 py-2 rounded-xl text-soft text-sm font-medium hover:bg-wash hover:text-heading transition-colors"
                 >
                   Close
                 </button>

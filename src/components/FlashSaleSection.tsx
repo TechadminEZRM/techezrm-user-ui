@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type React from "react";
 import { useState, useEffect } from "react";
@@ -18,9 +18,9 @@ const FlashSaleProduct: React.FC<FlashSaleProductProps> = ({ productName, price,
       <div className="flex items-center gap-3 mb-2">
         <div className="relative flex items-center justify-center">
           {/* Bottle */}
-          <div className="w-8 h-[42px] bg-[#F9A922] rounded-[4px_4px_2px_2px] flex items-end justify-center pb-1 relative">
+          <div className="w-8 h-[42px] bg-brand rounded-[4px_4px_2px_2px] flex items-end justify-center pb-1 relative">
             {/* Cap */}
-            <div className="w-[22px] h-1.5 bg-[#F9A922] rounded-sm absolute -top-0.5 left-1/2 -translate-x-1/2" />
+            <div className="w-[22px] h-1.5 bg-brand rounded-sm absolute -top-0.5 left-1/2 -translate-x-1/2" />
             <span className="text-white text-[8px] font-bold leading-none mb-0.5">VIT</span>
           </div>
           {/* C Badge */}
@@ -28,21 +28,21 @@ const FlashSaleProduct: React.FC<FlashSaleProductProps> = ({ productName, price,
             <span className="text-white text-[8px] font-bold">C</span>
           </div>
         </div>
-        <span className="text-[#333] text-[0.9rem] font-medium">{productName}</span>
+        <span className="text-body text-[0.9rem] font-medium">{productName}</span>
       </div>
 
       {/* Price */}
-      <p className="text-[#333] text-[1.1rem] font-semibold mb-2">{price}</p>
+      <p className="text-body text-[1.1rem] font-semibold mb-2">{price}</p>
 
       {/* Progress Bar */}
       <div className="mb-1">
-        <div className="w-full h-1.5 bg-[#f0f0f0] rounded-full overflow-hidden">
-          <div className="h-full bg-[#F9A922] rounded-full transition-all" style={{ width: `${progressValue}%` }} />
+        <div className="w-full h-1.5 bg-wash rounded-full overflow-hidden">
+          <div className="h-full bg-brand rounded-full transition-all" style={{ width: `${progressValue}%` }} />
         </div>
       </div>
 
       {/* Stock Left */}
-      <p className="text-[#666] text-[0.8rem] text-right">{stockLeft} left</p>
+      <p className="text-dim text-[0.8rem] text-right">{stockLeft} left</p>
     </div>
   );
 };
@@ -74,7 +74,7 @@ const FlashSaleSection: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 relative">
         <div
           className="rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-8"
-          style={{ background: "linear-gradient(135deg, #F9A922 0%, #F9A922 100%)" }}
+          style={{ background: "linear-gradient(135deg, var(--color-brand) 0%, var(--color-brand) 100%)" }}
         >
           {/* Left */}
           <div className="text-white flex-1">

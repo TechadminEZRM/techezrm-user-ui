@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { User, ShoppingBag, Lock, Settings, Briefcase, MapPin } from "lucide-react";
 
 interface ProfileSidebarProps {
@@ -18,21 +18,21 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ customer, currentPage, 
   ];
 
   return (
-    <div className="w-full md:w-[280px] bg-white border-r border-[#e0e0e0] flex flex-col">
+    <div className="w-full md:w-[280px] bg-white border-r border-line-light flex flex-col">
       {/* Profile Header */}
-      <div className="p-6 border-b border-[#f0f0f0]">
-        <h2 className="text-base font-semibold text-[#333] mb-0.5">Profile</h2>
+      <div className="p-6 border-b border-wash">
+        <h2 className="text-base font-semibold text-body mb-0.5">Profile</h2>
       </div>
 
       {/* User Info */}
-      <div className="p-6 border-b border-[#f0f0f0] flex items-center gap-4">
+      <div className="p-6 border-b border-wash flex items-center gap-4">
         <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
           <User className="w-6 h-6 text-gray-500" />
         </div>
         <div>
-          <p className="text-sm text-[#666] mb-0.5">Hello</p>
-          <p className="text-base font-semibold text-[#333] mb-0.5">{customer?.name}</p>
-          <p className="text-sm text-[#666]">Personal Information</p>
+          <p className="text-sm text-dim mb-0.5">Hello</p>
+          <p className="text-base font-semibold text-body mb-0.5">{customer?.name}</p>
+          <p className="text-sm text-dim">Personal Information</p>
         </div>
       </div>
 
@@ -47,8 +47,8 @@ const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ customer, currentPage, 
               onClick={item.handler}
               className={`w-full flex items-center gap-4 px-6 py-[14px] cursor-pointer transition-colors text-left ${
                 isActive
-                  ? "bg-[#F9A922] text-white border-r-[3px] border-r-[#F9A922]"
-                  : "text-[#666] hover:bg-gray-50"
+                  ? "bg-brand text-white border-r-[3px] border-r-brand"
+                  : "text-dim hover:bg-gray-50"
               }`}
             >
               <IconComponent className="w-5 h-5 flex-shrink-0" />

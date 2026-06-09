@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { ChevronDown, Download, Lock } from "lucide-react";
 
 interface Document {
@@ -56,13 +56,13 @@ const CompanyDocumentsSection: React.FC<CompanyDocumentsSectionProps> = ({
 
   return (
     <div className="mt-8 mb-6">
-      <h3 className="font-semibold text-[#333] text-lg md:text-xl mb-6">Company Specific Documents</h3>
+      <h3 className="font-semibold text-body text-lg md:text-xl mb-6">Company Specific Documents</h3>
 
       {documentCategories.map((category, index) => (
         <div
           key={index}
           className="bg-white border border-[rgba(255,107,53,0.1)] rounded-lg mb-3 shadow-[0_2px_6px_rgba(0,0,0,0.04)] transition-all hover:border-[rgba(255,107,53,0.25)] hover:shadow-[0_6px_20px_rgba(255,107,53,0.1)] hover:-translate-y-px overflow-hidden"
-          style={{ background: expanded === index ? "linear-gradient(135deg, #fff8f6 0%, #fff5f2 100%)" : "linear-gradient(135deg, #ffffff 0%, #fafafa 100%)" }}
+          style={{ background: expanded === index ? "linear-gradient(135deg, var(--color-brand-light) 0%, var(--color-brand-light) 100%)" : "linear-gradient(135deg, #ffffff 0%, var(--color-paper) 100%)" }}
         >
           {/* Accordion Header */}
           <button
@@ -71,13 +71,13 @@ const CompanyDocumentsSection: React.FC<CompanyDocumentsSectionProps> = ({
             onClick={() => setExpanded(expanded === index ? null : index)}
           >
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-[#333]">{category.title}</span>
-              <span className="bg-[rgba(255,107,53,0.1)] text-[#F9A922] px-2 py-0.5 rounded-full text-xs font-semibold min-w-[24px] text-center">
+              <span className="text-sm font-semibold text-body">{category.title}</span>
+              <span className="bg-[rgba(255,107,53,0.1)] text-brand px-2 py-0.5 rounded-full text-xs font-semibold min-w-[24px] text-center">
                 {category.count}
               </span>
             </div>
             <div className={`w-7 h-7 rounded-full bg-[rgba(255,107,53,0.1)] flex items-center justify-center transition-transform ${expanded === index ? "rotate-180" : ""}`}>
-              <ChevronDown className="w-4 h-4 text-[#F9A922]" />
+              <ChevronDown className="w-4 h-4 text-brand" />
             </div>
           </button>
 
@@ -91,13 +91,13 @@ const CompanyDocumentsSection: React.FC<CompanyDocumentsSectionProps> = ({
                     className="flex items-center justify-between p-2 px-3 mb-1.5 last:mb-0 bg-white/70 rounded-md border border-[rgba(255,107,53,0.05)] transition-all hover:bg-[rgba(255,107,53,0.05)] hover:border-[rgba(255,107,53,0.1)] hover:translate-x-1"
                   >
                     <div className="flex items-center gap-2 flex-1">
-                      {doc.isLocked && <Lock className="w-3 h-3 text-[#F9A922] flex-shrink-0" />}
+                      {doc.isLocked && <Lock className="w-3 h-3 text-brand flex-shrink-0" />}
                       <div>
-                        <p className="text-xs font-medium text-[#333] leading-tight">{doc.name}</p>
-                        {doc.expiryDate && <p className="text-[10px] text-[#666] italic">Expires: {doc.expiryDate}</p>}
+                        <p className="text-xs font-medium text-body leading-tight">{doc.name}</p>
+                        {doc.expiryDate && <p className="text-[10px] text-dim italic">Expires: {doc.expiryDate}</p>}
                       </div>
                     </div>
-                    <button className="bg-[rgba(255,107,53,0.1)] text-[#F9A922] rounded p-1 hover:bg-[rgba(255,107,53,0.2)] transition-colors">
+                    <button className="bg-[rgba(255,107,53,0.1)] text-brand rounded p-1 hover:bg-[rgba(255,107,53,0.2)] transition-colors">
                       <Download className="w-3 h-3" />
                     </button>
                   </div>

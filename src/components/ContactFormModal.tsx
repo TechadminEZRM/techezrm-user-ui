@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { X } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import ContactForm from "./ContactForm";
@@ -29,7 +29,7 @@ const ContactFormModal: React.FC<ContactFormModalProps> = ({
         <div className="relative">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 z-10 bg-white/90 text-[#8B3E2F] rounded-full p-1.5 hover:bg-white transition-colors"
+            className="absolute top-4 right-4 z-10 bg-white/90 text-earthy rounded-full p-1.5 hover:bg-white transition-colors"
           >
             <X className="w-4 h-4" />
           </button>

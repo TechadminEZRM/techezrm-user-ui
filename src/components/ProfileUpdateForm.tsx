@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { User, Phone, Globe, FileText, MapPin, DollarSign, Users, Building2, Save } from "lucide-react";
@@ -15,7 +15,7 @@ interface ProfileUpdateFormProps {
 }
 
 const fieldClass =
-  "flex h-10 w-full rounded-xl border border-[#e8e8e8] bg-[#fafafa] px-4 py-2 text-sm text-[#1F2A44] placeholder:text-[#737791] focus:outline-none focus:ring-2 focus:ring-[#F9A922] focus:border-[#F9A922] disabled:opacity-50";
+  "flex h-10 w-full rounded-xl border border-line-light bg-paper px-4 py-2 text-sm text-heading placeholder:text-soft focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand disabled:opacity-50";
 
 const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({ customerId, initialData, onSuccess }) => {
   const [formData, setFormData] = useState<UpdateProfileRequest>({
@@ -99,11 +99,11 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({ customerId, initi
   return (
     <div className="max-w-[1000px] mx-auto px-2">
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-[#2c3e50] flex items-center gap-3 mb-1">
-          <User className="w-6 h-6 text-[#F9A922]" />
+        <h2 className="text-xl font-semibold text-heading flex items-center gap-3 mb-1">
+          <User className="w-6 h-6 text-brand" />
           Profile Information
         </h2>
-        <p className="text-sm text-[#7f8c8d]">Update your personal and business information to help us provide better service</p>
+        <p className="text-sm text-soft">Update your personal and business information to help us provide better service</p>
       </div>
 
       {success && <Alert variant="success" className="mb-6">Profile updated successfully!</Alert>}
@@ -114,14 +114,14 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({ customerId, initi
         <Card className="mb-6">
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-6">
-              <User className="w-5 h-5 text-[#F9A922]" />
-              <h3 className="font-semibold text-[#2c3e50]">Personal Information</h3>
+              <User className="w-5 h-5 text-brand" />
+              <h3 className="font-semibold text-heading">Personal Information</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="text-sm text-[#7f8c8d] mb-1.5 block">Full Name *</label>
+                <label className="text-sm text-soft mb-1.5 block">Full Name *</label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f8c8d]" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-soft" />
                   <input
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
@@ -133,9 +133,9 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({ customerId, initi
                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
               </div>
               <div>
-                <label className="text-sm text-[#7f8c8d] mb-1.5 block">Phone Number</label>
+                <label className="text-sm text-soft mb-1.5 block">Phone Number</label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f8c8d]" />
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-soft" />
                   <input
                     value={formData.phone}
                     onChange={(e) => handleInputChange("phone", e.target.value)}
@@ -153,35 +153,35 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({ customerId, initi
         <Card className="mb-6">
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-6">
-              <Building2 className="w-5 h-5 text-[#F9A922]" />
-              <h3 className="font-semibold text-[#2c3e50]">Business Information</h3>
+              <Building2 className="w-5 h-5 text-brand" />
+              <h3 className="font-semibold text-heading">Business Information</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="text-sm text-[#7f8c8d] mb-1.5 block">Company Name</label>
+                <label className="text-sm text-soft mb-1.5 block">Company Name</label>
                 <div className="relative">
-                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f8c8d]" />
+                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-soft" />
                   <input value={formData.companyName} onChange={(e) => handleInputChange("companyName", e.target.value)} className={`${fieldClass} pl-9`} placeholder="Company Name" />
                 </div>
               </div>
               <div>
-                <label className="text-sm text-[#7f8c8d] mb-1.5 block">Business Type</label>
+                <label className="text-sm text-soft mb-1.5 block">Business Type</label>
                 <select value={formData.businessType} onChange={(e) => handleInputChange("businessType", e.target.value)} className={fieldClass}>
                   <option value="">Select Business Type</option>
                   {businessTypes.map((type) => <option key={type} value={type}>{type}</option>)}
                 </select>
               </div>
               <div className="md:col-span-2">
-                <label className="text-sm text-[#7f8c8d] mb-1.5 block">Company Address</label>
+                <label className="text-sm text-soft mb-1.5 block">Company Address</label>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-3 w-4 h-4 text-[#7f8c8d]" />
+                  <MapPin className="absolute left-3 top-3 w-4 h-4 text-soft" />
                   <textarea value={formData.companyAddress} onChange={(e) => handleInputChange("companyAddress", e.target.value)} rows={2} className={`${fieldClass} h-auto pl-9 pt-2`} placeholder="Company Address" />
                 </div>
               </div>
               <div>
-                <label className="text-sm text-[#7f8c8d] mb-1.5 block">Annual Revenue</label>
+                <label className="text-sm text-soft mb-1.5 block">Annual Revenue</label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f8c8d]" />
+                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-soft" />
                   <select value={formData.annualRevenue} onChange={(e) => handleInputChange("annualRevenue", e.target.value)} className={`${fieldClass} pl-9`}>
                     <option value="">Select Revenue Range</option>
                     {revenueRanges.map((range) => <option key={range} value={range}>{range}</option>)}
@@ -189,9 +189,9 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({ customerId, initi
                 </div>
               </div>
               <div>
-                <label className="text-sm text-[#7f8c8d] mb-1.5 block">Employee Count</label>
+                <label className="text-sm text-soft mb-1.5 block">Employee Count</label>
                 <div className="relative">
-                  <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f8c8d]" />
+                  <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-soft" />
                   <select value={formData.employeeCount} onChange={(e) => handleInputChange("employeeCount", e.target.value)} className={`${fieldClass} pl-9`}>
                     <option value="">Select Employee Count</option>
                     {employeeRanges.map((range) => <option key={range} value={range}>{range}</option>)}
@@ -199,17 +199,17 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({ customerId, initi
                 </div>
               </div>
               <div className="md:col-span-2">
-                <label className="text-sm text-[#7f8c8d] mb-1.5 block">Website</label>
+                <label className="text-sm text-soft mb-1.5 block">Website</label>
                 <div className="relative">
-                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7f8c8d]" />
+                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-soft" />
                   <input value={formData.website} onChange={(e) => handleInputChange("website", e.target.value)} className={`${fieldClass} pl-9`} placeholder="https://yourwebsite.com" />
                 </div>
                 {errors.website && <p className="text-red-500 text-xs mt-1">{errors.website}</p>}
               </div>
               <div className="md:col-span-2">
-                <label className="text-sm text-[#7f8c8d] mb-1.5 block">Business Description</label>
+                <label className="text-sm text-soft mb-1.5 block">Business Description</label>
                 <div className="relative">
-                  <FileText className="absolute left-3 top-3 w-4 h-4 text-[#7f8c8d]" />
+                  <FileText className="absolute left-3 top-3 w-4 h-4 text-soft" />
                   <textarea value={formData.description} onChange={(e) => handleInputChange("description", e.target.value)} rows={3} className={`${fieldClass} h-auto pl-9 pt-2`} placeholder="Describe your business..." />
                 </div>
               </div>
@@ -222,7 +222,7 @@ const ProfileUpdateForm: React.FC<ProfileUpdateFormProps> = ({ customerId, initi
           <button
             type="submit"
             disabled={loading}
-            className="flex items-center gap-2 bg-gradient-to-br from-[#F9A922] to-[#ff8c42] text-white font-medium px-8 py-3 rounded-xl text-sm hover:from-[#E8981F] hover:to-[#F9A922] hover:-translate-y-px hover:shadow-lg disabled:bg-gray-300 disabled:text-gray-500 transition-all min-w-[160px] justify-center"
+            className="flex items-center gap-2 bg-gradient-to-br from-brand to-brand-hover text-white font-medium px-8 py-3 rounded-xl text-sm hover:from-brand-hover hover:to-brand hover:-translate-y-px hover:shadow-lg disabled:bg-gray-300 disabled:text-gray-500 transition-all min-w-[160px] justify-center"
           >
             {loading ? (
               <><Spinner size="sm" className="border-white border-t-transparent" /> Updating...</>

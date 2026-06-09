@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -17,7 +17,7 @@ const ProfilePage: React.FC = () => {
     <ProtectedRoute>
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
         <Spinner size="md" />
-        <p className="text-[#7f8c8d] text-sm">Redirecting to your profile...</p>
+        <p className="text-soft text-sm">Redirecting to your profile...</p>
       </div>
     </ProtectedRoute>
   );

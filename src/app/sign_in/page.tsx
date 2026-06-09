@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type React from "react";
 import { useState } from "react";
@@ -45,7 +45,7 @@ export default function LoginPage() {
   const handleSignUpClick = () => router.push("/sign_up");
 
   const inputClass =
-    "w-full border-0 border-b border-[#e0e0e0] bg-transparent text-[#333] text-base py-3 placeholder:text-[#999] focus:outline-none focus:border-[#F9A922] transition-colors";
+    "w-full border-0 border-b border-line-light bg-transparent text-body text-base py-3 placeholder:text-faint focus:outline-none focus:border-brand transition-colors";
 
   return (
     <div className="h-screen relative overflow-hidden">
@@ -97,8 +97,8 @@ export default function LoginPage() {
             <Image src="/ezrm-logo.png" alt="EZRM Logo" width={200} height={60} style={{ objectFit: "contain" }} />
           </div>
 
-          <p className="font-semibold text-[#333] mb-2 text-xl">Welcome Back</p>
-          <p className="text-[#666] mb-8 text-[15px]">Sign in to your Account</p>
+          <p className="font-semibold text-body mb-2 text-xl">Welcome Back</p>
+          <p className="text-dim mb-8 text-[15px]">Sign in to your Account</p>
 
           {/* Error Alert */}
           {loginMutation.isError && (
@@ -143,7 +143,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loginMutation.isPending}
-              className="w-full bg-[#F9A922] text-white font-bold py-[14px] rounded-[30px] text-base hover:bg-[#E8981F] disabled:bg-gray-300 transition-colors mb-4"
+              className="w-full bg-brand text-white font-bold py-[14px] rounded-[30px] text-base hover:bg-brand-hover disabled:bg-gray-300 transition-colors mb-4"
             >
               {loginMutation.isPending ? (
                 <span className="flex items-center justify-center gap-2">
@@ -156,15 +156,15 @@ export default function LoginPage() {
             </button>
 
             <div className="text-right mb-6">
-              <a href="#" className="text-[#F9A922] text-[0.9rem] hover:underline">
+              <a href="#" className="text-brand text-[0.9rem] hover:underline">
                 Forgot Password?
               </a>
             </div>
 
             <div className="text-center cursor-pointer" onClick={handleSignUpClick}>
-              <span className="text-[#666] text-[0.9rem]">
+              <span className="text-dim text-[0.9rem]">
                 {"Don't have an account? "}
-                <span className="text-[#F9A922] font-medium hover:underline">Sign up Here</span>
+                <span className="text-brand font-medium hover:underline">Sign up Here</span>
               </span>
             </div>
           </form>

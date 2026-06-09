@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import { CheckCircle2, Home, ShoppingBag, Download, Receipt, Truck, CreditCard, User, Mail, Phone, MapPin } from "lucide-react";
@@ -34,10 +34,10 @@ interface OrderDetails {
 
 function InfoPanel({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-[8px] border border-[#e9ecef] mb-6">
-      <div className="flex items-center gap-2 px-6 py-4 border-b border-[#f0f0f0]">
-        <span className="text-[#F9A922]">{icon}</span>
-        <p className="text-base font-semibold text-[#333]">{title}</p>
+    <div className="bg-white rounded-[8px] border border-line mb-6">
+      <div className="flex items-center gap-2 px-6 py-4 border-b border-wash">
+        <span className="text-brand">{icon}</span>
+        <p className="text-base font-semibold text-body">{title}</p>
       </div>
       <div className="px-6 py-4">{children}</div>
     </div>
@@ -108,8 +108,8 @@ const PaymentSuccessPage: React.FC = () => {
     return (
       <div className="max-w-lg mx-auto px-4 py-8">
         <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
-          <Spinner size="md" className="border-[#F9A922] border-t-transparent" />
-          <p className="text-[#666] text-sm">Processing your order...</p>
+          <Spinner size="md" className="border-brand border-t-transparent" />
+          <p className="text-dim text-sm">Processing your order...</p>
         </div>
       </div>
     );
@@ -134,10 +134,10 @@ const PaymentSuccessPage: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
       {/* Success Header */}
-      <div className="bg-[#f8f9fa] border border-[#e9ecef] rounded-[8px] p-8 text-center mb-6">
-        <CheckCircle2 className="w-16 h-16 text-[#28a745] mx-auto mb-4" />
-        <p className="text-2xl font-semibold text-[#333] mb-2">Payment Successful</p>
-        <p className="text-base text-[#666]">Order #{orderDetails?.uniqueId || "N/A"}</p>
+      <div className="bg-surface border border-line rounded-[8px] p-8 text-center mb-6">
+        <CheckCircle2 className="w-16 h-16 text-success mx-auto mb-4" />
+        <p className="text-2xl font-semibold text-body mb-2">Payment Successful</p>
+        <p className="text-base text-dim">Order #{orderDetails?.uniqueId || "N/A"}</p>
       </div>
 
       {/* Two Column Layout */}
@@ -147,31 +147,31 @@ const PaymentSuccessPage: React.FC = () => {
           {/* Order Summary */}
           <InfoPanel icon={<Receipt className="w-5 h-5" />} title="Order Summary">
             {[["Subtotal", `$${(orderDetails?.subTotal || 0).toFixed(2)}`, ""], ["Tax", `$${(orderDetails?.tax || 0).toFixed(2)}`, ""], ["Shipping", `$${(orderDetails?.shippingCost || 0).toFixed(2)}`, ""]].map(([l, v]) => (
-              <div key={l} className="flex justify-between mb-3"><p className="text-sm text-[#666]">{l}</p><p className="text-sm text-[#333]">{v}</p></div>
+              <div key={l} className="flex justify-between mb-3"><p className="text-sm text-dim">{l}</p><p className="text-sm text-body">{v}</p></div>
             ))}
             {(orderDetails?.discount || 0) > 0 && (
-              <div className="flex justify-between mb-3"><p className="text-sm text-[#666]">Discount</p><p className="text-sm text-[#28a745]">-${(orderDetails?.discount || 0).toFixed(2)}</p></div>
+              <div className="flex justify-between mb-3"><p className="text-sm text-dim">Discount</p><p className="text-sm text-success">-${(orderDetails?.discount || 0).toFixed(2)}</p></div>
             )}
-            <hr className="my-4 border-[#f0f0f0]" />
+            <hr className="my-4 border-wash" />
             <div className="flex justify-between">
-              <p className="text-lg font-semibold text-[#333]">Total</p>
-              <p className="text-lg font-semibold text-[#F9A922]">${(orderDetails?.totalAmount || 0).toFixed(2)}</p>
+              <p className="text-lg font-semibold text-body">Total</p>
+              <p className="text-lg font-semibold text-brand">${(orderDetails?.totalAmount || 0).toFixed(2)}</p>
             </div>
           </InfoPanel>
 
           {/* Customer Details */}
           <InfoPanel icon={<User className="w-5 h-5" />} title="Customer Details">
-            <p className="text-sm font-medium text-[#333] mb-2">{orderDetails?.customer?.name || "N/A"}</p>
-            <div className="flex items-center gap-2 mb-2"><Mail className="w-4 h-4 text-[#666]" /><p className="text-sm text-[#666]">{orderDetails?.customer?.email || "N/A"}</p></div>
-            <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-[#666]" /><p className="text-sm text-[#666]">{orderDetails?.customer?.phone || "N/A"}</p></div>
+            <p className="text-sm font-medium text-body mb-2">{orderDetails?.customer?.name || "N/A"}</p>
+            <div className="flex items-center gap-2 mb-2"><Mail className="w-4 h-4 text-dim" /><p className="text-sm text-dim">{orderDetails?.customer?.email || "N/A"}</p></div>
+            <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-dim" /><p className="text-sm text-dim">{orderDetails?.customer?.phone || "N/A"}</p></div>
           </InfoPanel>
 
           {/* Order Status */}
           <InfoPanel icon={<CreditCard className="w-5 h-5" />} title="Order Status">
             <div className="flex gap-3 flex-wrap">
-              <span className="text-sm px-3 py-1 rounded-full bg-[#e3f2fd] text-[#1976d2]">{orderDetails?.orderStatus || "Unknown"}</span>
-              <span className="text-sm px-3 py-1 rounded-full bg-[#e8f5e8] text-[#2e7d32]">{orderDetails?.paymentStatus || "Unknown"}</span>
-              <span className="text-sm px-3 py-1 rounded-full bg-[#fff3e0] text-[#f57c00]">{orderDetails?.paymentMethod || "Unknown"}</span>
+              <span className="text-sm px-3 py-1 rounded-full bg-info-light text-info">{orderDetails?.orderStatus || "Unknown"}</span>
+              <span className="text-sm px-3 py-1 rounded-full bg-success-light text-success">{orderDetails?.paymentStatus || "Unknown"}</span>
+              <span className="text-sm px-3 py-1 rounded-full bg-[#fff3e0] text-warn">{orderDetails?.paymentMethod || "Unknown"}</span>
             </div>
           </InfoPanel>
         </div>
@@ -180,7 +180,7 @@ const PaymentSuccessPage: React.FC = () => {
         <div className="flex-1">
           {/* Shipping Address */}
           <InfoPanel icon={<MapPin className="w-5 h-5" />} title="Shipping Address">
-            <p className="text-sm text-[#666] leading-relaxed">
+            <p className="text-sm text-dim leading-relaxed">
               {orderDetails?.shippingAddress?.street || "N/A"}
               {orderDetails?.shippingAddress?.city && <><br />{orderDetails.shippingAddress.city}{orderDetails?.shippingAddress?.state && `, ${orderDetails.shippingAddress.state}`}{orderDetails?.shippingAddress?.postalCode && ` ${orderDetails.shippingAddress.postalCode}`}</>}
               {orderDetails?.shippingAddress?.country && <><br />{orderDetails.shippingAddress.country}</>}
@@ -190,31 +190,31 @@ const PaymentSuccessPage: React.FC = () => {
           {/* Order Items */}
           <InfoPanel icon={<Truck className="w-5 h-5" />} title="Order Items">
             {orderDetails?.items?.map((item, index) => (
-              <div key={index} className="flex justify-between items-start mb-4 p-4 bg-[#f8f9fa] rounded">
+              <div key={index} className="flex justify-between items-start mb-4 p-4 bg-surface rounded">
                 <div className="flex-1">
-                  <p className="text-sm text-[#333] font-medium mb-1">{item?.product?.name || "N/A"}</p>
-                  <p className="text-xs text-[#666]">Qty: {item?.quantity || 0} × ${((item?.price || 0) / (item?.quantity || 1)).toFixed(2)}</p>
+                  <p className="text-sm text-body font-medium mb-1">{item?.product?.name || "N/A"}</p>
+                  <p className="text-xs text-dim">Qty: {item?.quantity || 0} × ${((item?.price || 0) / (item?.quantity || 1)).toFixed(2)}</p>
                 </div>
-                <p className="text-sm text-[#333] font-medium ml-4">${(item?.price || 0).toFixed(2)}</p>
+                <p className="text-sm text-body font-medium ml-4">${(item?.price || 0).toFixed(2)}</p>
               </div>
-            )) || <p className="text-sm text-[#666]">No items found</p>}
+            )) || <p className="text-sm text-dim">No items found</p>}
           </InfoPanel>
         </div>
       </div>
 
       {/* Action Buttons */}
       <div className="flex gap-4 mb-4 mt-4">
-        <button onClick={() => router.push("/")} className="flex-1 flex items-center justify-center gap-2 border border-[#ddd] text-[#666] hover:border-[#ccc] hover:bg-[#f9f9f9] py-3 text-sm font-medium rounded transition-colors">
+        <button onClick={() => router.push("/")} className="flex-1 flex items-center justify-center gap-2 border border-line-light text-dim hover:border-line-light hover:bg-[#f9f9f9] py-3 text-sm font-medium rounded transition-colors">
           <Home className="w-4 h-4" /> Continue Shopping
         </button>
-        <button onClick={() => router.push("/profile?page=orders")} className="flex-1 flex items-center justify-center gap-2 bg-[#F9A922] hover:bg-[#E8981F] text-white py-3 text-sm font-medium rounded transition-colors">
+        <button onClick={() => router.push("/profile?page=orders")} className="flex-1 flex items-center justify-center gap-2 bg-brand hover:bg-brand-hover text-white py-3 text-sm font-medium rounded transition-colors">
           <ShoppingBag className="w-4 h-4" /> View Orders
         </button>
       </div>
       <button
         onClick={handleDownloadPDF}
         disabled={isGeneratingPDF}
-        className="w-full flex items-center justify-center gap-2 border border-[#F9A922] text-[#F9A922] hover:bg-[rgba(255,107,53,0.04)] disabled:border-[#ccc] disabled:text-[#999] py-3 text-sm font-medium rounded transition-colors"
+        className="w-full flex items-center justify-center gap-2 border border-brand text-brand hover:bg-[rgba(255,107,53,0.04)] disabled:border-line-light disabled:text-faint py-3 text-sm font-medium rounded transition-colors"
       >
         {isGeneratingPDF ? <><Spinner size="sm" /> Generating PDF...</> : <><Download className="w-4 h-4" /> Download Order Receipt</>}
       </button>

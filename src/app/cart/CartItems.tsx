@@ -1,4 +1,4 @@
-import type React from "react";
+﻿import type React from "react";
 import { useState } from "react";
 import { Plus, Minus, Trash2, X, AlertTriangle } from "lucide-react";
 import { useAppStore } from "@/store/use-app-store";
@@ -91,26 +91,26 @@ const CartItems: React.FC<CartItemsProps> = ({ cartItems }) => {
       {confirmationDialog.open && (
         <div className="fixed inset-0 z-[1400] flex items-center justify-center p-4 bg-black/40">
           <div className="bg-white rounded-[8px] shadow-[0_20px_40px_rgba(0,0,0,0.15)] w-full max-w-sm">
-            <div className="flex items-center gap-3 px-6 py-4 border-b border-[#f0f0f0]">
+            <div className="flex items-center gap-3 px-6 py-4 border-b border-wash">
               <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0" />
               <span className="font-semibold text-red-600 text-base">Remove Item from Cart</span>
             </div>
             <div className="px-6 py-4">
-              <p className="text-[#333] text-sm">
+              <p className="text-body text-sm">
                 Are you sure you want to remove <strong>"{confirmationDialog.productName}"</strong> from your cart?
               </p>
             </div>
             <div className="flex justify-end gap-3 px-6 py-3">
               <button
                 onClick={cancelRemoveFromCart}
-                className="border border-[#666] text-[#666] hover:border-[#333] hover:bg-black/5 px-6 py-1.5 text-sm font-medium rounded transition-colors"
+                className="border border-dim text-dim hover:border-body hover:bg-black/5 px-6 py-1.5 text-sm font-medium rounded transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmRemoveFromCart}
                 disabled={removeFromCartMutation.isPending}
-                className="bg-red-600 hover:bg-red-700 disabled:bg-[#ccc] text-white px-6 py-1.5 text-sm font-medium rounded transition-colors"
+                className="bg-red-600 hover:bg-red-700 disabled:bg-line-light text-white px-6 py-1.5 text-sm font-medium rounded transition-colors"
               >
                 {removeFromCartMutation.isPending ? "Removing..." : "Remove"}
               </button>
@@ -127,7 +127,7 @@ const CartItems: React.FC<CartItemsProps> = ({ cartItems }) => {
               {["Item", "Price / Kg", "Quantity", "Subtotal", "Action"].map((h, i) => (
                 <th
                   key={h}
-                  className={`font-semibold text-[#333] text-sm py-3 border-b border-[rgba(234,104,36,1)] bg-transparent ${i === 1 || i === 2 ? "text-center" : i === 3 ? "text-right" : i === 4 ? "text-center" : "text-left"}`}
+                  className={`font-semibold text-body text-sm py-3 border-b border-[rgba(234,104,36,1)] bg-transparent ${i === 1 || i === 2 ? "text-center" : i === 3 ? "text-right" : i === 4 ? "text-center" : "text-left"}`}
                 >
                   {h}
                 </th>
@@ -138,10 +138,10 @@ const CartItems: React.FC<CartItemsProps> = ({ cartItems }) => {
             {cartItems?.map((item) => (
               <tr key={item.product?._id}>
                 {/* Item */}
-                <td className="py-3 bg-[#fafafa] rounded-tl-[20px] rounded-bl-[20px]">
+                <td className="py-3 bg-paper rounded-tl-[20px] rounded-bl-[20px]">
                   <div className="flex items-center gap-4">
                     <div
-                      className="w-[60px] h-[60px] bg-[#ffa500] rounded flex items-center justify-center flex-shrink-0 overflow-hidden cursor-pointer hover:scale-105 transition-transform"
+                      className="w-[60px] h-[60px] bg-brand rounded flex items-center justify-center flex-shrink-0 overflow-hidden cursor-pointer hover:scale-105 transition-transform"
                       onClick={() => item?.product?.bannerImage && handleImageClick(item.product.bannerImage)}
                     >
                       {item?.product?.bannerImage ? (
@@ -151,32 +151,32 @@ const CartItems: React.FC<CartItemsProps> = ({ cartItems }) => {
                       )}
                     </div>
                     <div>
-                      <p className="font-semibold text-[#333] text-sm mb-0.5">{item.productName}</p>
-                      <p className="text-[#666] text-xs">Product ID: {item?.product?.uniqueId || item.product?._id}</p>
+                      <p className="font-semibold text-body text-sm mb-0.5">{item.productName}</p>
+                      <p className="text-dim text-xs">Product ID: {item?.product?.uniqueId || item.product?._id}</p>
                     </div>
                   </div>
                 </td>
 
                 {/* Price */}
-                <td className="py-3 bg-[#fafafa] text-center">
-                  <span className="font-semibold text-[#333] text-sm">${item.productPrice.toFixed(2)}</span>
+                <td className="py-3 bg-paper text-center">
+                  <span className="font-semibold text-body text-sm">${item.productPrice.toFixed(2)}</span>
                 </td>
 
                 {/* Quantity */}
-                <td className="py-3 bg-[#fafafa] text-center">
+                <td className="py-3 bg-paper text-center">
                   <div className="flex items-center justify-center gap-2">
                     <button
                       onClick={() => updateQuantity(item.product._id, item.quantity - 1)}
-                      className="w-6 h-6 border border-[#ddd] rounded-full flex items-center justify-center hover:bg-[#f5f5f5] transition-colors"
+                      className="w-6 h-6 border border-line-light rounded-full flex items-center justify-center hover:bg-paper transition-colors"
                     >
                       <Minus className="w-3 h-3" />
                     </button>
                     <div className="mx-1 text-center min-w-[40px]">
-                      <span className="font-semibold text-[#333] text-sm">{item.quantity}</span>
+                      <span className="font-semibold text-body text-sm">{item.quantity}</span>
                     </div>
                     <button
                       onClick={() => updateQuantity(item.product._id, item.quantity + 1)}
-                      className="w-6 h-6 border border-[#ddd] rounded-full flex items-center justify-center hover:bg-[#f5f5f5] transition-colors"
+                      className="w-6 h-6 border border-line-light rounded-full flex items-center justify-center hover:bg-paper transition-colors"
                     >
                       <Plus className="w-3 h-3" />
                     </button>
@@ -184,12 +184,12 @@ const CartItems: React.FC<CartItemsProps> = ({ cartItems }) => {
                 </td>
 
                 {/* Subtotal */}
-                <td className="py-3 bg-[#fafafa] text-right">
-                  <span className="font-semibold text-[#333] text-sm">${(item.productPrice * item.quantity).toFixed(2)}</span>
+                <td className="py-3 bg-paper text-right">
+                  <span className="font-semibold text-body text-sm">${(item.productPrice * item.quantity).toFixed(2)}</span>
                 </td>
 
                 {/* Action */}
-                <td className="py-3 bg-[#fafafa] text-center rounded-tr-[20px] rounded-br-[20px]">
+                <td className="py-3 bg-paper text-center rounded-tr-[20px] rounded-br-[20px]">
                   <button
                     onClick={() => handleRemoveFromCart(item.product._id, item.productName)}
                     className="text-red-500 hover:bg-red-50 w-8 h-8 flex items-center justify-center rounded-full transition-colors mx-auto"
@@ -204,7 +204,7 @@ const CartItems: React.FC<CartItemsProps> = ({ cartItems }) => {
       </div>
 
       <div className="flex justify-center my-4">
-        <a href="/checkout" className="bg-[#F9A922] hover:bg-[#E8981F] text-white px-8 py-2 text-sm font-semibold rounded transition-colors">
+        <a href="/checkout" className="bg-brand hover:bg-brand-hover text-white px-8 py-2 text-sm font-semibold rounded transition-colors">
           CheckOut
         </a>
       </div>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { X, Headphones, MessageCircle, Mail, Phone } from "lucide-react";
@@ -34,22 +34,22 @@ const ContactSupportModal: React.FC<ContactSupportModalProps> = ({ open, onClose
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-[600px] p-0 overflow-hidden rounded-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-[#e0e0e0] bg-[#f8f9fa]">
+        <div className="flex items-center justify-between p-6 border-b border-line-light bg-surface">
           <div className="flex items-center gap-3">
-            <Headphones className="w-7 h-7 text-[#F9A922]" />
+            <Headphones className="w-7 h-7 text-brand" />
             <div>
-              <h2 className="text-xl font-semibold text-[#1a365d]">Contact Support</h2>
-              <p className="text-sm text-[#737791]">We're here to help you</p>
+              <h2 className="text-xl font-semibold text-heading">Contact Support</h2>
+              <p className="text-sm text-soft">We're here to help you</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-[#666] hover:bg-black/5 rounded-full p-1.5 transition-colors">
+          <button onClick={onClose} className="text-dim hover:bg-black/5 rounded-full p-1.5 transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content */}
         <div className="p-6 overflow-y-auto">
-          <p className="text-[#737791] text-center mb-6">Choose your preferred way to get in touch with our support team</p>
+          <p className="text-soft text-center mb-6">Choose your preferred way to get in touch with our support team</p>
 
           <div className="flex flex-col gap-3 mb-6">
             {/* WhatsApp */}
@@ -60,41 +60,41 @@ const ContactSupportModal: React.FC<ContactSupportModalProps> = ({ open, onClose
               <MessageCircle className="w-6 h-6 flex-shrink-0 text-[#25D366]" />
               <div>
                 <p className="font-semibold text-base">WhatsApp Support</p>
-                <p className="text-sm text-[#737791]">Get instant help via WhatsApp</p>
+                <p className="text-sm text-soft">Get instant help via WhatsApp</p>
               </div>
             </button>
 
             {/* Email */}
             <button
               onClick={handleEmailClick}
-              className="w-full flex items-center gap-4 p-4 border border-[#F9A922] text-[#F9A922] rounded-xl hover:bg-[rgba(249,169,34,0.04)] transition-colors text-left"
+              className="w-full flex items-center gap-4 p-4 border border-brand text-brand rounded-xl hover:bg-[rgba(249,169,34,0.04)] transition-colors text-left"
             >
-              <Mail className="w-6 h-6 flex-shrink-0 text-[#F9A922]" />
+              <Mail className="w-6 h-6 flex-shrink-0 text-brand" />
               <div>
                 <p className="font-semibold text-base">Email Support</p>
-                <p className="text-sm text-[#737791]">Send us an email and we'll respond within 24 hours</p>
+                <p className="text-sm text-soft">Send us an email and we'll respond within 24 hours</p>
               </div>
             </button>
 
             {/* Phone */}
             <button
               onClick={handlePhoneClick}
-              className="w-full flex items-center gap-4 p-4 border border-[#4CAF50] text-[#4CAF50] rounded-xl hover:bg-[rgba(76,175,80,0.04)] transition-colors text-left"
+              className="w-full flex items-center gap-4 p-4 border border-success text-success rounded-xl hover:bg-[rgba(76,175,80,0.04)] transition-colors text-left"
             >
-              <Phone className="w-6 h-6 flex-shrink-0 text-[#4CAF50]" />
+              <Phone className="w-6 h-6 flex-shrink-0 text-success" />
               <div>
                 <p className="font-semibold text-base">Phone Support</p>
-                <p className="text-sm text-[#737791]">Call us directly for immediate assistance</p>
+                <p className="text-sm text-soft">Call us directly for immediate assistance</p>
               </div>
             </button>
           </div>
 
           {/* Business Hours */}
-          <div className="bg-[#f8f9fa] rounded-xl p-6 text-center">
-            <p className="text-sm text-[#737791] mb-2">Business Hours</p>
-            <p className="font-semibold text-[#F9A922]">Monday - Friday: 9:00 AM - 6:00 PM</p>
-            <p className="text-sm text-[#737791]">Saturday: 10:00 AM - 4:00 PM</p>
-            <p className="text-sm text-[#737791]">Sunday: Closed</p>
+          <div className="bg-surface rounded-xl p-6 text-center">
+            <p className="text-sm text-soft mb-2">Business Hours</p>
+            <p className="font-semibold text-brand">Monday - Friday: 9:00 AM - 6:00 PM</p>
+            <p className="text-sm text-soft">Saturday: 10:00 AM - 4:00 PM</p>
+            <p className="text-sm text-soft">Sunday: Closed</p>
           </div>
         </div>
       </DialogContent>

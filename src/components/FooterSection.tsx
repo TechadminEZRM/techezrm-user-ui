@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+﻿/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
 import React from "react"
@@ -97,7 +97,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ onSuccess, onError }) => {
         />
         <button
           type="submit"
-          className="bg-white text-[#F9A922] font-semibold py-3 px-6 rounded-lg text-[0.95rem] hover:bg-white/90 transition-colors"
+          className="bg-white text-brand font-semibold py-3 px-6 rounded-lg text-[0.95rem] hover:bg-white/90 transition-colors"
         >
           Send Message
         </button>
@@ -119,7 +119,7 @@ const FooterSection: React.FC = () => {
 
   return (
     <div
-      style={{ background: "linear-gradient(135deg, #F9A922 0%, #E8981F 100%)" }}
+      style={{ background: "linear-gradient(135deg, var(--color-brand) 0%, var(--color-brand-hover) 100%)" }}
       className="rounded-b-[20px] py-8 md:py-12 px-4 md:px-8 w-full"
     >
       <div className="px-0">

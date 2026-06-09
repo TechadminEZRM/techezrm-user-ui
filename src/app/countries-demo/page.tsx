@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { Search, Globe, Phone, MapPin } from "lucide-react";
@@ -58,7 +58,7 @@ const CountriesDemoPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-semibold text-[#333] mb-8">Countries API Demo</h1>
+      <h1 className="text-2xl font-semibold text-body mb-8">Countries API Demo</h1>
 
       {/* API Status */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8 text-sm text-blue-800">
@@ -70,9 +70,9 @@ const CountriesDemoPage: React.FC = () => {
       {/* Component Demos */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
         {/* Country Select Demo */}
-        <div className="bg-white border border-[#e0e0e0] rounded-lg p-6 h-full">
-          <h2 className="text-base font-semibold text-[#333] mb-4 flex items-center gap-2">
-            <Globe className="w-5 h-5 text-[#F9A922]" />
+        <div className="bg-white border border-line-light rounded-lg p-6 h-full">
+          <h2 className="text-base font-semibold text-body mb-4 flex items-center gap-2">
+            <Globe className="w-5 h-5 text-brand" />
             Country Select Component
           </h2>
           <CountrySelect
@@ -85,14 +85,14 @@ const CountriesDemoPage: React.FC = () => {
             showContinent={true}
           />
           {selectedCountry && (
-            <p className="mt-4 text-sm text-[#666]">Selected: {selectedCountry}</p>
+            <p className="mt-4 text-sm text-dim">Selected: {selectedCountry}</p>
           )}
         </div>
 
         {/* Phone Number Input Demo */}
-        <div className="bg-white border border-[#e0e0e0] rounded-lg p-6 h-full">
-          <h2 className="text-base font-semibold text-[#333] mb-4 flex items-center gap-2">
-            <Phone className="w-5 h-5 text-[#F9A922]" />
+        <div className="bg-white border border-line-light rounded-lg p-6 h-full">
+          <h2 className="text-base font-semibold text-body mb-4 flex items-center gap-2">
+            <Phone className="w-5 h-5 text-brand" />
             Phone Number Input Component
           </h2>
           <PhoneNumberInput
@@ -103,7 +103,7 @@ const CountriesDemoPage: React.FC = () => {
             defaultCountryCode="IN"
           />
           {phoneNumber && (
-            <p className="mt-4 text-sm text-[#666]">
+            <p className="mt-4 text-sm text-dim">
               Number: {phoneCode} {phoneNumber}<br />
               Country Code: {phoneCountryCode}
             </p>
@@ -112,15 +112,15 @@ const CountriesDemoPage: React.FC = () => {
       </div>
 
       {/* Search and Filter */}
-      <div className="bg-white border border-[#e0e0e0] rounded-lg p-6 mb-8">
-        <h2 className="text-base font-semibold text-[#333] mb-4 flex items-center gap-2">
-          <Search className="w-5 h-5 text-[#F9A922]" />
+      <div className="bg-white border border-line-light rounded-lg p-6 mb-8">
+        <h2 className="text-base font-semibold text-body mb-4 flex items-center gap-2">
+          <Search className="w-5 h-5 text-brand" />
           Search & Filter Countries
         </h2>
         <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#666]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dim" />
           <input
-            className="w-full border border-[#e0e0e0] rounded pl-9 pr-3 py-2 text-sm text-[#333] placeholder:text-[#999] focus:outline-none focus:border-[#F9A922] transition-colors"
+            className="w-full border border-line-light rounded pl-9 pr-3 py-2 text-sm text-body placeholder:text-faint focus:outline-none focus:border-brand transition-colors"
             placeholder="Search countries by name, continent, or currency..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -131,7 +131,7 @@ const CountriesDemoPage: React.FC = () => {
             <button
               key={continent}
               onClick={() => setSearchQuery(continent)}
-              className={`text-xs px-3 py-1 rounded-full border transition-colors ${searchQuery === continent ? "bg-[#F9A922] border-[#F9A922] text-white" : "border-[#e0e0e0] text-[#555] hover:border-[#F9A922] hover:text-[#F9A922]"}`}
+              className={`text-xs px-3 py-1 rounded-full border transition-colors ${searchQuery === continent ? "bg-brand border-brand text-white" : "border-line-light text-dim hover:border-brand hover:text-brand"}`}
             >
               {continent}
             </button>
@@ -140,9 +140,9 @@ const CountriesDemoPage: React.FC = () => {
       </div>
 
       {/* Countries List */}
-      <div className="bg-white border border-[#e0e0e0] rounded-lg p-6">
-        <h2 className="text-base font-semibold text-[#333] mb-4 flex items-center gap-2">
-          <MapPin className="w-5 h-5 text-[#F9A922]" />
+      <div className="bg-white border border-line-light rounded-lg p-6">
+        <h2 className="text-base font-semibold text-body mb-4 flex items-center gap-2">
+          <MapPin className="w-5 h-5 text-brand" />
           Countries List ({filteredCountries.length} results)
         </h2>
 
@@ -155,16 +155,16 @@ const CountriesDemoPage: React.FC = () => {
             {filteredCountries.map((country) => (
               <div
                 key={country.countryCode}
-                className="border border-[#e0e0e0] rounded-lg p-3 h-full hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 transition-all"
+                className="border border-line-light rounded-lg p-3 h-full hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 transition-all"
               >
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-[1.5rem]">{country.emoji}</span>
-                  <span className="text-sm font-semibold text-[#333]">{country.name}</span>
+                  <span className="text-sm font-semibold text-body">{country.name}</span>
                 </div>
-                <p className="text-xs text-[#666] mb-2">{country.continent}</p>
+                <p className="text-xs text-dim mb-2">{country.continent}</p>
                 <div className="flex gap-1 flex-wrap">
-                  <span className="text-[0.7rem] border border-[#e0e0e0] rounded-full px-2 py-0.5 text-[#555]">{country.phoneCode}</span>
-                  <span className="text-[0.7rem] border border-[#e0e0e0] rounded-full px-2 py-0.5 text-[#555]">{country.currency}</span>
+                  <span className="text-[0.7rem] border border-line-light rounded-full px-2 py-0.5 text-dim">{country.phoneCode}</span>
+                  <span className="text-[0.7rem] border border-line-light rounded-full px-2 py-0.5 text-dim">{country.currency}</span>
                 </div>
               </div>
             ))}
@@ -173,7 +173,7 @@ const CountriesDemoPage: React.FC = () => {
 
         {filteredCountries.length === 0 && !loading && (
           <div className="text-center py-8">
-            <p className="text-sm text-[#666]">No countries found matching your search criteria.</p>
+            <p className="text-sm text-dim">No countries found matching your search criteria.</p>
           </div>
         )}
       </div>

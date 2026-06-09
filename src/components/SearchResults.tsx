@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import { Tag, LayoutGrid, Search } from "lucide-react";
@@ -58,7 +58,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   if (loading) {
     return (
       <div className="p-6 text-center">
-        <p className="text-lg text-[#666]">Searching...</p>
+        <p className="text-lg text-dim">Searching...</p>
       </div>
     );
   }
@@ -69,8 +69,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     <div className="p-6">
       {/* Search Header */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold text-[#333] mb-1">Search Results --</h2>
-        <p className="text-[#666] mb-4">
+        <h2 className="text-xl font-semibold text-body mb-1">Search Results --</h2>
+        <p className="text-dim mb-4">
           {hasResults ? (
             <>Found {totalProducts + totalCategories} results for "<strong>{searchQuery}</strong>"</>
           ) : (
@@ -81,7 +81,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         {hasResults && (
           <div className="flex flex-wrap gap-2">
             {totalProducts > 0 && (
-              <span className="flex items-center gap-1.5 text-sm border border-[#F9A922] text-[#F9A922] px-3 py-1 rounded-full">
+              <span className="flex items-center gap-1.5 text-sm border border-brand text-brand px-3 py-1 rounded-full">
                 <Tag className="w-4 h-4" />
                 {totalProducts} Products
               </span>
@@ -98,15 +98,15 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 
       {!hasResults ? (
         /* No Results */
-        <div className="p-12 text-center bg-[#f8f9fa] border-2 border-dashed border-[#e0e0e0] rounded-xl">
-          <Search className="w-16 h-16 text-[#c0c0c0] mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-[#666] mb-3">No products or categories found</h3>
-          <p className="text-sm text-[#999] mb-6 max-w-sm mx-auto">
+        <div className="p-12 text-center bg-surface border-2 border-dashed border-line-light rounded-xl">
+          <Search className="w-16 h-16 text-line-light mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-dim mb-3">No products or categories found</h3>
+          <p className="text-sm text-faint mb-6 max-w-sm mx-auto">
             Try adjusting your search terms or browse our categories to find what you're looking for.
           </p>
           <button
             onClick={() => router.push("/product")}
-            className="border border-[#F9A922] text-[#F9A922] px-6 py-2 rounded-lg text-sm font-medium hover:bg-[rgba(249,169,34,0.04)] hover:border-[#E8981F] transition-colors"
+            className="border border-brand text-brand px-6 py-2 rounded-lg text-sm font-medium hover:bg-[rgba(249,169,34,0.04)] hover:border-brand-hover transition-colors"
           >
             Browse All Products
           </button>
@@ -116,32 +116,32 @@ const SearchResults: React.FC<SearchResultsProps> = ({
           {/* Categories Section */}
           {categories.length > 0 && (
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-[#333] mb-4">Categories</h3>
+              <h3 className="text-lg font-semibold text-body mb-4">Categories</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {categories.map((category) => (
                   <div
                     key={category._id}
                     onClick={() => handleCategoryClick(category.slug)}
-                    className="cursor-pointer border border-[#e0e0e0] rounded-lg p-4 hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 hover:border-[#F9A922] transition-all"
+                    className="cursor-pointer border border-line-light rounded-lg p-4 hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 hover:border-brand transition-all"
                   >
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-full bg-[#F9A922] flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-brand flex items-center justify-center flex-shrink-0">
                         <LayoutGrid className="w-5 h-5 text-white" />
                       </div>
-                      <h4 className="text-base font-semibold text-[#333]">{category.name}</h4>
+                      <h4 className="text-base font-semibold text-body">{category.name}</h4>
                     </div>
-                    <p className="text-sm text-[#666]">{category.description}</p>
+                    <p className="text-sm text-dim">{category.description}</p>
                   </div>
                 ))}
               </div>
-              <hr className="border-[#e0e0e0] mt-8 mb-8" />
+              <hr className="border-line-light mt-8 mb-8" />
             </div>
           )}
 
           {/* Products Section */}
           {products.length > 0 && (
             <div>
-              <h3 className="text-lg font-semibold text-[#333] mb-4">Products</h3>
+              <h3 className="text-lg font-semibold text-body mb-4">Products</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {products.map((product) => (
                   <ProductCard

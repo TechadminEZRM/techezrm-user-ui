@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useRef } from "react";
 import { ChevronDown } from "lucide-react";
@@ -114,7 +114,7 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
   return (
     <div ref={containerRef} className={`relative ${fullWidth ? "w-full" : ""}`}>
       {label && (
-        <label className="block text-sm font-medium text-[#1F2A44] mb-1">
+        <label className="block text-sm font-medium text-heading mb-1">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
@@ -126,32 +126,32 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
           onFocus={() => setOpen(true)}
           disabled={disabled}
           placeholder={placeholder}
-          className={`flex ${inputHeight} w-full rounded-lg border pr-10 pl-4 py-2 text-sm text-[#1F2A44] placeholder:text-[#737791] focus:outline-none focus:ring-2 focus:ring-[#F9A922] focus:border-[#F9A922] disabled:bg-gray-100 disabled:cursor-not-allowed ${error ? "border-red-500" : "border-[#e0e0e0]"} bg-white`}
+          className={`flex ${inputHeight} w-full rounded-lg border pr-10 pl-4 py-2 text-sm text-heading placeholder:text-soft focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand disabled:bg-gray-100 disabled:cursor-not-allowed ${error ? "border-red-500" : "border-line-light"} bg-white`}
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-          {loading ? <Spinner size="sm" /> : <ChevronDown className="w-4 h-4 text-[#737791]" />}
+          {loading ? <Spinner size="sm" /> : <ChevronDown className="w-4 h-4 text-soft" />}
         </div>
       </div>
 
       {open && !loading && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-[#e0e0e0] rounded-xl shadow-lg max-h-60 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-1 bg-white border border-line-light rounded-xl shadow-lg max-h-60 overflow-y-auto">
           {filtered.length === 0 ? (
-            <div className="px-4 py-3 text-sm text-[#737791]">No countries found</div>
+            <div className="px-4 py-3 text-sm text-soft">No countries found</div>
           ) : (
             filtered.map((country) => (
               <button
                 key={country.countryCode}
                 type="button"
                 onMouseDown={() => handleSelect(country)}
-                className="w-full flex items-start gap-3 px-4 py-2.5 hover:bg-[#FFFAF1] transition-colors text-left"
+                className="w-full flex items-start gap-3 px-4 py-2.5 hover:bg-brand-light transition-colors text-left"
               >
                 <span className="text-xl leading-none mt-0.5">{country.emoji}</span>
                 <div>
-                  <p className="text-sm font-medium text-[#1F2A44]">{country.name}</p>
+                  <p className="text-sm font-medium text-heading">{country.name}</p>
                   <div className="flex gap-2 mt-0.5 flex-wrap">
-                    {showPhoneCode && <span className="text-[10px] border border-[#e0e0e0] rounded px-1.5 py-px text-[#737791]">{country.phoneCode}</span>}
-                    {showCurrency && <span className="text-[10px] border border-[#e0e0e0] rounded px-1.5 py-px text-[#737791]">{country.currency}</span>}
-                    {showContinent && <span className="text-[10px] border border-[#e0e0e0] rounded px-1.5 py-px text-[#737791]">{country.continent}</span>}
+                    {showPhoneCode && <span className="text-[10px] border border-line-light rounded px-1.5 py-px text-soft">{country.phoneCode}</span>}
+                    {showCurrency && <span className="text-[10px] border border-line-light rounded px-1.5 py-px text-soft">{country.currency}</span>}
+                    {showContinent && <span className="text-[10px] border border-line-light rounded px-1.5 py-px text-soft">{country.continent}</span>}
                   </div>
                 </div>
               </button>
@@ -161,7 +161,7 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
       )}
 
       {helperText && (
-        <p className={`text-xs mt-1 ${error ? "text-red-500" : "text-[#737791]"}`}>{helperText}</p>
+        <p className={`text-xs mt-1 ${error ? "text-red-500" : "text-soft"}`}>{helperText}</p>
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type React from "react";
 import { useState } from "react";
@@ -16,8 +16,8 @@ interface RFQModalProps {
   onError?: (error: string) => void;
 }
 
-const inputClass = "flex h-8 w-full border-0 border-b border-[#e0e0e0] bg-transparent px-0 py-1.5 text-sm text-[#333] placeholder:text-[#999] focus:outline-none focus:border-[#333] transition-colors";
-const selectClass = "flex h-8 w-full border-0 border-b border-[#e0e0e0] bg-transparent px-0 py-1.5 text-sm text-[#333] focus:outline-none focus:border-[#333] appearance-none transition-colors";
+const inputClass = "flex h-8 w-full border-0 border-b border-line-light bg-transparent px-0 py-1.5 text-sm text-body placeholder:text-faint focus:outline-none focus:border-body transition-colors";
+const selectClass = "flex h-8 w-full border-0 border-b border-line-light bg-transparent px-0 py-1.5 text-sm text-body focus:outline-none focus:border-body appearance-none transition-colors";
 
 const countryCodeOptions = [
   { value: "+1", label: "🇺🇸 +1" }, { value: "+44", label: "🇬🇧 +44" }, { value: "+91", label: "🇮🇳 +91" },
@@ -90,15 +90,15 @@ const RFQModal: React.FC<RFQModalProps> = ({ open, onClose, productId, productNa
   };
 
   const FieldLabel = ({ req, children }: { req?: boolean; children: React.ReactNode }) => (
-    <p className="text-sm font-medium text-[#333] mb-2">{req && <span className="text-red-600">*</span>} {children}</p>
+    <p className="text-sm font-medium text-body mb-2">{req && <span className="text-red-600">*</span>} {children}</p>
   );
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl p-0 rounded-none border border-[#e0e0e0] shadow-none">
+      <DialogContent className="max-w-3xl p-0 rounded-none border border-line-light shadow-none">
         {/* Header */}
         <div
-          className="flex justify-between items-center p-6 border-b border-[#e0e0e0]"
+          className="flex justify-between items-center p-6 border-b border-line-light"
           style={{ background: "linear-gradient(135deg, rgba(245,138,78,1) 0%, rgba(241,106,60,1) 100%)" }}
         >
           <div>
@@ -110,7 +110,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ open, onClose, productId, productNa
           </button>
         </div>
 
-        <div className="p-8 bg-[#fafafa] overflow-y-auto max-h-[80vh]">
+        <div className="p-8 bg-paper overflow-y-auto max-h-[80vh]">
           {submitRFQMutation.isError && (
             <div className="bg-red-50 text-red-700 p-3 rounded mb-6 text-sm border border-red-200">Failed to submit RFQ. Please try again.</div>
           )}
@@ -229,14 +229,14 @@ const RFQModal: React.FC<RFQModalProps> = ({ open, onClose, productId, productNa
             </div>
 
             {/* Call Header */}
-            <p className="text-base font-semibold text-[#333] text-center">Would you be available for a call at your earliest convenience?</p>
+            <p className="text-base font-semibold text-body text-center">Would you be available for a call at your earliest convenience?</p>
 
             {/* Description */}
             <div>
               <FieldLabel req>Description</FieldLabel>
               <textarea
                 rows={4}
-                className="w-full border-b border-[#e0e0e0] bg-transparent text-sm text-[#333] placeholder:text-[#999] focus:outline-none focus:border-[#333] py-2 resize-none"
+                className="w-full border-b border-line-light bg-transparent text-sm text-body placeholder:text-faint focus:outline-none focus:border-body py-2 resize-none"
                 placeholder="Please describe your requirements in detail..."
                 value={formData.description}
                 onChange={(e) => handleInputChange("description", e.target.value)}
@@ -249,7 +249,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ open, onClose, productId, productNa
               <FieldLabel>Additional Requirements</FieldLabel>
               <textarea
                 rows={4}
-                className="w-full border-b border-[#e0e0e0] bg-transparent text-sm text-[#333] placeholder:text-[#999] focus:outline-none focus:border-[#333] py-2 resize-none"
+                className="w-full border-b border-line-light bg-transparent text-sm text-body placeholder:text-faint focus:outline-none focus:border-body py-2 resize-none"
                 placeholder="Any specific requirements or details..."
                 value={formData.additionalRequirements}
                 onChange={(e) => handleInputChange("additionalRequirements", e.target.value)}
@@ -261,7 +261,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ open, onClose, productId, productNa
               <button
                 type="submit"
                 disabled={submitRFQMutation.isPending}
-                className="min-w-[200px] flex items-center justify-center gap-2 text-white font-semibold text-base px-8 py-3 rounded disabled:bg-[#ccc] transition-all"
+                className="min-w-[200px] flex items-center justify-center gap-2 text-white font-semibold text-base px-8 py-3 rounded disabled:bg-line-light transition-all"
                 style={{ background: submitRFQMutation.isPending ? undefined : "linear-gradient(135deg, rgba(245,138,78,1) 0%, rgba(241,106,60,1) 100%)" }}
               >
                 {submitRFQMutation.isPending ? <><Spinner size="sm" className="border-white border-t-transparent" /> Submitting...</> : "Submit RFQ"}
@@ -270,8 +270,8 @@ const RFQModal: React.FC<RFQModalProps> = ({ open, onClose, productId, productNa
           </form>
         </div>
 
-        <div className="bg-[#f8f9fa] border-t border-[#e0e0e0] p-4 text-center">
-          <p className="text-xs text-[#666]">Your information is secure and confidential</p>
+        <div className="bg-surface border-t border-line-light p-4 text-center">
+          <p className="text-xs text-dim">Your information is secure and confidential</p>
         </div>
       </DialogContent>
     </Dialog>
